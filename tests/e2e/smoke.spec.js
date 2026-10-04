@@ -28,7 +28,10 @@ function expectNoConsoleErrors(errors) {
 /* Детерминированное завершение онбординга по реальному сценарию onboarding.js */
 async function completeOnboarding(page) {
   const overlay = page.locator(ONBOARDING_OVERLAY).first();
-  if (!(await overlay.isVisible().catch(() => false))) return;
+  // isVisible() не ждёт: онбординг рисуется асинхронно, без ожидания тест «проскакивал» его,
+  // и оверлей потом перехватывал клики (плавающее падение навигационного теста)
+  const shown = await overlay.waitFor({ state: 'visible', timeout: 5000 }).then(() => true).catch(() => false);
+  if (!shown) return;
 
   const skip = page.locator('#ob-skip');
   if (await skip.isVisible().catch(() => false)) {
@@ -40,6 +43,8 @@ async function completeOnboarding(page) {
   await page.locator('#ob-finish').click();        // сохранить и закрыть
 
   await expect(overlay).toBeHidden({ timeout: 5000 });
+  // первая загрузка: пока засеивается контент, экран закрыт индикатором #seed-progress
+  await expect(page.locator('#seed-progress')).toBeHidden({ timeout: 20000 });
   await page.waitForTimeout(300); // даём applyOnboarding дорисовать навигацию
 }
 

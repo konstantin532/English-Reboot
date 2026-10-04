@@ -62,7 +62,9 @@ const Onboarding = (() => {
   function renderWelcome() {
     container().innerHTML = `
       <div class="onboarding-overlay">
-        <div class="onboarding-card">
+        <div class="onboarding-card ob-welcome">
+          <div class="ob-lines" aria-hidden="true">${[['G','#0039A6'],['P','#FF6319'],['C','#6CBE45'],['I','#B933AD'],['T','#EE352E'],['S','#FCCC0A','#111'],['M','#996633'],['R','#00933C']]
+            .map(([g, c, ink]) => `<span class="line-bullet" style="--line:${c};--line-ink:${ink || '#fff'}"><span>${g}</span></span>`).join('')}</div>
           <h1>English Reboot</h1>
           <p>Давай определим твой уровень английского.</p>
           <p>20 вопросов займут ~5 минут. Без оценки — просто стартовая точка.</p>

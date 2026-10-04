@@ -1,146 +1,160 @@
 import { describe, it, expect } from 'vitest';
 import '../js/srs.js'; // побочный импорт: classic-script файл сам публикует globalThis.SRS
 
-const { SRS_CONFIG, computeNextState, getNextInterval, storeForCard } = globalThis.SRS;
+const { SRS_CONFIG, FSRS, computeNextState, retrievability, gradeOf, storeForCard } = globalThis.SRS;
 
-const TODAY = '2025-06-01';
+const TODAY = '2026-01-01';
+// rand: () => 0.5 отключает случайный fuzz: 1 + (0.5*2-1)*0.15 = ровно 1.0
+const opts = (over = {}) => ({ today: TODAY, rand: () => 0.5, answerTime: 6, ...over });
+const dayDiff = (from, to) => Math.round((Date.parse(to) - Date.parse(from)) / 86400000);
 
-// rand: () => 0.5 отключает случайный fuzz: fuzz = 1 + (0.5*2-1)*0.15 = ровно 1.0
-const opts = (over = {}) => ({ today: TODAY, rand: () => 0.5, ...over });
-
-const dayDiff = (from, to) => Math.round((new Date(to) - new Date(from)) / 86400000);
-
-function makePrev(over = {}) {
-  return {
-    cardId: 'g1', storeName: 'grammar_cards', status: 'reviewing',
-    stage: 1, ease: 2.5, errorCount: 0, knownCount: 0,
-    lapseCount: 0, lapseReviews: 0, lastAnswerTime: null,
-    lastReview: '2025-05-01', nextReview: TODAY,
-    createdAt: '2025-05-01', mark: 'know',
-    ...over,
-  };
+// Прогон последовательности ответов: каждый следующий — в день, когда карточка due
+function play(actions, first = TODAY) {
+  let rec = null, today = first;
+  const log = [];
+  for (const a of actions) {
+    const action = a === 'easy' ? 'know' : a;
+    const res = computeNextState(rec, action, opts({ today, cardId: 'g1', answerTime: a === 'easy' ? 2 : 6 }));
+    rec = res.rec;
+    log.push({ interval: dayDiff(today, rec.nextReview), rec, logError: res.logError });
+    today = rec.nextReview;
+  }
+  return log;
 }
 
-describe('SRS: новая карточка', () => {
-  it("'know' → этап 1, статус learning, повтор ровно через 1 день", () => {
+describe('FSRS: шкала оценок', () => {
+  it('know/hard/dontknow → Good/Hard/Again, быстрый «Знаю» (< 3 с) → Easy', () => {
+    expect(gradeOf('dontknow')).toBe(1);
+    expect(gradeOf('hard')).toBe(2);
+    expect(gradeOf('know', 6)).toBe(3);
+    expect(gradeOf('know', 2)).toBe(4);
+    expect(gradeOf('что-то странное')).toBe(1);
+  });
+});
+
+describe('FSRS: новая карточка', () => {
+  it("'know' → learning, шаг обучения 1 день, стабильность и сложность заданы", () => {
     const { rec, isNew, logError } = computeNextState(null, 'know', opts({ cardId: 'g1' }));
     expect(isNew).toBe(true);
     expect(logError).toBe(false);
-    expect(rec.stage).toBe(1);
     expect(rec.status).toBe('learning');
-    expect(rec.ease).toBe(SRS_CONFIG.easeDefault); // 2.5
     expect(dayDiff(TODAY, rec.nextReview)).toBe(1);
+    expect(rec.stability).toBeCloseTo(FSRS.w[2]);
+    expect(rec.difficulty).toBeGreaterThanOrEqual(1);
+    expect(rec.difficulty).toBeLessThanOrEqual(10);
   });
 
-  it("'dontknow' → lapse, повтор сегодня, ease снижен, идёт в журнал ошибок", () => {
+  it("'dontknow' → lapsed, повтор сегодня, идёт в журнал ошибок", () => {
     const { rec, logError } = computeNextState(null, 'dontknow', opts({ cardId: 'g1' }));
     expect(rec.status).toBe('lapsed');
-    expect(rec.stage).toBe(1);
     expect(rec.nextReview).toBe(TODAY);
-    expect(rec.ease).toBeCloseTo(SRS_CONFIG.easeDefault - SRS_CONFIG.easePenalty);
     expect(rec.errorCount).toBe(1);
     expect(logError).toBe(true);
   });
-});
 
-describe('SRS: серия правильных ответов', () => {
-  it('базовая лестница этапов — ровно 1→3→7→14→30→90 (как в README)', () => {
-    expect([1, 2, 3, 4, 5, 6].map(getNextInterval)).toEqual([1, 3, 7, 14, 30, 90]);
-  });
-
-  it('этап идёт 1→2→3→4→5→6 и залипает на 6 (cap по ЭТАПУ)', () => {
-    let prev = null;
-    const stages = [];
-    for (let i = 0; i < 8; i++) {
-      const plan = computeNextState(prev, 'know', opts({ cardId: 'g1' }));
-      prev = plan.rec;
-      stages.push(prev.stage);
-    }
-    expect(stages).toEqual([1, 2, 3, 4, 5, 6, 6, 6]);
-    expect(prev.status).toBe('mastered');
-  });
-
-  it('ФАКТИЧЕСКОЕ ПОВЕДЕНИЕ — расходится с README: дни интервала ≠ 1→3→7→14→30→90', () => {
-    // README: цепочка 1→3→7→14→30→90. В коде это БАЗА этапа, из которой
-    // реальный интервал = база × ease (2.5→3.0) × скорость ответа (0.8–1.2) × fuzz (±15%).
-    // Cap стоит на этапе (maxStage 6), а не на днях: на 6-м этапе дни могут быть > 90.
-    // Логику НЕ меняем — фиксируем факт. Подробности — в README раздел «Тесты и CI».
-    let prev = null;
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const plan = computeNextState(prev, 'know', opts({ cardId: 'g1' }));
-      days.push(dayDiff(TODAY, plan.rec.nextReview));
-      prev = plan.rec;
-    }
-    expect(days).toEqual([1, 8, 19, 39, 87, 270, 270]);
-  });
-
-  it('fuzz ±15%: интервал гуляет по коридору', () => {
-    const prev = makePrev({ stage: 1, ease: 2.5, status: 'reviewing' });
-    const hi = computeNextState(prev, 'know', opts({ rand: () => 1 }));
-    const lo = computeNextState(prev, 'know', opts({ rand: () => 0 }));
-    expect(dayDiff(TODAY, hi.rec.nextReview)).toBe(9);  // round(3 × 2.6 × 1.15)
-    expect(dayDiff(TODAY, lo.rec.nextReview)).toBe(7);  // round(3 × 2.6 × 0.85)
+  it('быстрый «Знаю» сразу даёт длинный интервал (Easy)', () => {
+    const { rec } = computeNextState(null, 'know', opts({ cardId: 'g1', answerTime: 2 }));
+    expect(dayDiff(TODAY, rec.nextReview)).toBeGreaterThan(7);
   });
 });
 
-describe('SRS: провал и «сложно»', () => {
-  it("'dontknow' возвращает карточку на этап 1, статус lapsed, повтор СЕГОДНЯ", () => {
-    const prev = makePrev({ stage: 4, status: 'reviewing', lapseCount: 0 });
-    const { rec, logError } = computeNextState(prev, 'dontknow', opts());
-    expect(rec.stage).toBe(1);
+describe('FSRS: серия правильных ответов', () => {
+  it('интервалы растут монотонно и быстро (1 → неделя → месяц → квартал)', () => {
+    const iv = play(['know', 'know', 'know', 'know', 'know']).map((x) => x.interval);
+    for (let i = 1; i < iv.length; i++) expect(iv[i]).toBeGreaterThan(iv[i - 1]);
+    expect(iv[0]).toBe(1);
+    expect(iv[2]).toBeGreaterThanOrEqual(14);
+    expect(iv[4]).toBeGreaterThanOrEqual(90);
+  });
+
+  it('карточка становится «Изучено», когда стабильность ≥ 90 дней', () => {
+    const log = play(['know', 'know', 'know', 'know', 'know']);
+    const last = log[log.length - 1].rec;
+    expect(last.stability).toBeGreaterThanOrEqual(FSRS.masteredAt);
+    expect(last.status).toBe('mastered');
+  });
+
+  it('интервал ограничен 5 годами', () => {
+    const log = play(['easy', 'easy', 'easy', 'easy', 'easy']);
+    for (const x of log) expect(x.interval).toBeLessThanOrEqual(FSRS.maxInterval);
+  });
+
+  it('fuzz ±15% только для интервалов от 3 дней', () => {
+    const prev = play(['know', 'know'])[1].rec; // due через неделю
+    const at = (r) => computeNextState(prev, 'know', opts({ today: prev.nextReview, rand: () => r })).rec.nextReview;
+    const lo = dayDiff(prev.nextReview, at(0)), mid = dayDiff(prev.nextReview, at(0.5)), hi = dayDiff(prev.nextReview, at(0.999));
+    expect(lo).toBeLessThanOrEqual(mid);
+    expect(hi).toBeGreaterThanOrEqual(mid);
+    expect(hi / mid).toBeLessThanOrEqual(1.16);
+  });
+});
+
+describe('FSRS: «Сложно» и провал', () => {
+  it("'hard' растит интервал медленнее, чем 'know'", () => {
+    const good = play(['know', 'know', 'know'])[2].interval;
+    const hard = play(['know', 'hard', 'hard'])[2].interval;
+    expect(hard).toBeLessThan(good);
+    expect(hard).toBeGreaterThanOrEqual(1);
+  });
+
+  it('ошибка после хорошей серии: стабильность падает, повтор сегодня, lapse засчитан', () => {
+    const before = play(['know', 'know', 'know'])[2].rec;
+    const { rec, logError } = computeNextState(before, 'dontknow', opts({ today: before.nextReview }));
+    expect(rec.stability).toBeLessThan(before.stability);
     expect(rec.status).toBe('lapsed');
-    expect(rec.nextReview).toBe(TODAY); // из-за провала карта назнается снова на этот же день
+    expect(rec.nextReview).toBe(before.nextReview);
     expect(rec.lapseCount).toBe(1);
-    expect(rec.errorCount).toBe(1);
     expect(logError).toBe(true);
   });
 
-  it("'hard' не двигает этап и делит базовый интервал пополам", () => {
-    const prev = makePrev({ stage: 3, ease: 2.5 });
-    const { rec } = computeNextState(prev, 'hard', opts());
-    expect(rec.stage).toBe(3);
-    expect(rec.status).toBe('learning');
-    expect(rec.ease).toBeCloseTo(2.3);
-    expect(dayDiff(TODAY, rec.nextReview)).toBe(4); // round(7 × 0.5)
+  it('повторная ошибка в тот же день не роняет стабильность второй раз', () => {
+    const lapsed = play(['know', 'know', 'know', 'dontknow'])[3].rec;
+    const again = computeNextState(lapsed, 'dontknow', opts({ today: lapsed.lastReview })).rec;
+    expect(again.stability).toBe(lapsed.stability);
+    expect(again.lapseCount).toBe(lapsed.lapseCount);
   });
 
   it('выход из lapse: 2 «Знаю» подряд → снова learning', () => {
-    const lapsed = makePrev({ status: 'lapsed', stage: 1, lapseCount: 1, lapseReviews: 0 });
-    const first = computeNextState(lapsed, 'know', opts()).rec;
-    expect(first.status).toBe('lapsed');  // ещё не вышел
-    expect(first.nextReview).toBe(TODAY); // повтор в тот же день
-    const second = computeNextState(first, 'know', opts()).rec;
-    expect(second.status).toBe('learning');
-    expect(second.lapseReviews).toBe(0);
-    expect(dayDiff(TODAY, second.nextReview)).toBe(1);
+    const log = play(['know', 'know', 'know', 'dontknow', 'know', 'know']);
+    expect(log[4].rec.status).toBe('lapsed');
+    expect(log[4].interval).toBe(0);
+    expect(log[5].rec.status).toBe('learning');
+    expect(log[5].interval).toBeGreaterThanOrEqual(1);
   });
 });
 
-describe('SRS: граничные случаи', () => {
-  it('старая запись без ease/storeName — дозаполняются дефолты и хранилище', () => {
-    const prev = { cardId: 'id3', stage: 2 }; // минимальная старая запись
-    const { rec } = computeNextState(prev, 'know', opts());
-    expect(rec.storeName).toBe(storeForCard('id3')); // 'idioms'
-    expect(rec.ease).toBeCloseTo(SRS_CONFIG.easeDefault + SRS_CONFIG.easeStep); // 2.6
+describe('FSRS: вероятность вспомнить', () => {
+  it('в день повтора около 90%, через двойной интервал заметно ниже', () => {
+    const rec = play(['know', 'know', 'know'])[2].rec;
+    const r0 = retrievability(rec, rec.nextReview);
+    const later = new Date(Date.parse(rec.nextReview) + dayDiff(rec.lastReview, rec.nextReview) * 86400000).toISOString().slice(0, 10);
+    expect(r0).toBeGreaterThan(0.85);
+    expect(r0).toBeLessThan(0.95);
+    expect(retrievability(rec, later)).toBeLessThan(r0);
+  });
+});
+
+describe('FSRS: совместимость со старыми записями', () => {
+  it('запись старой лестницы (этап 4, ease 2.3) получает стабильность и сложность', () => {
+    const old = { cardId: 'pv_001', status: 'reviewing', stage: 4, ease: 2.3, lastReview: '2025-12-01', nextReview: '2025-12-15' };
+    const { rec } = computeNextState(old, 'know', opts({ today: '2025-12-15' }));
+    expect(rec.stability).toBeGreaterThan(14);
+    expect(rec.difficulty).toBeGreaterThan(1);
+    expect(rec.storeName).toBe('phrasal_verbs');
+    expect(rec.reps).toBe(1);
   });
 
-  it('null/undefined на входе не роняют код (cardId валиден)', () => {
-    expect(() => computeNextState(null, 'know', { cardId: 'g1' })).not.toThrow();
-    expect(() => computeNextState(null, undefined, { cardId: 'sl1' })).not.toThrow();
-    expect(() => computeNextState(makePrev(), undefined, {})).not.toThrow();
+  it('этап 1..6 по-прежнему вычисляется для интерфейса', () => {
+    for (const x of play(['know', 'know', 'know', 'know', 'know'])) {
+      expect(x.rec.stage).toBeGreaterThanOrEqual(1);
+      expect(x.rec.stage).toBeLessThanOrEqual(SRS_CONFIG.maxStage);
+    }
   });
 
-  it('ФАКТИЧЕСКОЕ поведение: cardId обязателен — без него TypeError (приложение не падает: saveProgress гасит try/catch)', () => {
-    // storeForCard(undefined) → undefined.startsWith → TypeError.
-    // Чистая функция без try/catch по дизайну; защита от мусора живёт в saveProgress.
-    expect(() => computeNextState(null, 'know', {})).toThrow(TypeError);
-    expect(() => computeNextState(null, 'know', { cardId: 123 })).toThrow(TypeError);
-  });
-
-  it('неизвестное действие трактуется как провал (ветка else)', () => {
-    const { rec } = computeNextState(makePrev({ stage: 2 }), 'mystery', opts());
-    expect(rec.status).toBe('lapsed');
-    expect(rec.stage).toBe(1);
+  it('определение хранилища по id карточки', () => {
+    expect(storeForCard('g12')).toBe('grammar_cards');
+    expect(storeForCard('cv_1001')).toBe('conversation');
+    expect(storeForCard('id_005')).toBe('idioms');
+    expect(storeForCard('xx_1')).toBe(null);
   });
 });

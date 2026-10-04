@@ -134,7 +134,7 @@ const IELTS = (() => {
       .map(([m, l]) => `<button class="mode-btn ${st.mode === m ? 'active' : ''}" data-ielts-mode="${m}" type="button">${l}</button>`).join('');
     const body = { writing: renderWriting, speaking: renderSpeaking, reading: renderReading, vocab: renderVocab }[st.mode]();
     return `<div class="section-wrap">
-      <div class="section-header"><h2>IELTS-подготовка</h2></div>
+      <div class="section-header"><h2><span class="line-bullet is-diamond line-bullet--lg" style="--line:#0039A6;--line-ink:#fff" aria-hidden="true"><span>E</span></span><span>IELTS-подготовка</span></h2></div>
       <p class="setting-hint">Формат Academic IELTS. Для band 6.5+ нужен уровень B2–C1: сначала доведи до «Изучено» грамматику и лексику B1–B2, параллельно тренируй здесь форматы экзамена.</p>
       <div class="practice-modes" role="tablist">${tabs}</div>
       <div class="card practice-panel ielts-panel">${body}</div></div>`;

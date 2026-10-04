@@ -8,6 +8,7 @@
    computeNextState() — весь расчёт состояния карточки без доступа к БД.
    saveProgress() теперь только читает/пишет БД. Юнит-тесты — на чистую
    функцию: tests/srs.test.js.
+   v2: алгоритм заменён на FSRS-4.5 (stability/difficulty), интерфейс прежний.
    ========================================================================== */
 const SRS = (() => {
   'use strict';
@@ -57,14 +58,6 @@ const SRS = (() => {
     return null;
   }
 
-  // speedMultiplier по времени ответа (сек)
-  function speedMultiplier(answerTime) {
-    if (answerTime === undefined || answerTime === null) return 1.0;
-    if (answerTime < 3) return 1.2;
-    if (answerTime <= 10) return 1.0;
-    return 0.8;
-  }
-
   /* ---------- Миграция: дозаполнить новые поля старым записям ---------- */
   async function migrateProgress() {
     const all = await DB.getAllProgress();
@@ -85,89 +78,160 @@ const SRS = (() => {
     return { migrated: n };
   }
 
+  /* ---------- FSRS-4.5: модель памяти (как в Anki 23.10+) ----------
+     Для каждой карточки хранятся stability (S, дни: за сколько вероятность
+     вспомнить падает до 90%) и difficulty (D, 1..10). Интервал = S при
+     целевой вероятности 90%. Параметры — открытые значения по умолчанию
+     FSRS-4.5 (github.com/open-spaced-repetition). */
+  const FSRS = {
+    w: [0.4872, 1.4003, 3.7145, 13.8206, 5.1618, 1.2298, 0.8975, 0.031, 1.6474,
+      0.1367, 1.0461, 2.1072, 0.0793, 0.3246, 1.587, 0.2272, 2.8755],
+    retention: 0.9,
+    maxInterval: 1825,      // 5 лет
+    masteredAt: 90,         // S ≥ 90 дней — «Изучено» (как прежний верхний этап)
+    DECAY: -0.5,
+    FACTOR: 19 / 81,
+  };
+  const W = FSRS.w;
+  const clampD = (d) => Math.min(10, Math.max(1, d));
+  const initS = (g) => Math.max(0.1, W[g - 1]);
+  const initD = (g) => clampD(W[4] - (g - 3) * W[5]);
+  const nextD = (d, g) => clampD(W[7] * initD(3) + (1 - W[7]) * (d - W[6] * (g - 3)));
+  function retrievabilityAfter(t, s) { return Math.pow(1 + FSRS.FACTOR * Math.max(0, t) / s, FSRS.DECAY); }
+  function stabilityAfterRecall(d, s, r, g) {
+    const hard = g === 2 ? W[15] : 1, easy = g === 4 ? W[16] : 1;
+    return s * (Math.exp(W[8]) * (11 - d) * Math.pow(s, -W[9]) * (Math.exp(W[10] * (1 - r)) - 1) * hard * easy + 1);
+  }
+  function stabilityAfterForget(d, s, r) {
+    return Math.min(s, W[11] * Math.pow(d, -W[12]) * (Math.pow(s + 1, W[13]) - 1) * Math.exp(W[14] * (1 - r)));
+  }
+  function intervalFor(s) {
+    const i = (s / FSRS.FACTOR) * (Math.pow(FSRS.retention, 1 / FSRS.DECAY) - 1);
+    return Math.min(FSRS.maxInterval, Math.max(1, Math.round(i)));
+  }
+  // Этап 1..6 для старого интерфейса (бейджи, статистика) — по стабильности
+  const stageFromS = (s) => 1 + [3, 7, 14, 30, 90].filter((x) => s >= x).length;
+  // Совместимость: ease как раньше (1.3..3.0) — выводится из сложности
+  const easeFromD = (d) => Math.round((3.0 - ((d - 1) / 9) * 1.7) * 100) / 100;
+
+  function daysBetween(a, b) {
+    if (!a || !b) return 0;
+    const [y1, m1, d1] = dayOf(a).split('-').map(Number);
+    const [y2, m2, d2] = dayOf(b).split('-').map(Number);
+    return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000);
+  }
+
+  // Оценка ответа по шкале FSRS: 1 Again, 2 Hard, 3 Good, 4 Easy (быстрый «Знаю»)
+  function gradeOf(action, answerTime) {
+    if (action === 'know') return (answerTime !== undefined && answerTime !== null && answerTime < 3) ? 4 : 3;
+    if (action === 'hard') return 2;
+    return 1; // 'dontknow' и всё неизвестное — провал
+  }
+
+  // Старые записи (лестница этапов) → стабильность/сложность FSRS
+  function memoryOf(prev) {
+    if (prev.stability > 0 && prev.difficulty > 0) return { s: prev.stability, d: prev.difficulty };
+    const span = daysBetween(prev.lastReview, prev.nextReview);
+    const s = Math.max(span > 0 ? span : 0, SRS_CONFIG.stages[Math.min(Math.max(prev.stage || 1, 1), 6) - 1], 0.5);
+    const ease = prev.ease !== undefined ? prev.ease : SRS_CONFIG.easeDefault;
+    return { s, d: clampD(1 + ((3.0 - ease) / 1.7) * 9) };
+  }
+
   /* ---------- Чистый переход: следующее состояние карточки (без БД) ---------- */
   /**
-   * Считает SRS-запись после ответа. Не трогает БД.
+   * Считает SRS-запись после ответа по FSRS. Не трогает БД.
    * @param {object|null} prev — предыдущая запись прогресса или null (новая карточка)
-   * @param {'know'|'hard'|'dontknow'} action
+   * @param {'know'|'hard'|'dontknow'} action — «Знаю» за < 3 с считается Easy
    * @param {object} [opts] — { today, answerTime, cardId, storeName, rand }
-   *        rand — генератор случайных чисел (инжектится тестами; по умолчанию Math.random)
    * @returns {{ rec: object, isNew: boolean, logError: boolean }}
    */
   function computeNextState(prev, action, opts) {
     const o = opts || {};
     const today = o.today || todayStr();
-    const sm = speedMultiplier(o.answerTime);
     const rand = typeof o.rand === 'function' ? o.rand : Math.random;
+    const g = gradeOf(action, o.answerTime);
+    const fuzz = (days) => {
+      if (days < 3) return days;
+      const f = 1 + (rand() * 2 - 1) * SRS_CONFIG.fuzzRange;
+      return Math.min(FSRS.maxInterval, Math.max(2, Math.round(days * f)));
+    };
 
     if (!prev) {
-      const failed = action === 'dontknow';
+      const failed = g === 1;
+      const s = initS(g), d = initD(g);
+      // Новая карточка: «Знаю»/«Сложно» — шаг обучения 1 день; Easy — сразу интервал FSRS
+      const interval = g === 4 ? intervalFor(s) : 1;
       const rec = {
         cardId: o.cardId,
         storeName: o.storeName || storeForCard(o.cardId),
-        status: failed ? 'lapsed' : 'learning', stage: 1,
-        ease: failed ? SRS_CONFIG.easeDefault - SRS_CONFIG.easePenalty : SRS_CONFIG.easeDefault,
-        errorCount: failed ? 1 : 0, knownCount: 0,
+        status: failed ? 'lapsed' : 'learning', stage: stageFromS(s),
+        stability: s, difficulty: d, reps: 1, ease: easeFromD(d),
+        errorCount: failed ? 1 : 0, knownCount: g >= 3 ? 1 : 0,
         lapseCount: failed ? 1 : 0, lapseReviews: 0,
         lastAnswerTime: o.answerTime || null,
-        lastReview: today, nextReview: failed ? today : addDays(today, 1),
+        lastReview: today, nextReview: failed ? today : addDays(today, interval),
         createdAt: today, mark: action,
       };
       return { rec, isNew: true, logError: failed };
     }
 
+    const mem = memoryOf(prev);
+    const elapsed = daysBetween(prev.lastReview, today);
+    const r = retrievabilityAfter(elapsed, mem.s);
     const rec = {
       ...prev,
-      ease: prev.ease !== undefined ? prev.ease : SRS_CONFIG.easeDefault,
       lapseCount: prev.lapseCount || 0,
       lapseReviews: prev.lapseReviews || 0,
       storeName: prev.storeName || o.storeName || storeForCard(prev.cardId),
+      reps: (prev.reps || 0) + 1,
       lastReview: today, mark: action, lastAnswerTime: o.answerTime || null,
     };
-    const wasLapsed = prev.status === 'lapsed';
+    const wasLapsed = prev.status === 'lapsed' || prev.status === 'relearning';
+    let s = mem.s, d = nextD(mem.d, g), logError = false;
 
-    if (action === 'know') {
-      rec.ease = Math.min(rec.ease + SRS_CONFIG.easeStep, SRS_CONFIG.easeMax);
-      rec.stage = Math.min((prev.stage || 1) + 1, SRS_CONFIG.maxStage);
-      rec.errorCount = 0;
-      rec.knownCount = (prev.knownCount || 0) + 1;
-
-      if (wasLapsed) {
-        // Выход из lapse: 2 успеха подряд → обратно в learning
-        rec.lapseReviews++;
-        if (rec.lapseReviews >= SRS_CONFIG.lapseReviewsNeeded) {
-          rec.status = 'learning';
-          rec.lapseReviews = 0;
-          rec.nextReview = addDays(today, 1);
-        } else {
-          // Повтор в тот же день (датная гранулярность: due до конца дня)
-          rec.nextReview = today;
-        }
-      } else {
-        let interval = getNextInterval(rec.stage) * rec.ease * sm;
-        const fuzz = 1 + (rand() * 2 - 1) * SRS_CONFIG.fuzzRange;
-        interval = Math.max(1, Math.round(interval * fuzz));
-        rec.nextReview = addDays(today, interval);
-        rec.status = rec.stage >= SRS_CONFIG.maxStage ? 'mastered' : 'reviewing';
-      }
-    } else if (action === 'hard') {
-      rec.ease = Math.max(rec.ease - SRS_CONFIG.easePenalty, SRS_CONFIG.easeMin);
-      rec.stage = Math.max(prev.stage || 1, 1);
-      rec.knownCount = 0;
-      rec.nextReview = addDays(today, Math.max(1, Math.round(getNextInterval(rec.stage) * 0.5)));
-      rec.status = 'learning';
-    } else { // dontknow
-      rec.ease = Math.max(rec.ease - SRS_CONFIG.easePenalty, SRS_CONFIG.easeMin);
+    if (g === 1) {
+      // Провал: стабильность падает (если не провалена уже сегодня), карточка снова сегодня
+      if (!(wasLapsed && elapsed === 0)) s = stabilityAfterForget(mem.d, mem.s, r);
       rec.status = 'lapsed';
-      rec.stage = 1;
-      rec.lapseCount = rec.lapseCount + 1;
+      rec.lapseCount = wasLapsed && elapsed === 0 ? rec.lapseCount : rec.lapseCount + 1;
       rec.lapseReviews = 0;
       rec.errorCount = (prev.errorCount || 0) + 1;
       rec.knownCount = 0;
-      rec.nextReview = today; // lapse-шаг: снова должна сегодня
-      return { rec, isNew: false, logError: true };
+      rec.nextReview = today;
+      logError = true;
+    } else if (wasLapsed) {
+      // Переобучение: 2 успеха подряд (или Easy) → обратно в learning
+      if (elapsed > 0) s = stabilityAfterRecall(mem.d, mem.s, r, g);
+      rec.lapseReviews += 1;
+      if (rec.lapseReviews >= SRS_CONFIG.lapseReviewsNeeded || g === 4) {
+        rec.status = 'learning';
+        rec.lapseReviews = 0;
+        rec.nextReview = addDays(today, Math.max(1, Math.min(intervalFor(s), 3)));
+      } else {
+        rec.nextReview = today; // ещё один повтор сегодня
+      }
+      rec.knownCount = g >= 3 ? (prev.knownCount || 0) + 1 : 0;
+    } else {
+      // Успех: стабильность растёт тем сильнее, чем ближе было к забыванию
+      s = elapsed > 0 ? stabilityAfterRecall(mem.d, mem.s, r, g) : mem.s;
+      const interval = fuzz(intervalFor(s));
+      rec.nextReview = addDays(today, interval);
+      rec.status = s >= FSRS.masteredAt ? 'mastered' : (g === 2 ? 'learning' : 'reviewing');
+      rec.knownCount = g >= 3 ? (prev.knownCount || 0) + 1 : 0;
+      if (g >= 3) rec.errorCount = 0;
     }
-    return { rec, isNew: false, logError: false };
+    rec.stability = Math.round(s * 1000) / 1000;
+    rec.difficulty = Math.round(d * 1000) / 1000;
+    rec.stage = stageFromS(s);
+    rec.ease = easeFromD(d);
+    return { rec, isNew: false, logError };
+  }
+
+  /* Вероятность вспомнить карточку сегодня (0..1) — для прогресса и очереди */
+  function retrievability(rec, today) {
+    if (!rec) return 0;
+    const m = memoryOf(rec);
+    return retrievabilityAfter(daysBetween(rec.lastReview, today || todayStr()), m.s);
   }
 
   /* ---------- Ядро: оценка карточки ---------- */
@@ -222,17 +286,20 @@ const SRS = (() => {
 
   /* ---------- Статистика ---------- */
   async function getStats(today) {
-    const empty = { mastered: 0, learning: 0, relearning: 0, toReview: 0, total: 0 };
+    const empty = { mastered: 0, learning: 0, relearning: 0, toReview: 0, total: 0, retention: null };
     const all = await DB.getAllProgress();
     if (!all.success) return empty;
     const t = today || todayStr();
-    const s = { ...empty, total: all.data.length };
+    const s = { ...empty, total: all.data.length, retention: null };
+    let rSum = 0, rN = 0;
     for (const r of all.data) {
+      if (r.lastReview && r.status !== 'lapsed') { rSum += retrievability(r, t); rN++; }
       if (r.status === 'mastered') s.mastered++;
       else if (r.status === 'relearning' || r.status === 'lapsed') s.relearning++;
       else s.learning++;
       if (r.nextReview && dayOf(r.nextReview) <= t) s.toReview++;
     }
+    if (rN) s.retention = Math.round((rSum / rN) * 100);
     return s;
   }
 
@@ -324,7 +391,7 @@ const SRS = (() => {
 
   return {
     SRS_CONFIG, todayStr, tomorrowStr, addDays, getNextInterval,
-    storeForCard, migrateProgress, saveProgress, computeNextState,
+    storeForCard, migrateProgress, saveProgress, computeNextState, retrievability, FSRS, gradeOf,
     getDueCards, startSession, getSpacedDictationQueue,
     getStats, getErrorCards, getForecast, getHeatmap, updateStreak,
   };

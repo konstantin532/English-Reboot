@@ -10,24 +10,28 @@
 
   const CONTENT_VERSION = 3; // 3: американская IPA из lex_us.js
   const VOCAB_VERSION = '1.2.0'; // 1.2.0: IPA для всех слов (lex_us.js)
-  const EXTRA_VERSION = '1.5.1'; // 1.5.0: +40 фраз американской разговорной речи; // 1.4.0: исправлены тесты «Разговорных фраз»
+  const EXTRA_VERSION = '1.6.0'; // 1.6.0: +1003 фразы американской разговорной речи (content_us.js)
   const APP_VERSION = '1.1.0';
 
+  // Каждый раздел — «линия метро»: цвет и буква значка (цвета линий нью-йоркского метро).
+  // shape: 'circle' — разделы с карточками, 'diamond' — практика (как экспрессы в метро).
   const TABS = [
-    { id: 'grammar',      title: 'Грамматика',        num: '01' },
-    { id: 'phrasal',      title: 'Фразовые глаголы',  num: '02' },
-    { id: 'collocations', title: 'Коллокации',        num: '03' },
-    { id: 'idioms',       title: 'Идиомы',            num: '04' },
-    { id: 'conversation', title: 'Разговорные фразы', num: '05' },
-    { id: 'slang',        title: 'Сленг',             num: '06' },
-    { id: 'minimal',      title: 'Minimal Pairs',     num: '07' },
-    { id: 'reading',      title: 'Чтение',            num: '08' },
-    { id: 'personal',     title: 'Моя колода',        num: '09' },
-    { id: 'practice',     title: 'Тренажёр',          num: '10' },
-    { id: 'ielts',        title: 'IELTS',             num: '11' },
-    { id: 'progress',     title: 'Прогресс',          num: '12' },
-    { id: 'settings',     title: 'Настройки',         num: '13' },
+    { id: 'grammar',      title: 'Грамматика',        num: '01', group: 'Учить',    glyph: 'G', line: '#0039A6' },
+    { id: 'phrasal',      title: 'Фразовые глаголы',  num: '02', group: 'Учить',    glyph: 'P', line: '#FF6319' },
+    { id: 'collocations', title: 'Коллокации',        num: '03', group: 'Учить',    glyph: 'C', line: '#6CBE45' },
+    { id: 'idioms',       title: 'Идиомы',            num: '04', group: 'Учить',    glyph: 'I', line: '#B933AD' },
+    { id: 'conversation', title: 'Разговорные фразы', num: '05', group: 'Учить',    glyph: 'T', line: '#EE352E' },
+    { id: 'slang',        title: 'Сленг',             num: '06', group: 'Учить',    glyph: 'S', line: '#FCCC0A', ink: '#111' },
+    { id: 'minimal',      title: 'Minimal Pairs',     num: '07', group: 'Учить',    glyph: 'M', line: '#996633' },
+    { id: 'reading',      title: 'Чтение',            num: '08', group: 'Учить',    glyph: 'R', line: '#00933C' },
+    { id: 'personal',     title: 'Моя колода',        num: '09', group: 'Учить',    glyph: 'D', line: '#808183' },
+    { id: 'practice',     title: 'Тренажёр',          num: '10', group: 'Практика', glyph: 'X', line: '#00A1DE', shape: 'diamond' },
+    { id: 'ielts',        title: 'IELTS',             num: '11', group: 'Практика', glyph: 'E', line: '#0039A6', shape: 'diamond' },
+    { id: 'progress',     title: 'Прогресс',          num: '12', group: 'Я',        glyph: '%', line: '#1B1E24' },
+    { id: 'settings',     title: 'Настройки',         num: '13', group: 'Я',        glyph: '⚙', line: '#1B1E24' },
   ];
+  const lineBullet = (t, cls = '') =>
+    `<span class="line-bullet ${t.shape === 'diamond' ? 'is-diamond' : ''} ${cls}" style="--line:${t.line};--line-ink:${t.ink || '#fff'}" aria-hidden="true"><span>${t.glyph}</span></span>`;
 
   const LAYERS = [
     { key: 'layer_pos',       offClass: 'layer-pos-off',       title: 'Части речи',        hint: 'Подчёркивание слов по их роли в предложении' },
@@ -454,10 +458,15 @@
 
   function renderNav() {
     const nav = document.getElementById('main-nav');
-    nav.innerHTML = TABS.map((t) => `
-      <button class="nav-link" data-tab="${t.id}" type="button">
-        <span class="nav-num">${t.num}</span>${t.title}
-      </button>`).join('');
+    let lastGroup = null;
+    nav.innerHTML = TABS.map((t) => {
+      const head = t.group !== lastGroup ? `<p class="nav-group">${t.group}</p>` : '';
+      lastGroup = t.group;
+      return `${head}
+      <button class="nav-link" data-tab="${t.id}" type="button" style="--line:${t.line}">
+        ${lineBullet(t)}<span class="nav-title">${t.title}</span>
+      </button>`;
+    }).join('');
     nav.addEventListener('click', (e) => {
       const btn = e.target.closest('.nav-link');
       if (!btn) return;
@@ -483,6 +492,8 @@
     if (window.IELTS) IELTS.stop();
     closeWordPopup();
 
+    document.body.style.setProperty('--line', tab.line);
+    document.body.dataset.tab = tabId;
     document.querySelectorAll('.nav-link').forEach((b) => {
       b.classList.toggle('active', b.dataset.tab === tabId);
     });
@@ -511,7 +522,7 @@
   function sectionHeader(t, filterValue = 'all') {
     return `
       <div class="section-header">
-        <h2>${t.title}</h2>
+        <h2>${lineBullet(t, 'line-bullet--lg')}<span>${t.title}</span></h2>
         <select class="level-filter" aria-label="Фильтр уровня">
           <option value="all" ${filterValue === 'all' ? 'selected' : ''}>Все уровни</option>
           <option value="A1" ${filterValue === 'A1' ? 'selected' : ''}>A1</option>
@@ -1416,6 +1427,8 @@
         <div class="stat-card"><span class="stat-num">${stats.learning}</span><span class="stat-label">В работе</span></div>
         <div class="stat-card"><span class="stat-num">${stats.toReview}</span><span class="stat-label">На повторе</span></div>
         <div class="stat-card"><span class="stat-num">${stats.total}</span><span class="stat-label">Всего</span></div>
+        <div class="stat-card" title="Средняя вероятность вспомнить твои карточки прямо сейчас — по модели памяти FSRS (как в Anki). Цель — около 90%.">
+          <span class="stat-num">${stats.retention === null ? '—' : stats.retention + '%'}</span><span class="stat-label">Память сегодня</span></div>
       </div>
       <div class="streak-display">
         <span class="streak-icon" aria-hidden="true">🔥</span><span class="streak-num">${streak}</span><span class="streak-label">дней подряд</span>
@@ -1693,7 +1706,7 @@
     return `
       <div class="section-wrap">
         <div class="section-header">
-          <h2>${t.title}</h2>
+          <h2>${lineBullet(t, 'line-bullet--lg')}<span>${t.title}</span></h2>
           <span class="save-note" id="save-note">Изменения сохраняются автоматически</span>
         </div>
         <section class="card settings-card">
@@ -1719,6 +1732,35 @@
             <div class="setting-info"><label for="set-goal">Дневная цель</label><p class="setting-hint">Сколько карточек в день до «цель достигнута»</p></div>
             <select id="set-goal" class="setting-select">${goalOpt(10)}${goalOpt(20)}${goalOpt(30)}</select>
           </div>
+        </section>
+        <section class="card settings-card" id="sound-card">
+          <h3 class="card-title">Звук</h3>
+          <div class="sound-status" id="sound-status"></div>
+          <div class="setting-row">
+            <div class="setting-info"><label for="set-tts-mode">Источник озвучки</label><p class="setting-hint">«Авто»: голос системы, а если он не работает — онлайн (живые записи слов и синтез фраз)</p></div>
+            <select id="set-tts-mode" class="setting-select">
+              <option value="auto">Авто (рекомендуется)</option>
+              <option value="system">Только голос системы (офлайн)</option>
+              <option value="online">Только онлайн</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><label for="set-voice">Голос системы</label><p class="setting-hint">Лучше всего звучат en-US голоса с пометкой Natural/Online</p></div>
+            <select id="set-voice" class="setting-select"></select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><span class="setting-label">Проверка</span><p class="setting-hint">Должна прозвучать английская фраза</p></div>
+            <button class="btn-primary" id="btn-sound-test" type="button">🔊 Проверить звук</button>
+          </div>
+          <details class="sound-help">
+            <summary>Звука нет? Как установить английский голос</summary>
+            <ol>
+              <li><b>Windows 10/11:</b> Параметры → Время и язык → Речь → «Добавить голоса» → English (United States). После установки перезапусти браузер.</li>
+              <li><b>Браузер:</b> лучше всего Chrome или Edge. В Яндекс.Браузере и Opera системные голоса часто не работают — тогда выручит режим «Авто» или «Только онлайн».</li>
+              <li><b>Android:</b> Настройки → Язык и ввод → Синтез речи → Google, язык English (US).</li>
+              <li>Проверь, что у вкладки не выключен звук (значок динамика на вкладке) и громкость Windows не на нуле.</li>
+            </ol>
+          </details>
         </section>
         <section class="card settings-card">
           <h3 class="card-title">Слои разметки</h3>
@@ -1796,6 +1838,49 @@
     if (el) el.textContent = total;
   }
 
+  /* ---------- Настройки → Звук ---------- */
+  function renderSoundStatus() {
+    const el = document.getElementById('sound-status');
+    if (!el) return;
+    const st = TTS.getStatus();
+    const ok = st.englishVoices > 0 && !st.systemBroken;
+    const rows = [
+      ['Английских голосов в системе', st.synth ? `${st.englishVoices} из ${st.allVoices}` : 'синтез речи не поддерживается'],
+      ['Выбранный голос', st.voice || '—'],
+      ['Интернет', st.online ? 'есть' : 'нет'],
+      ['Последний раз звучал', st.lastEngine || '—'],
+    ];
+    if (st.lastError) rows.push(['Последняя ошибка', st.lastError]);
+    el.innerHTML = `<p class="sound-verdict ${ok ? 'is-ok' : 'is-warn'}">${ok
+      ? '✓ Голос системы найден — озвучка работает и офлайн.'
+      : (st.mode === 'system' ? '⚠ Английского голоса нет — в режиме «Только голос системы» звука не будет.' : '⚠ Английского голоса нет или он не работает — звук идёт через интернет.')}</p>
+      <dl class="sound-grid">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${escapeHtml(String(v))}</dd>`).join('')}</dl>`;
+  }
+
+  function bindSoundSettings() {
+    const mode = document.getElementById('set-tts-mode');
+    const voiceSel = document.getElementById('set-voice');
+    if (!mode || !voiceSel) return;
+    mode.value = TTS.getMode();
+    const fillVoices = () => {
+      const list = TTS.getAvailableVoices();
+      voiceSel.innerHTML = list.length
+        ? list.map((v) => `<option value="${escapeAttr(v.voiceURI)}">${escapeHtml(v.name)} — ${v.lang}${v.localService ? '' : ' (онлайн)'}</option>`).join('')
+        : '<option value="">Английских голосов нет</option>';
+      voiceSel.disabled = !list.length;
+      voiceSel.value = TTS.getVoiceURI();
+      renderSoundStatus();
+    };
+    fillVoices();
+    if ('speechSynthesis' in window) speechSynthesis.addEventListener('voiceschanged', fillVoices);
+    mode.addEventListener('change', () => { TTS.setMode(mode.value); renderSoundStatus(); });
+    voiceSel.addEventListener('change', () => { TTS.setVoice(voiceSel.value); renderSoundStatus(); });
+    document.getElementById('btn-sound-test').addEventListener('click', () => {
+      TTS.test();
+      setTimeout(renderSoundStatus, 2500);
+    });
+  }
+
   function bindSettings() {
     document.getElementById('set-theme').addEventListener('change', async (e) => {
       settings.theme = e.target.value;
@@ -1821,6 +1906,7 @@
       settings.tts_rate = Number(rate.value);
       await persistSetting('tts_rate', settings.tts_rate);
     });
+    bindSoundSettings();
     document.getElementById('set-goal').addEventListener('change', async (e) => {
       settings.daily_goal = Number(e.target.value);
       await persistSetting('daily_goal', settings.daily_goal);

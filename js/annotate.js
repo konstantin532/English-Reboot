@@ -90,7 +90,8 @@ const Annotate = (() => {
     const w = String(word || '').toLowerCase();
     // Сколько «послегласных» r в написании (car, bird, water, here)
     // минус r, уже записанные в самой IPA (американская IPA: kɑr, ˈdɪnɚ)
-    const rCount = Math.max(0, (w.match(/[aeiouy]+r+(?![aeiouy])|[aeiouy]re$/g) || []).length
+    const wb = w.replace(/'(s|ll|re|ve|d)$/, ''); // основа без сокращения
+    const rCount = Math.max(0, (wb.match(/[aeiouy]+r+(?![aeiouy])|[aeiouy]re$/g) || []).length
       - (src.match(/[rɹɝɚ]/g) || []).length);
     // Проход 1: токены IPA
     const toks = [];
@@ -126,6 +127,14 @@ const Annotate = (() => {
       }
       out += ru;
     });
+    // Сокращения: лексикон хранит слово без них (where's → where), дописываем звук
+    const last = toks.length ? toks[toks.length - 1].key : '';
+    const has = (re) => re.test(src.replace(/[ˈˌː]/g, ''));
+    if (/'s$/.test(w) && !has(/[sz]$/)) out += /^(p|t|k|f|θ)$/.test(last) ? 'с' : 'з';
+    else if (/'ll$/.test(w) && !has(/l$/)) out += 'л';
+    else if (/'re$/.test(w) && !has(/[rɹɚ]$/) && !/р$/.test(out)) out += 'р';
+    else if (/'ve$/.test(w) && !has(/v$/)) out += 'в';
+    else if (/'d$/.test(w) && !has(/d$/)) out += 'д';
     return out;
   }
 
@@ -208,3 +217,6 @@ const Annotate = (() => {
 
   return { init, ruWord, ruTranscribe, renderParts, renderExample, examplesHtml, firstExampleText, splitSyllables };
 })();
+
+// Экспорт для юнит-тестов (vitest): в браузере ничего не меняет.
+if (typeof globalThis !== 'undefined') globalThis.Annotate = Annotate;
