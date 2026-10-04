@@ -1,0 +1,17 @@
+{
+  "_comment": "PWA работает только по http(s) (localhost или хостинг). PNG-иконки: положите icon-192.png и icon-512.png рядом с index.html — без них Chromium поставит PWA по SVG-иконке ниже.",
+  "name": "English Reboot",
+  "short_name": "EngReboot",
+  "description": "Самостоятельное изучение английского: A1–B2",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#E67E22",
+  "background_color": "#1A1A2E",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23E67E22'/%3E%3Ctext x='256' y='352' font-family='Georgia' font-size='280' font-weight='bold' fill='white' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
