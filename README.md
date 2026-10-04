@@ -1,4 +1,4 @@
-<<'README_EOF'
+'README_EOF'
 ![English Reboot](docs/cover.svg)
 
 # English Reboot — SPA для изучения английского (A1–B2+)
