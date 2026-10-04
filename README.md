@@ -1,8 +1,25 @@
+cat > README.md <<'README_EOF'
+![English Reboot](docs/cover.svg)
+
 # English Reboot — SPA для изучения английского (A1–B2+)
+
+![License: MIT](https://img.shields.io/badge/License-MIT-blue)
+![Vanilla JS](https://img.shields.io/badge/JavaScript-Vanilla%20JS-F7DF1E?logo=javascript&logoColor=black)
+![PWA Ready](https://img.shields.io/badge/PWA-ready-5A0FC8)
+![Offline-First](https://img.shields.io/badge/offline--first-yes-10B981)
+[![CI](https://github.com/konstantin532/English-Reboot/actions/workflows/ci.yml/badge.svg)](https://github.com/konstantin532/English-Reboot/actions/workflows/ci.yml)
 
 **English Reboot** — это офлайн‑SPA для самостоятельного изучения английского языка. Приложение работает полностью в браузере без сервера: хранение прогресса, SRS‑алгоритм, тренажёры и контент — на чистом Vanilla JS и IndexedDB.
 
 Проект создан в рамках портфолио QA‑инженера: здесь совмещены обучение английскому и практика автоматизации, тестирования и разработки SPA без сборщиков.
+
+## 📸 Скриншоты
+
+| | |
+|:---:|:---:|
+| ![Онбординг](docs/screenshots/onboarding.png) | ![Дашборд](docs/screenshots/dashboard.png) |
+| ![Тёмная тема](docs/screenshots/dark-theme.png) | ![Мобильный вид](docs/screenshots/mobile.png) |
+| ![Поиск (Ctrl+K)](docs/screenshots/search.png) | |
 
 ## 🎯 Цели проекта
 
@@ -50,6 +67,7 @@
 
 ## 📁 Структура проекта
 
+
 ```
 English-Reboot/
 ├── index.html              точка входа
@@ -74,12 +92,22 @@ English-Reboot/
 └── Остановить_сервер.bat
 ```
 
+
 ## ▶️ Запуск
 
 Откройте `English_Reboot.bat` (нужен Python или Node.js) — приложение откроется на http://localhost:8000.
 Без сервера (двойной клик по `index.html`) всё тоже работает, кроме установки PWA и офлайн-режима.
 
 При изменении любого файла приложения увеличьте `CACHE_VERSION` в `sw.js`, иначе браузер может показывать старую версию из кэша.
+
+## 🧪 Тесты и CI
+
+- **Юнит-тесты** — Vitest, чистое ядро SRS (`tests/srs.test.js`): лестница этапов 1→3→7→14→30→90, обработка провала, lapse-выход, граничные случаи.
+- **E2E smoke** — Playwright (`tests/e2e/smoke.spec.js`): загрузка без ошибок консоли, онбординг, навигация, персистентность прогресса после перезагрузки.
+- **Скриншоты** — автогенерация иллюстраций README (`npm run test:screenshots`).
+- **CI** — GitHub Actions (`.github/workflows/ci.yml`): unit → E2E → переснятие скриншотов; артефакты 7 дней; автодеплой на GitHub Pages.
+
+Локальный запуск: `npm test` · `npx playwright test` · `npm run test:screenshots`
 
 ## 📝 Изменения 1.1
 
@@ -91,3 +119,11 @@ English-Reboot/
 - Исправлено: QR-синхронизация (Google Charts QR API отключён) — теперь генерируется локально.
 - Исправлено: тема AMOLED (тёмный текст на чёрном), челленджи дня, звуки, «Текст дня», недельный обзор поверх онбординга, Escape в сессии, двойной Enter в диктанте, PRO-достижения, заморозка серии.
 - Новое: раздел «Моя колода» для карточек из Anki; варианты ответов перемешиваются; длинные тексты озвучиваются без обрыва.
+
+## 🗺 Roadmap
+
+- [ ] FSRS-алгоритм — адаптивные интервалы вместо фиксированной цепочки SRS
+- [ ] Экспорт прогресса и карточек в CSV
+- [ ] Локализация интерфейса (RU/EN)
+- [ ] Обновление контента
+README_EOF
