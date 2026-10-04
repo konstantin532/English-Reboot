@@ -3,30 +3,12 @@
    Файл: srs.js — ease-фактор, таймер ответа, lapse-система, fuzzing,
    streak-заморозка, прогноз освоения, heatmap, Spaced Dictation очередь.
    Совместимо со старыми записями (ease/lapse дозаполняются лениво).
+
+   Этап 3 (рефакторинг, поведение не изменено): извлечена чистая функция
+   computeNextState() — весь расчёт состояния карточки без доступа к БД.
+   saveProgress() теперь только читает/пишет БД. Юнит-тесты — на чистую
+   функцию: tests/srs.test.js.
    ========================================================================== */
-(function (global) {
-  'use strict';
-
-  const INTERVALS = [1, 3, 7, 14, 30, 90]; // дни; индекс = этап карточки
-
-  /**
-   * @param {number|null} currentIndex — индекс текущего интервала в INTERVALS;
-   *                                    null/undefined — прогресса нет (новая карточка)
-   * @param {boolean} isCorrect — ответ верный?
-   * @returns {number|null} индекс следующего этапа; null — сброс на начальный
-   */
-  function nextInterval(currentIndex, isCorrect) {
-    // ↓↓ СЮДА вставь СВОЮ логику из найденного кода, сохранив сигнатуру
-    if (!isCorrect) return null; // ФАКТИЧЕСКОЕ поведение сброса — сверь со своим кодом!
-    const next = (typeof currentIndex === 'number' && currentIndex >= 0)
-      ? currentIndex + 1
-      : 0;
-    return Math.min(next, INTERVALS.length - 1); // cap 90
-  }
-
-  global.SRS = { INTERVALS, nextInterval };
-})(typeof window !== 'undefined' ? window : globalThis);
-
 const SRS = (() => {
   'use strict';
 
@@ -103,6 +85,91 @@ const SRS = (() => {
     return { migrated: n };
   }
 
+  /* ---------- Чистый переход: следующее состояние карточки (без БД) ---------- */
+  /**
+   * Считает SRS-запись после ответа. Не трогает БД.
+   * @param {object|null} prev — предыдущая запись прогресса или null (новая карточка)
+   * @param {'know'|'hard'|'dontknow'} action
+   * @param {object} [opts] — { today, answerTime, cardId, storeName, rand }
+   *        rand — генератор случайных чисел (инжектится тестами; по умолчанию Math.random)
+   * @returns {{ rec: object, isNew: boolean, logError: boolean }}
+   */
+  function computeNextState(prev, action, opts) {
+    const o = opts || {};
+    const today = o.today || todayStr();
+    const sm = speedMultiplier(o.answerTime);
+    const rand = typeof o.rand === 'function' ? o.rand : Math.random;
+
+    if (!prev) {
+      const failed = action === 'dontknow';
+      const rec = {
+        cardId: o.cardId,
+        storeName: o.storeName || storeForCard(o.cardId),
+        status: failed ? 'lapsed' : 'learning', stage: 1,
+        ease: failed ? SRS_CONFIG.easeDefault - SRS_CONFIG.easePenalty : SRS_CONFIG.easeDefault,
+        errorCount: failed ? 1 : 0, knownCount: 0,
+        lapseCount: failed ? 1 : 0, lapseReviews: 0,
+        lastAnswerTime: o.answerTime || null,
+        lastReview: today, nextReview: failed ? today : addDays(today, 1),
+        createdAt: today, mark: action,
+      };
+      return { rec, isNew: true, logError: failed };
+    }
+
+    const rec = {
+      ...prev,
+      ease: prev.ease !== undefined ? prev.ease : SRS_CONFIG.easeDefault,
+      lapseCount: prev.lapseCount || 0,
+      lapseReviews: prev.lapseReviews || 0,
+      storeName: prev.storeName || o.storeName || storeForCard(prev.cardId),
+      lastReview: today, mark: action, lastAnswerTime: o.answerTime || null,
+    };
+    const wasLapsed = prev.status === 'lapsed';
+
+    if (action === 'know') {
+      rec.ease = Math.min(rec.ease + SRS_CONFIG.easeStep, SRS_CONFIG.easeMax);
+      rec.stage = Math.min((prev.stage || 1) + 1, SRS_CONFIG.maxStage);
+      rec.errorCount = 0;
+      rec.knownCount = (prev.knownCount || 0) + 1;
+
+      if (wasLapsed) {
+        // Выход из lapse: 2 успеха подряд → обратно в learning
+        rec.lapseReviews++;
+        if (rec.lapseReviews >= SRS_CONFIG.lapseReviewsNeeded) {
+          rec.status = 'learning';
+          rec.lapseReviews = 0;
+          rec.nextReview = addDays(today, 1);
+        } else {
+          // Повтор в тот же день (датная гранулярность: due до конца дня)
+          rec.nextReview = today;
+        }
+      } else {
+        let interval = getNextInterval(rec.stage) * rec.ease * sm;
+        const fuzz = 1 + (rand() * 2 - 1) * SRS_CONFIG.fuzzRange;
+        interval = Math.max(1, Math.round(interval * fuzz));
+        rec.nextReview = addDays(today, interval);
+        rec.status = rec.stage >= SRS_CONFIG.maxStage ? 'mastered' : 'reviewing';
+      }
+    } else if (action === 'hard') {
+      rec.ease = Math.max(rec.ease - SRS_CONFIG.easePenalty, SRS_CONFIG.easeMin);
+      rec.stage = Math.max(prev.stage || 1, 1);
+      rec.knownCount = 0;
+      rec.nextReview = addDays(today, Math.max(1, Math.round(getNextInterval(rec.stage) * 0.5)));
+      rec.status = 'learning';
+    } else { // dontknow
+      rec.ease = Math.max(rec.ease - SRS_CONFIG.easePenalty, SRS_CONFIG.easeMin);
+      rec.status = 'lapsed';
+      rec.stage = 1;
+      rec.lapseCount = rec.lapseCount + 1;
+      rec.lapseReviews = 0;
+      rec.errorCount = (prev.errorCount || 0) + 1;
+      rec.knownCount = 0;
+      rec.nextReview = today; // lapse-шаг: снова должна сегодня
+      return { rec, isNew: false, logError: true };
+    }
+    return { rec, isNew: false, logError: false };
+  }
+
   /* ---------- Ядро: оценка карточки ---------- */
   /* action: 'know' | 'hard' | 'dontknow'; answerTime — секунды (опц.) */
   async function saveProgress(cardId, storeName, action, answerTime) {
@@ -110,81 +177,10 @@ const SRS = (() => {
       const today = todayStr();
       const prevRes = await DB.getProgressByCardId(cardId);
       const prev = prevRes.success ? prevRes.data : null;
-      const sm = speedMultiplier(answerTime);
-
-      if (!prev) {
-        // «Не знаю» на новой карточке (например, ошибка в диктанте) — это ошибка:
-        // в журнал слабых мест и на повтор сегодня; раньше оценка просто терялась
-        const failed = action === 'dontknow';
-        const rec = {
-          cardId,
-          storeName: storeName || storeForCard(cardId),
-          status: failed ? 'lapsed' : 'learning', stage: 1,
-          ease: failed ? SRS_CONFIG.easeDefault - SRS_CONFIG.easePenalty : SRS_CONFIG.easeDefault,
-          errorCount: failed ? 1 : 0, knownCount: 0, lapseCount: failed ? 1 : 0, lapseReviews: 0,
-          lastAnswerTime: answerTime || null,
-          lastReview: today, nextReview: failed ? today : addDays(today, 1),
-          createdAt: today, mark: action,
-        };
-        if (failed) await DB.saveError(cardId, rec.storeName, 1);
-        const res = await DB.saveCard('progress', rec);
-        return { success: res.success, error: res.error, data: rec, isNew: true };
-      }
-
-      const rec = {
-        ...prev,
-        ease: prev.ease !== undefined ? prev.ease : SRS_CONFIG.easeDefault,
-        lapseCount: prev.lapseCount || 0,
-        lapseReviews: prev.lapseReviews || 0,
-        storeName: prev.storeName || storeName || storeForCard(cardId),
-        lastReview: today, mark: action, lastAnswerTime: answerTime || null,
-      };
-      const wasLapsed = prev.status === 'lapsed';
-
-      if (action === 'know') {
-        rec.ease = Math.min(rec.ease + SRS_CONFIG.easeStep, SRS_CONFIG.easeMax);
-        rec.stage = Math.min((prev.stage || 1) + 1, SRS_CONFIG.maxStage);
-        rec.errorCount = 0;
-        rec.knownCount = (prev.knownCount || 0) + 1;
-
-        if (wasLapsed) {
-          // Выход из lapse: 2 успеха подряд → обратно в learning
-          rec.lapseReviews++;
-          if (rec.lapseReviews >= SRS_CONFIG.lapseReviewsNeeded) {
-            rec.status = 'learning';
-            rec.lapseReviews = 0;
-            rec.nextReview = addDays(today, 1);
-          } else {
-            // Повтор в тот же день (датная гранулярность: due до конца дня)
-            rec.nextReview = today;
-          }
-        } else {
-          let interval = getNextInterval(rec.stage) * rec.ease * sm;
-          const fuzz = 1 + (Math.random() * 2 - 1) * SRS_CONFIG.fuzzRange;
-          interval = Math.max(1, Math.round(interval * fuzz));
-          rec.nextReview = addDays(today, interval);
-          rec.status = rec.stage >= SRS_CONFIG.maxStage ? 'mastered' : 'reviewing';
-        }
-      } else if (action === 'hard') {
-        rec.ease = Math.max(rec.ease - SRS_CONFIG.easePenalty, SRS_CONFIG.easeMin);
-        rec.stage = Math.max(prev.stage || 1, 1);
-        rec.knownCount = 0;
-        rec.nextReview = addDays(today, Math.max(1, Math.round(getNextInterval(rec.stage) * 0.5)));
-        rec.status = 'learning';
-      } else { // dontknow
-        rec.ease = Math.max(rec.ease - SRS_CONFIG.easePenalty, SRS_CONFIG.easeMin);
-        rec.status = 'lapsed';
-        rec.stage = 1;
-        rec.lapseCount++;
-        rec.lapseReviews = 0;
-        rec.errorCount = (prev.errorCount || 0) + 1;
-        rec.knownCount = 0;
-        rec.nextReview = today; // lapse-шаг: снова должна сегодня (датная гранулярность)
-        await DB.saveError(cardId, rec.storeName, rec.errorCount);
-      }
-
-      const res = await DB.saveCard('progress', rec);
-      return { success: res.success, error: res.error, data: rec, isNew: false };
+      const plan = computeNextState(prev, action, { today, cardId, storeName, answerTime });
+      if (plan.logError) await DB.saveError(cardId, plan.rec.storeName, plan.rec.errorCount);
+      const res = await DB.saveCard('progress', plan.rec);
+      return { success: res.success, error: res.error, data: plan.rec, isNew: plan.isNew };
     } catch (e) {
       return { success: false, error: (e && e.message) || String(e) };
     }
@@ -327,8 +323,12 @@ const SRS = (() => {
 
   return {
     SRS_CONFIG, todayStr, tomorrowStr, addDays, getNextInterval,
-    storeForCard, migrateProgress, saveProgress,
+    storeForCard, migrateProgress, saveProgress, computeNextState,
     getDueCards, startSession, getSpacedDictationQueue,
     getStats, getErrorCards, getForecast, getHeatmap, updateStreak,
   };
 })();
+
+// Экспорт для юнит-тестов (vitest): файл — классический скрипт, не ES-модуль.
+// В браузере ничего не меняет, в тестах делает движок доступным через globalThis.
+if (typeof globalThis !== 'undefined') globalThis.SRS = SRS;
