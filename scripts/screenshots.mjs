@@ -95,13 +95,19 @@ async function gotoSettled(page, url) {
 }
 
 async function skipOnboardingIfShown(page) {
-  const skip = page.locator(SKIP_SELECTOR).first();
-  if (!(await skip.isVisible().catch(() => false))) {
-    console.log(`  ℹ️  Кнопка пропуска не найдена (${SKIP_SELECTOR}) — снимаю как есть`);
-    return;
+  const overlay = page.locator('#onboarding-container .onboarding-overlay').first();
+  if (!(await overlay.isVisible().catch(() => false))) return;
+
+  const skip = page.locator('#ob-skip'); // «Я определю сам» → экран ручного выбора
+  if (await skip.isVisible().catch(() => false)) {
+    await skip.click().catch(() => {});
   }
-  await skip.click();
-  await page.waitForLoadState('networkidle').catch(() => {});
+  const level = page.locator('.ob-level').first();
+  if (await level.isVisible().catch(() => false)) {
+    await level.click().catch(() => {});
+    await page.locator('.ob-goal').first().click().catch(() => {});
+    await page.locator('#ob-finish').click().catch(() => {});
+  }
   await page.waitForTimeout(500);
 }
 
@@ -149,6 +155,12 @@ async function main() {
       const page = await ctx.newPage();
       await gotoSettled(page, BASE_URL);
       await skipOnboardingIfShown(page);
+            // Тема через атрибут — независимо от того, где приложение её хранит
+      await page.evaluate(() => {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.body.setAttribute('data-theme', 'dark');
+      });
+      await page.waitForTimeout(300);
 
       // QA-самопроверка: фон реально тёмный?
       const looksDark = await page.evaluate(() => {
