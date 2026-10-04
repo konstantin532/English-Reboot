@@ -809,7 +809,7 @@
     }
 
     let extraBlock = '';
-    if (p.dialog) extraBlock = `<div class="conversation-dialog">${p.dialog.map((l) => `<p>${l}</p>`).join('')}</div>`;
+    if (p.dialog) extraBlock = `<div class="conversation-dialog">${p.dialog.map((l) => `<p>${String(l).replace(/^\s*[—–-]\s*/, '')}</p>`).join('')}</div>`;
     if (p.context) extraBlock = `<div class="context-note"><span class="context-icon" aria-hidden="true">💡</span><p>${p.context}</p></div>`;
     if (p.category && !p.dialog) extraBlock = `<div class="category-badge">${p.category}</div>`;
 
@@ -1308,7 +1308,7 @@
         <p class="card-translation">${p.translation || ''}</p>`;
     }
     let extra = '';
-    if (p.dialog) extra = `<div class="conversation-dialog">${p.dialog.map((l) => `<p>${l}</p>`).join('')}</div>`;
+    if (p.dialog) extra = `<div class="conversation-dialog">${p.dialog.map((l) => `<p>${String(l).replace(/^\s*[—–-]\s*/, '')}</p>`).join('')}</div>`;
     if (p.context) extra = `<div class="context-note"><span class="context-icon" aria-hidden="true">💡</span><p>${p.context}</p></div>`;
     if (p.category && !p.dialog) extra = `<div class="category-badge">${p.category}</div>`;
     return head + extra + ((p.examples || []).length ? `<h3>Примеры</h3><div class="examples">${examplesHtml(p)}</div>` : '');
@@ -1412,6 +1412,7 @@
     const levelBlock = `
       <div class="user-level-display">
         <span class="level-icon" aria-hidden="true">${userLv.icon}</span>
+        <span class="level-kind">Уровень по изученным карточкам</span>
         <span class="level-title">${userLv.title}</span>
         <div class="level-progress" role="progressbar" aria-valuenow="${userLv.progress}" aria-valuemin="0" aria-valuemax="100">
           <div class="level-progress-fill" style="width:${userLv.progress}%"></div>
@@ -1745,7 +1746,7 @@
             </select>
           </div>
           <div class="setting-row">
-            <div class="setting-info"><label for="set-voice">Голос системы</label><p class="setting-hint">Лучше всего звучат en-US голоса с пометкой Natural/Online</p></div>
+            <div class="setting-info"><label for="set-voice">Голос</label><p class="setting-hint">★ — естественный нейронный голос: звучит как живой человек. Самые приятные — в Microsoft Edge (Ava, Andrew, Emma, Aria, Jenny), в Chrome — Google US English</p></div>
             <select id="set-voice" class="setting-select"></select>
           </div>
           <div class="setting-row">
@@ -1756,6 +1757,7 @@
             <summary>Звука нет? Как установить английский голос</summary>
             <ol>
               <li><b>Windows 10/11:</b> Параметры → Время и язык → Речь → «Добавить голоса» → English (United States). После установки перезапусти браузер.</li>
+              <li><b>Самый приятный голос:</b> открой приложение в <b>Microsoft Edge</b> — там бесплатно есть нейронные голоса Ava, Andrew, Emma, Aria, Jenny (нужен интернет). Приложение выберет лучший сам; выбрать вручную можно выше.</li>
               <li><b>Браузер:</b> лучше всего Chrome или Edge. В Яндекс.Браузере и Opera системные голоса часто не работают — тогда выручит режим «Авто» или «Только онлайн».</li>
               <li><b>Android:</b> Настройки → Язык и ввод → Синтез речи → Google, язык English (US).</li>
               <li>Проверь, что у вкладки не выключен звук (значок динамика на вкладке) и громкость Windows не на нуле.</li>
@@ -1865,7 +1867,7 @@
     const fillVoices = () => {
       const list = TTS.getAvailableVoices();
       voiceSel.innerHTML = list.length
-        ? list.map((v) => `<option value="${escapeAttr(v.voiceURI)}">${escapeHtml(v.name)} — ${v.lang}${v.localService ? '' : ' (онлайн)'}</option>`).join('')
+        ? list.map((v) => `<option value="${escapeAttr(v.voiceURI)}">${TTS.isNatural(v) ? '★ ' : ''}${escapeHtml(v.name)} — ${v.lang}${v.localService ? '' : ' (онлайн)'}</option>`).join('')
         : '<option value="">Английских голосов нет</option>';
       voiceSel.disabled = !list.length;
       voiceSel.value = TTS.getVoiceURI();

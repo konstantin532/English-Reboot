@@ -414,6 +414,7 @@ const Gamify = (() => {
     const rankHtml = `
       <div class="user-level-display" style="margin-bottom:16px">
         <span class="level-icon" aria-hidden="true">${rank.icon}</span>
+        <span class="level-kind">Ранг по опыту (XP)</span>
         <span class="level-title">${rank.title}</span>
         <div class="level-progress"><div class="level-progress-fill" style="width:${next
           ? Math.min(100, Math.round(((xp - rank.min) / (next.min - rank.min)) * 100)) : 100}%"></div></div>

@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Не отправлять Referer: онлайн-синтез речи отклоняет запросы с чужим Referer,
+       из-за этого на http://localhost (запуск через .bat) фразы молчали, а с диска — звучали -->
+  <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#000000">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">

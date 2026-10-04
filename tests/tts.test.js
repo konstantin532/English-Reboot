@@ -104,3 +104,29 @@ describe('Озвучка: выбор источника', () => {
     expect(TTS.getStatus().lastError).toContain('нет интернета');
   });
 });
+
+describe('Озвучка: выбор самого приятного голоса', () => {
+  const zira = { name: 'Microsoft Zira - English (United States)', lang: 'en-US', localService: true, voiceURI: 'zira' };
+  const ava = { name: 'Microsoft Ava Online (Natural) - English (United States)', lang: 'en-US', localService: false, voiceURI: 'ava' };
+  const libby = { name: 'Microsoft Libby Online (Natural) - English (United Kingdom)', lang: 'en-GB', localService: false, voiceURI: 'libby' };
+  const google = { name: 'Google US English', lang: 'en-US', localService: false, voiceURI: 'google' };
+
+  it('онлайн: нейронный американский голос выше локального Zira и британского', () => {
+    setVoices([zira, libby, google, ava]);
+    expect(TTS.getStatus().voice).toContain('Ava');
+    expect(TTS.isNatural(ava)).toBe(true);
+    expect(TTS.isNatural(zira)).toBe(false);
+  });
+
+  it('Chrome без нейронных голосов: Google US English выше Zira', () => {
+    setVoices([zira, google]);
+    expect(TTS.getStatus().voice).toContain('Google US English');
+  });
+
+  it('офлайн: выбирается локальный голос, онлайн-голос бы промолчал', () => {
+    navigator.onLine = false;
+    setVoices([ava, google, zira]);
+    expect(TTS.getStatus().voice).toContain('Zira');
+    navigator.onLine = true;
+  });
+});

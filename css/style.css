@@ -3,11 +3,13 @@
    Файл: style.css — темы, layout, слои разметки, компоненты
    ========================================================================== */
 /* ---------- 1. Переменные ---------- */
-/* Шрифт хранится локально — работает офлайн с первого запуска (OFL, см. fonts/OFL-GolosText.txt) */
+/* Шрифт хранится локально — работает офлайн с первого запуска.
+   На Mac/iPhone используется системный San Francisco, на остальных — Inter
+   (OFL, см. fonts/OFL-Inter.txt): оси wght и opsz, как SF Text/Display; есть знаки IPA. */
 @font-face {
-  font-family: 'Golos Text';
-  src: url('../fonts/GolosText-var.woff') format('woff');
-  font-weight: 400 900;
+  font-family: 'Inter';
+  src: url('../fonts/Inter-var.woff') format('woff');
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -2451,3 +2453,374 @@ button:not([class]):disabled { opacity: .5; cursor: not-allowed; }
 .search-group-title { text-transform: none; letter-spacing: 0; color: var(--text-muted); font-size: 12.5px; font-weight: 600; margin: 12px 4px 6px; }
 .search-result { border-radius: 10px; border: 1px solid transparent; background: var(--bg); }
 .search-result:hover, .search-result:focus-visible { border-color: var(--border-strong); background: var(--bg-card); }
+
+/* ==========================================================================
+   v3 — дизайн в стиле Apple (iOS / macOS)
+   Принципы: системный шрифт уровня SF, крупные заголовки (Large Title),
+   полупрозрачные панели с размытием, мягкие тени вместо рамок, капсульные
+   кнопки, сегментированные контролы, иконки разделов — скруглённые квадраты
+   как в «Настройках» iOS, диалоги — пузыри iMessage. Блок переопределяет v2.
+   ========================================================================== */
+:root {
+  --font-main: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-head: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --font-ipa: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Lucida Sans Unicode', sans-serif;
+
+  --bg: #F5F5F7;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --fill: rgba(118, 118, 128, .12);        /* системная заливка контролов */
+  --fill-strong: rgba(118, 118, 128, .2);
+  --text: #1D1D1F;
+  --text-muted: #6E6E73;
+  --border: rgba(0, 0, 0, .08);           /* hairline-разделители */
+  --border-strong: rgba(0, 0, 0, .14);
+  --accent: #0071E3;                       /* Apple blue */
+  --accent-strong: #0066CC;
+  --accent-soft: rgba(0, 113, 227, .1);
+  --success: #34C759; --danger: #FF3B30; --warning: #FF9500;
+  --glass: rgba(251, 251, 253, .78);
+  --glass-side: rgba(246, 246, 248, .82);
+  --shadow-card: 0 1px 1px rgba(0, 0, 0, .03), 0 4px 18px rgba(0, 0, 0, .06);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, .04), 0 12px 32px rgba(0, 0, 0, .10);
+  --ease-apple: cubic-bezier(.25, .1, .25, 1);
+  --spring: cubic-bezier(.32, .72, 0, 1);
+  --header-h: 52px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --tr-color: #C2570C;                     /* русская транскрипция */
+  --stress-color: #FF3B30;
+}
+:root[data-theme="dark"], :root[data-theme="amoled"] {
+  --bg: #000000;
+  --bg-card: #1C1C1E;
+  --bg-elevated: #2C2C2E;
+  --fill: rgba(118, 118, 128, .24);
+  --fill-strong: rgba(118, 118, 128, .36);
+  --text: #F5F5F7;
+  --text-muted: #98989D;
+  --border: rgba(255, 255, 255, .09);
+  --border-strong: rgba(255, 255, 255, .16);
+  --accent: #0A84FF;
+  --accent-strong: #409CFF;
+  --accent-soft: rgba(10, 132, 255, .18);
+  --success: #30D158; --danger: #FF453A; --warning: #FF9F0A;
+  --glass: rgba(22, 22, 23, .72);
+  --glass-side: rgba(28, 28, 30, .78);
+  --shadow-card: 0 0 0 1px rgba(255, 255, 255, .05);
+  --shadow-lift: 0 0 0 1px rgba(255, 255, 255, .08), 0 14px 34px rgba(0, 0, 0, .5);
+  --tr-color: #FF9F0A;
+  --stress-color: #FF453A;
+}
+
+body {
+  font-family: var(--font-main); font-optical-sizing: auto;
+  font-size: 15px; line-height: 1.47; letter-spacing: -.011em;
+  background: var(--bg); color: var(--text);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+h1, h2, h3, .detail-title, .card-title { font-family: var(--font-head); }
+.ipa, .ipa-chip, .preview-ipa { font-family: var(--font-ipa); letter-spacing: 0; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; border-radius: 8px; }
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+/* ---------- Шапка: стекло ---------- */
+.app-header {
+  background: transparent; color: var(--text); box-shadow: none;
+  border-bottom: 1px solid var(--border); padding: 0 14px 0 18px;
+}
+/* размытие — на псевдоэлементе: backdrop-filter на самой шапке сделал бы её
+   контейнером для position:fixed и сломал боковое меню */
+.app-header::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+}
+.logo { color: var(--text); font-size: 17px; font-weight: 600; letter-spacing: -.022em; }
+.logo-accent { color: var(--accent); }
+.logo-badge { color: var(--text-muted); border: 0; background: var(--fill); border-radius: 6px; font-weight: 600; font-size: 10.5px; }
+.app-header .icon-btn { color: var(--text); background: transparent; border-radius: 10px; }
+.app-header .icon-btn:hover { background: var(--fill); color: var(--text); }
+.nav-toggle { color: var(--text); }
+.review-badge, .streak-badge, .xp-display, .ach-counter {
+  background: var(--fill); color: var(--text); border: 0; border-radius: 999px;
+  font-weight: 600; font-size: 13px; height: 30px; padding: 0 11px;
+}
+.xp-display { color: var(--text); }
+.xp-display::after { color: var(--text-muted); }
+
+/* ---------- Полоса статистики ---------- */
+.header-strip { background: var(--bg); border-bottom: 0; padding: 0 28px; }
+.stats-bar { color: var(--text-muted); font-size: 12.5px; }
+.stats-bar strong { color: var(--text); font-weight: 600; }
+
+/* ---------- Иконки разделов: скруглённые квадраты как в «Настройках» iOS ---------- */
+.line-bullet, .line-bullet.is-diamond {
+  width: 26px; height: 26px; border-radius: 7px; transform: none;
+  font-size: 13px; font-weight: 700;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--line) 82%, white), var(--line));
+  box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .08);
+}
+.line-bullet.is-diamond > span { transform: none; }
+.line-bullet--lg { width: 40px; height: 40px; border-radius: 10px; font-size: 20px; }
+.nav-link:hover .line-bullet, .nav-link:hover .line-bullet.is-diamond { transform: none; }
+
+/* ---------- Боковое меню: как сайдбар macOS / iPadOS ---------- */
+.nav-group { margin: 16px 12px 4px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); letter-spacing: 0; }
+.nav-link { gap: 11px; font-size: 14px; font-weight: 500; letter-spacing: -.01em; color: var(--text); }
+@media (min-width: 1101px) {
+  .main-nav {
+    background: var(--glass-side);
+    -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px);
+    border-right: 1px solid var(--border); padding: 8px 10px; gap: 2px;
+  }
+  .nav-link { padding: 6px 10px; border-radius: 9px; color: var(--text); }
+  .nav-link:hover { background: var(--fill); }
+  .nav-link.active { background: var(--accent); color: #fff; }
+  .nav-link.active .line-bullet { box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .55); }
+  .sidebar { background: var(--glass-side); border-top: 1px solid var(--border); border-right: 1px solid var(--border);
+    -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px); }
+}
+@media (max-width: 1100px) {
+  .main-nav { background: var(--bg-card); }
+  .nav-link { border-radius: 10px; }
+  .nav-link.active { background: var(--accent); color: #fff; }
+}
+.nav-link[data-tab="progress"].active, .nav-link[data-tab="settings"].active { background: var(--accent); }
+/* группа «Я» — серые иконки как у системных пунктов iOS */
+.nav-link[data-tab="progress"] .line-bullet, .nav-link[data-tab="settings"] .line-bullet,
+body[data-tab="progress"] .section-header .line-bullet, body[data-tab="settings"] .section-header .line-bullet {
+  background: linear-gradient(180deg, #A1A1A6, #8E8E93); color: #fff;
+}
+
+/* ---------- Цель дня и серия ---------- */
+.side-card { background: var(--bg-card); border-radius: 14px; box-shadow: var(--shadow-card); }
+.ring-value { stroke: var(--accent); }
+.ring-track { stroke: var(--fill-strong); }
+.streak-icon { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }
+
+/* ---------- Large Title ---------- */
+.content { padding-top: 28px; }
+.section-header { margin-bottom: 20px; }
+.section-header h2 { font-size: clamp(28px, 3.4vw, 34px); font-weight: 700; letter-spacing: -.026em; gap: 12px; }
+.list-summary { color: var(--text-muted); font-size: 13px; }
+
+/* ---------- Контролы: селекты, поля, переключатели ---------- */
+.level-filter, .setting-select, select {
+  background-color: var(--fill); border: 0; border-radius: 9px; color: var(--text);
+  font-weight: 500; padding: 8px 32px 8px 12px; box-shadow: none;
+}
+.level-filter:hover, select:hover { background-color: var(--fill-strong); }
+input[type="text"], input[type="search"], input[type="email"], input:not([type]), textarea, .ielts-essay {
+  background: var(--bg-card); color: var(--text); border: 1px solid var(--border-strong); border-radius: 12px;
+}
+input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+/* переключатель iOS */
+.switch { width: 51px; height: 31px; }
+.switch-ui { border-radius: 999px; background: var(--fill-strong); transition: background .25s var(--ease-apple); }
+.switch-ui::before { width: 27px; height: 27px; top: 2px; left: 2px; background: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .15), 0 3px 1px rgba(0, 0, 0, .06); transition: transform .3s var(--spring); }
+.switch input:checked + .switch-ui { background: var(--success); }
+.switch input:checked + .switch-ui::before { transform: translateX(20px); }
+input[type="range"] { accent-color: var(--accent); }
+
+/* ---------- Карточки ---------- */
+.card { border: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); background: var(--bg-card); }
+.vocab-grid { gap: 14px; }
+.vocab-tile {
+  border: 0; border-radius: 18px; box-shadow: var(--shadow-card); background: var(--bg-card);
+  padding: 18px 18px 16px; transition: transform .35s var(--spring), box-shadow .35s var(--ease-apple);
+}
+.vocab-tile::before { display: none; }
+.vocab-tile:hover, .vocab-grid > *:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); border-color: transparent; }
+.vocab-tile:active { transform: scale(.985); }
+.tile-front { font-size: 17px; font-weight: 600; letter-spacing: -.022em; color: var(--text); }
+.tile-trans { color: var(--text-muted); font-size: 14px; }
+.tag-chip, .category-badge { background: var(--fill); color: var(--text-muted); border-radius: 999px; padding: 2px 9px; font-weight: 500; }
+.level-badge { border-radius: 999px; padding: 2px 8px; font-weight: 600; }
+
+/* ---------- Детальная карточка ---------- */
+.detail-title { font-size: clamp(30px, 4.2vw, 44px); font-weight: 700; letter-spacing: -.03em; line-height: 1.08; }
+.card-translation { font-size: 19px; color: var(--text-muted); letter-spacing: -.015em; }
+.back-btn { background: var(--fill); border: 0; color: var(--accent); border-radius: 999px; font-weight: 600; }
+.back-btn:hover { background: var(--fill-strong); }
+.audio-btn { background: var(--accent-soft); color: var(--accent); border: 0; }
+.audio-btn:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); transform: scale(1.06); }
+.example { background: var(--bg); border: 0; border-radius: 16px; }
+.word-token .word-text { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.word-token[data-w]:hover { background: var(--fill); }
+.ru-tr { color: var(--tr-color); font-weight: 600; letter-spacing: -.005em; }
+:root[data-theme="dark"] .ru-tr, :root[data-theme="amoled"] .ru-tr { color: var(--tr-color); }
+.stress { color: var(--stress-color); text-decoration-color: color-mix(in srgb, var(--stress-color) 40%, transparent); }
+:root[data-theme="dark"] .stress, :root[data-theme="amoled"] .stress { color: var(--stress-color); }
+
+/* диалог — пузыри iMessage: собеседник слева (серый), ответ справа (синий) */
+.conversation-dialog {
+  display: flex; flex-direction: column; gap: 6px; padding: 14px; border: 0;
+  background: var(--bg); border-radius: 18px;
+}
+.conversation-dialog p {
+  max-width: 78%; margin: 0; padding: 9px 14px; border-radius: 19px; font-style: normal;
+  font-size: 16px; line-height: 1.35; letter-spacing: -.012em;
+  background: var(--bg-elevated); color: var(--text); align-self: flex-start;
+  border-bottom-left-radius: 6px; box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+}
+:root[data-theme="dark"] .conversation-dialog p, :root[data-theme="amoled"] .conversation-dialog p { background: #3A3A3C; }
+.conversation-dialog p:nth-child(even) {
+  align-self: flex-end; background: var(--accent); color: #fff;
+  border-bottom-left-radius: 19px; border-bottom-right-radius: 6px;
+}
+
+/* ---------- Кнопки ---------- */
+.btn-primary {
+  background: var(--accent); color: #fff; border: 0; border-radius: 999px;
+  font-weight: 600; font-size: 15px; letter-spacing: -.01em; padding: 10px 22px; box-shadow: none;
+  transition: background .2s var(--ease-apple), transform .2s var(--spring), opacity .2s;
+}
+.btn-primary:hover { background: color-mix(in srgb, var(--accent) 88%, white); transform: none; box-shadow: none; }
+.btn, .btn-ghost { border-radius: 999px; font-weight: 600; }
+.btn-ghost { background: var(--fill); border: 0; color: var(--accent); }
+.btn-ghost:hover { background: var(--fill-strong); border-color: transparent; }
+button:not([class]) { background: var(--fill); border: 0; color: var(--text); border-radius: 12px; font-weight: 500; }
+button:not([class]):hover { background: var(--fill-strong); }
+/* нажатие — как в iOS: лёгкое сжатие, без «волн» Material */
+.er-ripple { display: none !important; }
+.btn:hover, .mode-btn:hover, .test-option:hover, .pair-option:hover, button[data-mark]:hover,
+.ielts-word:hover, .word-audio:hover, .add-to-wordbank:hover { transform: none; box-shadow: none; }
+.btn:active, .btn-primary:active, .test-option:active, .pair-option:active, button[data-mark]:active,
+.audio-btn:active, button:not([class]):active, .back-btn:active { transform: scale(.97); opacity: .85; transition-duration: .08s; }
+
+/* сегментированный контрол (режимы тренажёра, вкладки IELTS) */
+.practice-modes {
+  display: inline-flex; gap: 2px; padding: 2px; background: var(--fill); border-radius: 10px;
+  justify-content: center; flex-wrap: wrap; margin-left: auto; margin-right: auto;
+}
+.section-wrap > .practice-modes, .practice-modes { width: fit-content; max-width: 100%; display: flex; }
+.mode-btn {
+  background: transparent; border: 0; border-radius: 8px; color: var(--text);
+  font-weight: 500; font-size: 14px; padding: 7px 16px; box-shadow: none;
+}
+.mode-btn.active {
+  background: var(--bg-card); color: var(--text); font-weight: 600;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .12), 0 3px 1px rgba(0, 0, 0, .04); animation: none;
+}
+:root[data-theme="dark"] .mode-btn.active, :root[data-theme="amoled"] .mode-btn.active { background: #636366; }
+
+/* варианты ответов — сгруппированный список */
+.test-option, .pair-option {
+  background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px;
+  font-weight: 500; letter-spacing: -.01em; transition: background .2s, border-color .2s, transform .2s var(--spring);
+}
+.test-option:hover, .pair-option:hover { background: var(--bg); border-color: var(--border-strong); }
+.test-option.is-correct { background: color-mix(in srgb, var(--success) 14%, var(--bg-card)); border-color: var(--success); color: var(--text); }
+.test-option.is-wrong { background: color-mix(in srgb, var(--danger) 12%, var(--bg-card)); border-color: var(--danger); color: var(--text); }
+.srs-btn { border-radius: 14px; font-weight: 600; border: 0; }
+.srs-know { background: var(--success); color: #fff; }
+.srs-hard { background: var(--warning); color: #fff; }
+.srs-btn.srs-dontknow, button[data-mark="dontknow"] { background: var(--danger); color: #fff; }
+
+/* ---------- Прогресс и плитки статистики ---------- */
+.stat-card { background: var(--bg-card); border: 0; border-radius: 18px; box-shadow: var(--shadow-card); }
+.stat-num { font-size: 34px; font-weight: 700; letter-spacing: -.03em; color: var(--text); }
+.progress-overview .stat-card:first-child { border: 0; }
+.progress-overview .stat-card:first-child .stat-num { color: var(--accent); }
+.challenge-card { background: var(--bg-card); border: 0; border-radius: 14px; box-shadow: var(--shadow-card); }
+.text-of-day { border: 0; border-left: 0; border-radius: 18px; box-shadow: var(--shadow-card); background: var(--bg-card); }
+.text-of-day:hover { border-left-color: transparent; box-shadow: var(--shadow-lift); }
+
+/* ---------- Поиск: панель Spotlight ---------- */
+.search-overlay { background: rgba(0, 0, 0, .28); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.search-box, .search-filters, .search-results { background: var(--glass); border-color: var(--border);
+  -webkit-backdrop-filter: saturate(180%) blur(30px); backdrop-filter: saturate(180%) blur(30px); }
+.search-box { border-radius: 18px 18px 0 0; }
+.search-results { border-radius: 0 0 18px 18px; }
+#search-input { font-size: 20px; letter-spacing: -.02em; }
+.search-result { background: transparent; border-radius: 10px; }
+.search-result:hover, .search-result:focus-visible { background: var(--accent); border-color: transparent; }
+.search-result:hover *, .search-result:focus-visible * { color: #fff !important; }
+
+/* ---------- Модальные окна и всплывающие сообщения ---------- */
+.modal-card, .word-popup { border: 0; border-radius: 20px; box-shadow: var(--shadow-lift); background: var(--bg-elevated); }
+.toast { border-radius: 999px; box-shadow: var(--shadow-lift); font-weight: 600; }
+
+/* ---------- Онбординг: экран приветствия как у Apple ---------- */
+.onboarding-overlay { background: var(--bg) !important; }
+.onboarding-card {
+  background: var(--bg-card) !important; color: var(--text) !important; border: 0 !important;
+  border-radius: 28px !important; box-shadow: var(--shadow-lift) !important; text-align: center !important;
+  max-width: 560px; padding: 44px 40px 32px !important;
+}
+.ob-lines { justify-content: center; gap: 10px; }
+.ob-lines .line-bullet { width: 38px; height: 38px; border-radius: 10px; font-size: 17px; }
+.onboarding-card h1 {
+  -webkit-text-fill-color: currentColor !important; color: var(--text) !important;
+  font-size: clamp(36px, 6vw, 52px); font-weight: 700; letter-spacing: -.035em; margin: 24px 0 12px;
+}
+.onboarding-card p { color: var(--text-muted) !important; font-size: 17px; letter-spacing: -.015em; }
+#ob-start { background: var(--accent); border-radius: 999px; font-weight: 600; font-size: 17px; padding: 14px 22px; }
+#ob-start:hover { background: color-mix(in srgb, var(--accent) 88%, white); }
+#ob-skip { color: var(--accent) !important; text-decoration: none; font-weight: 500; font-size: 15px; }
+#ob-skip:hover { text-decoration: underline; }
+.onboarding-card .ob-question { color: var(--text) !important; }
+.onboarding-card .ob-option, .onboarding-card .ob-goal, .onboarding-card .ob-level {
+  background: var(--bg) !important; color: var(--text) !important; border: 2px solid transparent !important; border-radius: 14px !important;
+}
+.onboarding-card .ob-option:hover:not(:disabled), .onboarding-card .ob-goal:hover, .onboarding-card .ob-level:hover { border-color: var(--border-strong) !important; }
+.onboarding-card .ob-goal.selected, .onboarding-card .ob-level.selected { border-color: var(--accent) !important; background: var(--accent-soft) !important; }
+.onboarding-card .ob-level strong { color: var(--accent) !important; }
+.onboarding-card small, .onboarding-card .ob-counter { color: var(--text-muted) !important; }
+.onboarding-card .ob-progress { background: var(--fill) !important; }
+#ob-finish { background: var(--accent); border-radius: 999px; }
+
+/* ---------- Мобильный ---------- */
+@media (max-width: 768px) {
+  .header-strip { padding: 0 16px; }
+  .section-header h2 { font-size: 28px; }
+  .onboarding-card { padding: 32px 22px 24px !important; border-radius: 24px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vocab-tile, .switch-ui::before, .mode-btn { transition: none !important; }
+}
+
+/* ---------- v3: доводка ---------- */
+.logo-accent { background: none !important; -webkit-text-fill-color: currentColor !important; color: var(--accent) !important; animation: none !important; }
+.review-badge, .streak-badge, .xp-display, .ach-counter { display: inline-flex; align-items: center; gap: 4px; line-height: 1; }
+.conversation-dialog p:first-child { color: var(--text); }
+.conversation-dialog p:nth-child(even) { color: #fff; }
+:root[data-theme="dark"] .conversation-dialog, :root[data-theme="amoled"] .conversation-dialog { background: #000; }
+:root[data-theme="dark"] .conversation-dialog p:nth-child(odd), :root[data-theme="amoled"] .conversation-dialog p:nth-child(odd) { background: #2C2C2E; }
+:root[data-theme="dark"] .conversation-dialog p:nth-child(even), :root[data-theme="amoled"] .conversation-dialog p:nth-child(even) { background: var(--accent); }
+.practice-panel .detail-title { font-size: 28px; justify-content: center; }
+.challenge-card, .challenge-card * { font-family: var(--font-main) !important; }
+/* колонка: только цель дня (серия уже в шапке) — больше места меню */
+@media (min-width: 1101px) {
+  .main-nav { bottom: 104px; }
+  .sidebar { height: 104px; padding: 12px; }
+  .sidebar .streak-card { display: none; }
+}
+.topic-tile {
+  border: 0 !important; border-radius: 18px; background: var(--bg-card); box-shadow: var(--shadow-card);
+  transition: transform .35s var(--spring), box-shadow .35s var(--ease-apple);
+}
+.topic-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+.topic-tile:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); }
+.topic-num { color: var(--text-muted); font-family: var(--font-main) !important; font-variant-numeric: tabular-nums; }
+.topic-title { font-weight: 600; letter-spacing: -.02em; }
+@media (max-width: 768px) {
+  .xp-display, .ach-counter, .logo-badge, .review-badge { display: none !important; }
+}
+/* два рейтинга на «Прогрессе» — компактные строки с подписью, что именно меряется */
+.user-level-display {
+  display: grid !important; grid-template-columns: 52px 1fr; grid-template-rows: auto auto auto auto;
+  column-gap: 14px; row-gap: 2px; align-items: center; text-align: left !important;
+  background: var(--bg) !important; border: 0 !important; border-radius: 16px !important; padding: 14px 18px !important;
+  box-shadow: none !important;
+}
+.user-level-display .level-icon { grid-row: 1 / span 4; font-size: 38px; line-height: 1; justify-self: center; }
+.user-level-display .level-kind { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.user-level-display .level-title { font-size: 20px !important; font-weight: 700; letter-spacing: -.02em; color: var(--text) !important; margin: 0 !important; }
+.user-level-display .level-progress { height: 6px; border-radius: 999px; background: var(--fill-strong); margin: 6px 0 2px; }
+.user-level-display .level-progress-fill { border-radius: 999px; background: var(--accent); }
+.user-level-display .level-next, .user-level-display p { margin: 0; font-size: 12.5px; color: var(--text-muted); }
+.league-card, [class*="league"] { font-family: var(--font-main) !important; }
+[class*="league"] .card, .league-card { border: 0 !important; box-shadow: var(--shadow-card); }

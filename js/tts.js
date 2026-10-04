@@ -47,26 +47,43 @@ const TTS = (() => {
   }
 
   /* ---------- Голоса ---------- */
-  function voiceScore(v) {
+  // Нейронные голоса звучат естественно и разборчиво: Edge — «… Online (Natural)»,
+  // macOS/iOS — Premium/Enhanced, Chrome — Google US English. Локальные Zira/David — «роботы».
+  const NATURAL = /natural|neural|premium|enhanced|multilingual/i;
+  const NICE = /\b(aria|jenny|ava|andrew|emma|brian|guy|michelle|christopher|eric|roger|steffan|ana|samantha|allison|evan|nathan|zoe|joelle|nicky|noelle)\b/i;
+  function isNatural(v) { return NATURAL.test(v.name || '') || /google us english/i.test(v.name || ''); }
+
+  function voiceScore(v, online) {
     const lang = (v.lang || '').toLowerCase().replace('_', '-');
     let score = 0;
-    if (lang === 'en-us') score += 30;
-    else if (lang === 'en-gb') score += 20;
-    if (v.localService) score += 25;
-    if (/natural|neural|google|siri|samantha|aria|jenny|guy|zira|david|mark/i.test(v.name)) score += 10;
+    if (lang === 'en-us') score += 30;           // учим американский английский
+    else if (lang === 'en-ca') score += 14;
+    else if (lang === 'en-gb' || lang === 'en-au') score += 10;
+    if (NATURAL.test(v.name || '')) score += 60;
+    else if (/google us english/i.test(v.name || '')) score += 40;
+    if (NICE.test(v.name || '')) score += 12;
+    if (/zira|david|mark|hazel|george/i.test(v.name || '') && !NATURAL.test(v.name || '')) score -= 8;
+    // офлайн онлайн-голоса молчат — тогда главное, чтобы голос был локальным
+    if (!online && !v.localService) score -= 200;
+    else if (v.localService) score += 5;
     return score;
   }
 
   function loadVoices() {
     if (!hasSynth()) return;
+    const online = navigator.onLine !== false;
     voices = speechSynthesis.getVoices()
       .filter((v) => v.lang && v.lang.toLowerCase().startsWith('en'))
-      .sort((a, b) => voiceScore(b) - voiceScore(a));
+      .sort((a, b) => voiceScore(b, online) - voiceScore(a, online));
   }
 
   function chosenVoice() {
     const uri = lsGet(LS_VOICE, '');
-    return (uri && voices.find((v) => v.voiceURI === uri)) || voices[0] || null;
+    const picked = uri && voices.find((v) => v.voiceURI === uri);
+    // выбранный вручную онлайн-голос офлайн не заговорит — берём лучший локальный
+    if (picked && (picked.localService || navigator.onLine !== false)) return picked;
+    const online = navigator.onLine !== false;
+    return voices.slice().sort((a, b) => voiceScore(b, online) - voiceScore(a, online))[0] || null;
   }
 
   function getAvailableVoices() { if (!voices.length) loadVoices(); return voices.slice(); }
@@ -77,6 +94,7 @@ const TTS = (() => {
     if (hasSynth()) {
       loadVoices();
       if (typeof speechSynthesis.onvoiceschanged !== 'undefined') speechSynthesis.onvoiceschanged = loadVoices;
+      if (window.addEventListener) { window.addEventListener('online', loadVoices); window.addEventListener('offline', loadVoices); }
     }
     if (!isTTSAvailable()) { document.body.classList.add('tts-unavailable'); return false; }
     return true;
@@ -264,6 +282,7 @@ const TTS = (() => {
   }
 
   return {
+    isNatural,
     isTTSAvailable, initTTS, speak, speakWithEvents, speakWord, stopSpeaking,
     getAvailableVoices, getVoiceURI, getStatus, getMode, setMode, setVoice, test,
   };
