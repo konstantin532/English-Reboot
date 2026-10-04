@@ -1,0 +1,17 @@
+{
+  "name": "english-reboot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Offline-first SPA для изучения английского (A1-B2+)",
+  "scripts": {
+    "test:screenshots": "node scripts/screenshots.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "postinstall": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "vitest": "^3.0.0"
+  }
+}
