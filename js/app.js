@@ -8,9 +8,9 @@
 (() => {
   'use strict';
 
-  const CONTENT_VERSION = 2;
-  const VOCAB_VERSION = '1.1.0';
-  const EXTRA_VERSION = '1.4.0'; // 1.4.0: исправлены тесты «Разговорных фраз»
+  const CONTENT_VERSION = 3; // 3: американская IPA из lex_us.js
+  const VOCAB_VERSION = '1.2.0'; // 1.2.0: IPA для всех слов (lex_us.js)
+  const EXTRA_VERSION = '1.5.1'; // 1.5.0: +40 фраз американской разговорной речи; // 1.4.0: исправлены тесты «Разговорных фраз»
   const APP_VERSION = '1.1.0';
 
   const TABS = [
@@ -34,6 +34,7 @@
     { key: 'layer_silent',    offClass: 'layer-silent-off',    title: 'Немые буквы',       hint: 'Буквы, которые не читаются' },
     { key: 'layer_surprise',  offClass: 'layer-surprise-off',  title: 'Неожиданные звуки', hint: 'Где написание расходится со звучанием' },
     { key: 'layer_ipa',       offClass: 'layer-ipa-off',       title: 'IPA-транскрипция',  hint: 'Под каждым словом примера' },
+    { key: 'layer_ru',        offClass: 'layer-ru-off',        title: 'Русская транскрипция', hint: 'Как это звучит в США, русскими буквами. Нажми на слово — услышишь его' },
     { key: 'layer_stress',    offClass: 'layer-stress-off',    title: 'Ударение',          hint: 'Выделение ударного слога' },
     { key: 'layer_connected', offClass: 'layer-connected-off', title: 'Connected Speech',  hint: 'Слияние слов в живой речи' },
   ];
@@ -41,7 +42,7 @@
   const DEFAULT_SETTINGS = {
     theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
     layer_pos: true, layer_silent: true, layer_surprise: true,
-    layer_ipa: true, layer_stress: true, layer_connected: true,
+    layer_ipa: true, layer_ru: true, layer_stress: true, layer_connected: true,
     tts_rate: 0.7, daily_goal: 20, currentLevel: null, reminder_time: '19:00',
   };
 
@@ -783,8 +784,8 @@
         </h2>
         <p class="slang-full-form">= ${p.full_form}</p>
         <div class="ipa-chips">
-          <span class="ipa-chip">полная: ${p.ipa_full}</span>
-          <span class="ipa-chip">сокращённая: ${p.ipa_short}</span>
+          <span class="ipa-chip">полная: ${p.ipa_full} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa_full, p.full_form || '')}</span></span>
+          <span class="ipa-chip">сокращённая: ${p.ipa_short} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa_short, p.front)}</span></span>
         </div>`;
     } else {
       headHtml = `
@@ -849,13 +850,13 @@
         <div class="pair-word">
           <button class="audio-btn" data-speech="${escapeAttr(p.word1)}" type="button" title="Прослушать" aria-label="Озвучить ${p.word1}">🔊</button>
           <span class="pw-text">${p.word1}</span>
-          <span class="ipa">${p.ipa1}</span>
+          <span class="ipa">${p.ipa1}</span><span class="ru-tr">${Annotate.ruTranscribe(p.ipa1, p.word1)}</span>
         </div>
         <span class="pair-slash">/</span>
         <div class="pair-word">
           <button class="audio-btn" data-speech="${escapeAttr(p.word2)}" type="button" title="Прослушать" aria-label="Озвучить ${p.word2}">🔊</button>
           <span class="pw-text">${p.word2}</span>
-          <span class="ipa">${p.ipa2}</span>
+          <span class="ipa">${p.ipa2}</span><span class="ru-tr">${Annotate.ruTranscribe(p.ipa2, p.word2)}</span>
         </div>
       </div>
       <h3>Тренажёр на слух</h3>
@@ -868,7 +869,7 @@
         </div>
         <div class="pair-feedback" id="pair-feedback" role="status" aria-live="polite"></div>
       </div>` : `
-      <div class="ipa-chips"><span class="ipa-chip">${p.ipa1}</span></div>`;
+      <div class="ipa-chips"><span class="ipa-chip">${p.ipa1} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa1, p.word1)}</span></span></div>`;
 
     return `
       <div class="section-wrap">
@@ -1015,7 +1016,7 @@
     pop.setAttribute('aria-label', 'Слово ' + word);
     pop.innerHTML = `
       <p class="word">${word}</p>
-      ${spanEl.dataset.ipa ? `<p class="ipa">${spanEl.dataset.ipa}</p>` : ''}
+      ${spanEl.dataset.ipa ? `<p class="ipa">${spanEl.dataset.ipa}</p><p class="ru-tr ru-tr--big">${Annotate.ruWord(spanEl.dataset.ipa, word)}</p>` : ''}
       <div class="word-popup-actions">
         <button class="word-audio" type="button" aria-label="Озвучить">🔊 Слушать</button>
         <button class="add-to-wordbank" type="button">+ В словарь</button>
@@ -1250,14 +1251,14 @@
         <div class="pair-words">
           <div class="pair-word">
             <button class="audio-btn" data-speech="${escapeAttr(p.word1)}" type="button" aria-label="Озвучить ${p.word1}">🔊</button>
-            <span class="pw-text">${p.word1}</span><span class="ipa">${p.ipa1}</span>
+            <span class="pw-text">${p.word1}</span><span class="ipa">${p.ipa1}</span><span class="ru-tr">${Annotate.ruTranscribe(p.ipa1, p.word1)}</span>
           </div>
           <span class="pair-slash">/</span>
           <div class="pair-word">
             <button class="audio-btn" data-speech="${escapeAttr(p.word2)}" type="button" aria-label="Озвучить ${p.word2}">🔊</button>
-            <span class="pw-text">${p.word2}</span><span class="ipa">${p.ipa2}</span>
+            <span class="pw-text">${p.word2}</span><span class="ipa">${p.ipa2}</span><span class="ru-tr">${Annotate.ruTranscribe(p.ipa2, p.word2)}</span>
           </div>
-        </div>` : `<div class="ipa-chips"><span class="ipa-chip">${p.ipa1}</span></div>`;
+        </div>` : `<div class="ipa-chips"><span class="ipa-chip">${p.ipa1} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa1, p.word1)}</span></span></div>`;
       return `
         <h2 class="detail-title">${p.front}</h2>
         ${words}
@@ -1285,8 +1286,8 @@
         <h2 class="detail-title">${p.front}</h2>
         <p class="slang-full-form">= ${p.full_form}</p>
         <div class="ipa-chips">
-          <span class="ipa-chip">полная: ${p.ipa_full}</span>
-          <span class="ipa-chip">сокращённая: ${p.ipa_short}</span>
+          <span class="ipa-chip">полная: ${p.ipa_full} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa_full, p.full_form || '')}</span></span>
+          <span class="ipa-chip">сокращённая: ${p.ipa_short} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa_short, p.front)}</span></span>
         </div>`;
     } else {
       head = `
@@ -1626,6 +1627,12 @@
       }
       const audio = e.target.closest('.audio-btn');
       if (audio) { speak(audio.dataset.speech); return; }
+      const wt = e.target.closest('.word-token[data-w]');
+      if (wt && /[a-z]/i.test(wt.dataset.w)) {
+        speak(wt.dataset.w.replace(/[^A-Za-z' -]/g, ''));
+        wt.classList.remove('is-speaking'); void wt.offsetWidth; wt.classList.add('is-speaking');
+        return;
+      }
       const pr = e.target.closest('.play-random');
       if (pr) { pairPlay(); return; }
       const po = e.target.closest('.pair-option');
@@ -1724,6 +1731,7 @@
               <span class="pos-noun"><span class="stress">an</span>swer</span>
             </p>
             <p class="preview-ipa ipa">ðə naɪt njuː ði ˈɑːnsə</p>
+            <p class="preview-ipa ru-tr">${Annotate.ruTranscribe('ðə naɪt njuː ði ˈɑːnsə', 'the knight knew the answer')}</p>
             <p class="preview-line preview-line--connected">
               I <span class="pos-verb">want</span> <span class="connected">to</span> go
               <span class="connected-note">→ «wanna»</span>

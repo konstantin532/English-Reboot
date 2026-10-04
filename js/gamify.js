@@ -12,7 +12,7 @@ const Gamify = (() => {
 
   let ER = null;
   let effectsOn = true;
-  const PRO_VERSION = '1.0.0';
+  const PRO_VERSION = '1.1.0'; // 1.1.0: IPA для всех слов (lex_us.js)
 
   const XP_RULES = {
     newCardKnow: 15, newCardHard: 5,

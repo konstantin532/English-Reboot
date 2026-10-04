@@ -1988,3 +1988,88 @@ body::before {
 .ielts-word span { font-size: .8rem; color: var(--text-muted); }
 .ielts-history { margin-top: 16px; }
 .ielts-hist-item { padding: 8px 0; border-bottom: 1px solid var(--border); }
+
+/* ===== v1.1: русская транскрипция, ударение, немые буквы ===== */
+.ru-tr {
+  display: block; font-family: var(--font-main); font-size: 11px; line-height: 1.2;
+  color: var(--accent-strong); letter-spacing: .01em; margin-top: 1px; white-space: nowrap;
+}
+.ipa-chip .ru-tr, .ipa-chips .ru-tr { display: inline; margin-left: 4px; font-size: 12px; }
+.ru-tr--big { font-size: 1rem; font-weight: 600; margin: 2px 0 6px; }
+:is([data-theme="dark"], [data-theme="amoled"]) .ru-tr { color: #FDBA74; }
+body.layer-ru-off .ru-tr { display: none; }
+
+/* Ударный слог — цветом, а не только жирным */
+.stress { font-weight: 800; color: var(--danger); text-decoration: underline 2px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--danger) 45%, transparent); }
+:is([data-theme="dark"], [data-theme="amoled"]) .stress { color: #FB7185; }
+body.layer-stress-off .stress { color: inherit; font-weight: inherit; text-decoration: none; }
+
+/* Немые буквы — тусклые, почти в цвет фона */
+.silent-letter, body .word-token .silent-letter { color: var(--text); opacity: .22; text-decoration: none; }
+body.layer-silent-off .silent-letter { opacity: 1; }
+
+/* Слово в примере кликабельно — звучит */
+.word-token[data-w] { cursor: pointer; border-radius: 6px; transition: background-color .2s ease, transform .15s ease; }
+.word-token[data-w]:hover { background: var(--accent-soft); }
+.word-token[data-w]:active { transform: scale(.94); }
+.word-token.is-speaking { animation: er-word-pulse .7s ease; }
+@keyframes er-word-pulse {
+  0% { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+  100% { background: transparent; }
+}
+
+/* ===== v1.1: анимации кнопок ===== */
+.btn, .btn-primary, .mode-btn, .audio-btn, .test-option, .pair-option,
+button[data-mark], .ielts-word, .word-audio, .add-to-wordbank {
+  position: relative; overflow: hidden;
+  transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s ease,
+              background-color .2s ease, color .2s ease, border-color .2s ease;
+  will-change: transform;
+}
+.btn:hover, .mode-btn:hover, .test-option:hover, .pair-option:hover,
+button[data-mark]:hover, .ielts-word:hover, .word-audio:hover, .add-to-wordbank:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.btn-primary { box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--accent) 70%, transparent); }
+.btn-primary:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--accent) 80%, transparent); }
+.btn:active, .btn-primary:active, .mode-btn:active, .test-option:active, .pair-option:active,
+button[data-mark]:active, .ielts-word:active, .audio-btn:active, .nav-link:active {
+  transform: scale(.95); transition-duration: .08s;
+}
+.audio-btn:hover { transform: scale(1.12) rotate(-6deg); }
+.nav-link { flex-shrink: 0; transition: color .2s ease, transform .18s ease; }
+.nav-link:hover { transform: translateY(-1px); }
+.nav-link.active::after { animation: er-underline .3s ease; }
+@keyframes er-underline { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* 14 разделов не влезают в шапку ноутбука: плотнее и с подсказкой-градиентом справа */
+@media (max-width: 1500px) {
+  .nav-link { font-size: 12.5px; padding: 8px 6px; }
+  .main-nav { mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+}
+.mode-btn.active { animation: er-pop .35s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes er-pop { 0% { transform: scale(.92); } 100% { transform: scale(1); } }
+
+/* Волна от клика (кнопкам добавляет effects в app.js) */
+.er-ripple {
+  position: absolute; border-radius: 50%; pointer-events: none; transform: scale(0);
+  background: currentColor; opacity: .25; animation: er-ripple .55s ease-out forwards;
+}
+@keyframes er-ripple { to { transform: scale(2.6); opacity: 0; } }
+
+/* Блик на главной кнопке */
+.btn-primary::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+.btn-primary:hover::after { transform: translateX(120%); transition: transform .7s ease; }
+
+/* Карточки мягко «приподнимаются» */
+.card { transition: transform .25s ease, box-shadow .25s ease; }
+.vocab-grid > *:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -14px rgba(0,0,0,.35); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  .btn-primary::after, .er-ripple { display: none; }
+}

@@ -116,3 +116,21 @@ const Effects = (() => {
   return { setEnabledGetter, vibrate, playCorrect, playWrong, playAchievement,
     playCombo, playLevelUp, launchConfetti, showSkeleton, flipCard };
 })();
+/* ---------- Волна от нажатия на кнопки (v1.1) ---------- */
+(() => {
+  if (typeof document === 'undefined' || !window.matchMedia) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const SEL = '.btn, .btn-primary, .mode-btn, .test-option, .pair-option, button[data-mark], .ielts-word, .word-audio, .add-to-wordbank';
+  document.addEventListener('pointerdown', (e) => {
+    if (reduce.matches) return;
+    const btn = e.target.closest && e.target.closest(SEL);
+    if (!btn || btn.disabled) return;
+    const r = btn.getBoundingClientRect();
+    const size = Math.max(r.width, r.height);
+    const dot = document.createElement('span');
+    dot.className = 'er-ripple';
+    dot.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - r.left - size / 2}px;top:${e.clientY - r.top - size / 2}px`;
+    btn.appendChild(dot);
+    dot.addEventListener('animationend', () => dot.remove());
+  }, { passive: true });
+})();
