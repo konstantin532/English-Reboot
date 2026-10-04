@@ -24,8 +24,9 @@
     { id: 'reading',      title: 'Чтение',            num: '08' },
     { id: 'personal',     title: 'Моя колода',        num: '09' },
     { id: 'practice',     title: 'Тренажёр',          num: '10' },
-    { id: 'progress',     title: 'Прогресс',          num: '11' },
-    { id: 'settings',     title: 'Настройки',         num: '12' },
+    { id: 'ielts',        title: 'IELTS',             num: '11' },
+    { id: 'progress',     title: 'Прогресс',          num: '12' },
+    { id: 'settings',     title: 'Настройки',         num: '13' },
   ];
 
   const LAYERS = [
@@ -278,6 +279,7 @@
     const ttsOk = TTS.initTTS();
     Dictation.init(window.ER);
     Shadowing.init(window.ER);
+    IELTS.init(window.ER);
     Search.init(window.ER);
     Onboarding.init(window.ER);
     if (!ttsOk) toast('Озвучка недоступна в этом браузере — аудиокнопки скрыты', 'danger');
@@ -413,7 +415,7 @@
     let mastered = 0, toReview = 0;
     for (const r of recs) {
       if (r.status === 'mastered') mastered++;
-      if (r.status !== 'mastered' && r.nextReview <= today) toReview++;
+      if (r.nextReview && String(r.nextReview).slice(0, 10) <= today) toReview++;
     }
 
     const goal = Number(settings.daily_goal) || 20;
@@ -477,6 +479,7 @@
     // Остановить то, что продолжало работать от прошлого экрана
     if (window.TTS) TTS.stopSpeaking();
     if (window.Shadowing && Shadowing.stop) Shadowing.stop();
+    if (window.IELTS) IELTS.stop();
     closeWordPopup();
 
     document.querySelectorAll('.nav-link').forEach((b) => {
@@ -529,12 +532,14 @@
     reading:      (t) => renderVocabList(t, 'reading'),
     personal:     (t) => renderVocabList(t, 'personal'),
     practice:     renderPractice,
+    ielts:        () => IELTS.render(),
     progress:     renderProgress,
     settings:     renderSettings,
   };
 
   function bindTabEvents(tabId) {
     if (tabId === 'settings') bindSettings();
+    if (tabId === 'ielts') IELTS.bind();
     if (tabId === 'practice' && state.practiceMode === 'dictation') Dictation.bindSetup();
     if (tabId === 'practice' && state.practiceMode === 'shadowing') Shadowing.bindSetup();
     if (VOCAB_STORES[tabId]) bindLazyLoading(tabId);

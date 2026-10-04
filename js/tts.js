@@ -9,6 +9,9 @@ const TTS = (() => {
   'use strict';
 
   let voices = [];
+  let badVoice = null;   // голос, на котором уже случилась ошибка синтеза
+  const live = new Set(); // держим ссылки: Chrome собирает «мусорные» utterance и обрывает речь
+  let gen = 0;            // поколение очереди — отменяет отложенный старт после stop
 
   function isTTSAvailable() { return 'speechSynthesis' in window; }
 
@@ -18,8 +21,9 @@ const TTS = (() => {
     let score = 0;
     if (lang === 'en-us') score += 30;
     else if (lang === 'en-gb') score += 25;
-    if (/natural|neural|google|siri|samantha|daniel/i.test(v.name)) score += 20;
-    if (v.localService) score += 5;
+    // Локальные голоса надёжнее: сетевые (Google, Microsoft Online) молчат офлайн
+    if (v.localService) score += 25;
+    if (/natural|neural|google|siri|samantha|daniel/i.test(v.name)) score += 10;
     return score;
   }
 
@@ -50,7 +54,18 @@ const TTS = (() => {
     u.lang = lang || 'en-US';
     u.pitch = 1;
     u.volume = 1;
-    if (voices.length) u.voice = voices[0]; // иначе — системный дефолт
+    const v = voices.find((x) => x !== badVoice);
+    if (v) u.voice = v; // иначе — системный дефолт
+    live.add(u);
+    const done = () => live.delete(u);
+    u.addEventListener('end', done);
+    u.addEventListener('error', (e) => {
+      done();
+      // Сетевой голос недоступен → запоминаем и повторяем системным/следующим голосом
+      if (e.error === 'synthesis-failed' || e.error === 'network' || e.error === 'voice-unavailable') {
+        if (u.voice && badVoice !== u.voice) { badVoice = u.voice; speechSynthesis.speak(makeUtterance(text, rate, lang)); }
+      }
+    });
     return u;
   }
 
@@ -70,28 +85,38 @@ const TTS = (() => {
     return chunks;
   }
 
+  // Chrome/Edge: speak() сразу после cancel() часто «проглатывается» без звука,
+  // а движок иногда залипает в паузе. Поэтому: cancel → resume → старт с паузой.
+  function enqueue(fn) {
+    const busy = speechSynthesis.speaking || speechSynthesis.pending;
+    stopSpeaking();
+    const my = gen;
+    const run = () => { if (my !== gen) return; speechSynthesis.resume(); fn(); };
+    if (busy) setTimeout(run, 80); else run();
+  }
+
   function speak(text, rate = 0.7, lang = 'en-US') {
     if (!isTTSAvailable() || !text) return false;
-    stopSpeaking();
-    splitLong(text).forEach((chunk) => speechSynthesis.speak(makeUtterance(chunk, rate, lang)));
+    if (!voices.length) loadVoices(); // голоса могли догрузиться без события
+    enqueue(() => splitLong(text).forEach((chunk) => speechSynthesis.speak(makeUtterance(chunk, rate, lang))));
     return true;
   }
 
   // Вариант с событиями — для караоке-подсветки в shadowing
   function speakWithEvents(text, rate, handlers = {}) {
     if (!isTTSAvailable()) return null;
-    stopSpeaking();
     const u = makeUtterance(text, rate);
     if (handlers.onboundary) u.onboundary = handlers.onboundary;
     if (handlers.onend) u.onend = handlers.onend;
     if (handlers.onerror) u.onerror = handlers.onerror;
-    speechSynthesis.speak(u);
+    enqueue(() => speechSynthesis.speak(u));
     return u;
   }
 
   function speakWord(word, rate = 0.7) { return speak(word, rate); }
 
   function stopSpeaking() {
+    gen++;
     if (isTTSAvailable()) speechSynthesis.cancel();
   }
 

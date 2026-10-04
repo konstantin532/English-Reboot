@@ -191,7 +191,8 @@ const SRS = (() => {
     const all = await DB.getAllProgress();
     if (!all.success) return [];
     const t = today || todayStr();
-    const due = all.data.filter((r) => dayOf(r.nextReview) <= t && r.status !== 'mastered');
+    // mastered тоже возвращаются на контрольный повтор (интервал ~3–8 мес.), иначе забываются
+    const due = all.data.filter((r) => r.nextReview && dayOf(r.nextReview) <= t);
     due.sort((a, b) => {
       const ra = (a.status === 'relearning' || a.status === 'lapsed') ? 0 : 1;
       const rb = (b.status === 'relearning' || b.status === 'lapsed') ? 0 : 1;
@@ -230,7 +231,7 @@ const SRS = (() => {
       if (r.status === 'mastered') s.mastered++;
       else if (r.status === 'relearning' || r.status === 'lapsed') s.relearning++;
       else s.learning++;
-      if (dayOf(r.nextReview) <= t && r.status !== 'mastered') s.toReview++;
+      if (r.nextReview && dayOf(r.nextReview) <= t) s.toReview++;
     }
     return s;
   }

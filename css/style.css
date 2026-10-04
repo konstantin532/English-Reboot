@@ -1938,3 +1938,53 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ===== IELTS ===== */
+.ielts-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+.ielts-timer { font: 600 1.4rem/1 ui-monospace, monospace; padding: 6px 12px; border-radius: var(--radius); background: var(--accent-soft); color: var(--accent-strong); }
+.ielts-timer-low { background: rgba(239, 68, 68, .15); color: var(--danger); }
+.ielts-prompt, .ielts-cue { padding: 14px 16px; border-left: 4px solid var(--accent); background: var(--bg); border-radius: var(--radius); line-height: 1.55; }
+.ielts-essay { width: 100%; box-sizing: border-box; padding: 12px; font: inherit; line-height: 1.6; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); resize: vertical; }
+.ielts-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.ielts-stats span { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-round); font-size: .9rem; }
+.ielts-tips li { margin: 4px 0; }
+.ielts-crit { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 8px 0; }
+.ielts-crit label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; }
+.ielts-band-out { font-weight: 700; color: var(--accent-strong); }
+.ielts-ok { color: var(--success); font-weight: 600; }
+.ielts-bad { color: var(--danger); font-weight: 600; }
+.ielts-qs li { margin: 10px 0; line-height: 1.5; }
+.ielts-opt { margin-right: 14px; font-size: .9rem; white-space: nowrap; }
+.ielts-expl { font-size: .9rem; margin-top: 4px; }
+.ielts-text { line-height: 1.7; }
+.ielts-say-sm { padding: 2px 8px; }
+.ielts-awl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ielts-word { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px; text-align: left; }
+.ielts-word span { font-size: .8rem; color: var(--text-muted); }
+.ielts-history { margin-top: 16px; }
+.ielts-hist-item { padding: 8px 0; border-bottom: 1px solid var(--border); }
+
+/* ===== IELTS ===== */
+.ielts-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+.ielts-timer { font: 600 1.4rem/1 ui-monospace, monospace; padding: 6px 12px; border-radius: var(--radius); background: var(--accent-soft); color: var(--accent-strong); }
+.ielts-timer-low { background: rgba(239, 68, 68, .15); color: var(--danger); }
+.ielts-prompt, .ielts-cue { padding: 14px 16px; border-left: 4px solid var(--accent); background: var(--bg); border-radius: var(--radius); line-height: 1.55; }
+.ielts-essay { width: 100%; box-sizing: border-box; padding: 12px; font: inherit; line-height: 1.6; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); resize: vertical; }
+.ielts-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.ielts-stats span { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-round); font-size: .9rem; }
+.ielts-tips li { margin: 4px 0; }
+.ielts-crit { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 8px 0; }
+.ielts-crit label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; }
+.ielts-band-out { font-weight: 700; color: var(--accent-strong); }
+.ielts-ok { color: var(--success); font-weight: 600; }
+.ielts-bad { color: var(--danger); font-weight: 600; }
+.ielts-qs li { margin: 10px 0; line-height: 1.5; }
+.ielts-opt { margin-right: 14px; font-size: .9rem; white-space: nowrap; }
+.ielts-expl { font-size: .9rem; margin-top: 4px; }
+.ielts-text { line-height: 1.7; }
+.ielts-say-sm { padding: 2px 8px; }
+.ielts-awl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ielts-word { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px; text-align: left; }
+.ielts-word span { font-size: .8rem; color: var(--text-muted); }
+.ielts-history { margin-top: 16px; }
+.ielts-hist-item { padding: 8px 0; border-bottom: 1px solid var(--border); }

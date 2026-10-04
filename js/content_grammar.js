@@ -972,7 +972,7 @@ card('g031','A2',['времена','будущее'],
  q('We ___ visit grandma on Sunday (это план).',['will','are going to','go to','going to'],1),
  q('She ___ study medicine next year.',['is going to','will going','goes','will to'],0),
  q("I'm going to ___ more exercise.",['doing','do','did','does'],1),
- q('They ___ going to sell their car.',["isn't","don't","aren't","isn't"],2),
+ q('They ___ going to sell their car.',["isn't","don't","aren't","not"],2),
 ]),
 
 card('g032','B1',['времена','будущее'],
