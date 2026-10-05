@@ -24,6 +24,8 @@ test('рулетка: карточка → подумать → таймер с 
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await onboard(page);
+  // фазы «подумай» и «говори» проверяем по ходу — «секунда» подлиннее, чтобы под нагрузкой не проскочить
+  await page.evaluate(() => ImprovUI.configure({ secondMs: 150 }));
   await page.evaluate(() => ER.openPractice('improv'));
   await page.locator('#imp-roulette').click();
 
