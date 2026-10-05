@@ -509,14 +509,14 @@ card('g012','A2',['прилагательные','сравнение'],
 card('g013','A2',['прилагательные','порядок'],
 'Прилагательные: порядок',
 'мнение → размер → возраст → форма → цвет → происхождение → материал → назначение',
-'В английском прилагательные идут в строгом порядке: opinion → size → age → shape → colour → origin → material → purpose. Big red wooden chair — размер, цвет, материал.',
+'В английском прилагательные идут в строгом порядке: opinion → size → age → shape → color → origin → material → purpose. Big red wooden chair — размер, цвет, материал.',
 [
  ex('She wore a beautiful long black dress.',[
   w('She','pron','/ʃi/'), w('wore','verb','/wɔr/'), w('a','art','/ə/'), w('beautiful','adj','/ˈbjutəfəl/',{s:0}), w('long','adj','/lɔŋ/'), w('black','adj','/blæk/'), w('dress','noun','/drɛs/')]),
  ex('He bought an old round wooden table.',[
   w('He','pron','/hi/'), w('bought','verb','/bɔt/'), w('an','art','/ən/'), w('old','adj','/oʊld/'), w('round','adj','/raʊnd/'), w('wooden','adj','/ˈwʊdən/',{s:0}), w('table','noun','/ˈteɪbəl/',{s:0})]),
- ex('I have a small grey Japanese car.',[
-  w('I','pron','/aɪ/'), w('have','verb','/hæv/'), w('a','art','/ə/'), w('small','adj','/smɔl/'), w('grey','adj','/ɡreɪ/'), w('Japanese','adj','/dʒæpəˈniz/',{s:2}), w('car','noun','/kɑr/')]),
+ ex('I have a small gray Japanese car.',[
+  w('I','pron','/aɪ/'), w('have','verb','/hæv/'), w('a','art','/ə/'), w('small','adj','/smɔl/'), w('gray','adj','/ɡreɪ/'), w('Japanese','adj','/dʒæpəˈniz/',{s:2}), w('car','noun','/kɑr/')]),
 ],
 [
  err('She has a red big bag.','She has a big red bag.','Размер идёт перед цветом: big red.'),
@@ -1083,8 +1083,8 @@ card('g036','B1',['условные предложения'],
   w('If','conj','/ɪf/'), w('I','pron','/aɪ/'), w('had','verb','/hæd/'), w('more','adv','/mɔr/'), w('time','noun','/taɪm/'), w('I','pron','/aɪ/'), w('would','modal','/wʊd/'), w('learn','verb','/lɝn/',{sp:[2,3]}), w('the','art','/ðə/'), w('guitar','noun','/ɡɪˈtɑr/',{s:1})]),
  ex('If she had studied, she would have passed.',[
   w('If','conj','/ɪf/'), w('she','pron','/ʃi/'), w('had','aux','/hæd/'), w('studied','verb','/ˈstʌdid/',{s:0}), w('she','pron','/ʃi/'), w('would','modal','/wʊd/'), w('have','aux','/həv/'), w('passed','verb','/pæst/')]),
- ex('If I were you, I would apologise.',[
-  w('If','conj','/ɪf/'), w('I','pron','/aɪ/'), w('were','verb','/wɝ/'), w('you','pron','/ju/'), w('I','pron','/aɪ/'), w('would','modal','/wʊd/'), w('apologise','verb','/əˈpɑlədʒaɪz/',{s:1})],
+ ex('If I were you, I would apologize.',[
+  w('If','conj','/ɪf/'), w('I','pron','/aɪ/'), w('were','verb','/wɝ/'), w('you','pron','/ju/'), w('I','pron','/aɪ/'), w('would','modal','/wʊd/'), w('apologize','verb','/əˈpɑlədʒaɪz/',{s:1})],
   "I would → I'd /aɪd/"),
 ],
 [
