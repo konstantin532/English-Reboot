@@ -93,3 +93,38 @@ test('ловушки: мини-тренажёр — 5 пар на слух, ре
   await expect(drill).toBeHidden();
   expect(errors).toEqual([]);
 });
+
+test('паспорт акцента: 10 ловушек на «Прогрессе», тренировка из паспорта, лестница пополняет паспорт', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page);
+
+  // Лестница, ступень 1 «Узнай на слух»: верный ответ засчитывается всем ловушкам фразы
+  await page.evaluate(async () => {
+    const card = (await DB.getAll('conversation')).data.find((c) => c.payload.front === 'Can you pass the salt?');
+    await LadderUI.startSingle(card.id);
+  });
+  const said = await page.locator('.ladder-play').first().getAttribute('data-say');
+  await page.locator('.ladder-opt').filter({ hasText: said }).first().click();
+  await page.locator('#ladder-next').click();
+  await expect.poll(() => page.evaluate(() => DB.getSetting('accent_passport').then((r) => r.data && r.data.ae && r.data.ae.total)))
+    .toBe(1);
+  await page.locator('#ladder-quit').click();
+  await page.locator('#ladder-close').click();
+
+  // Паспорт на вкладке «Прогресс»
+  await page.locator('[data-tab="progress"]').first().click();
+  const passport = page.locator('#accent-passport');
+  await expect(passport.locator('.passport-row')).toHaveCount(10);
+  await expect(passport.locator('.passport-row.is-progress')).not.toHaveCount(0); // ловушки фразы «в работе»
+  await expect(passport.locator('.passport-row.is-new')).not.toHaveCount(0);
+  await expect(passport).toContainText('Побеждено ловушек: 0 из 10');
+
+  // «Тренировать» открывает тренажёр этой ловушки, ответы обновляют паспорт на месте
+  await passport.locator('.passport-row', { hasText: 'th [θ ð]' }).locator('.passport-train').click();
+  const drill = page.locator('#trap-drill');
+  await expect(drill).toContainText('th [θ ð]');
+  await drill.locator('.trap-drill-opt').first().click();
+  await expect(passport.locator('.passport-row', { hasText: 'th [θ ð]' })).toHaveClass(/is-progress/);
+  expect(errors).toEqual([]);
+});
