@@ -17,6 +17,7 @@ const SCENE_CAST = {
   ray: { name: 'Рэй', en: 'Ray', role: 'таксист', color: '#F59E0B', initial: 'R' },
   jess: { name: 'Джесс', en: 'Jess', role: 'бариста', color: '#8B5CF6', initial: 'J' },
   priya: { name: 'Прия', en: 'Priya', role: 'руководитель команды', color: '#10B981', initial: 'P' },
+  garcia: { name: 'Мисс Гарсия', en: 'Ms. Garcia', role: 'сотрудница банка', color: '#0EA5E9', initial: 'G' },
 };
 
 const SCENE_EPISODES = [
@@ -490,6 +491,134 @@ const SCENE_EPISODES = [
           fallbackNext: 'n6' },
       },
       n6: { who: 'priya', say: "Okay, let's wrap up. I'll send a recap. Thanks for your time, everyone!", ru: 'Ладно, закругляемся. Пришлю итоги. Всем спасибо за время!', end: true },
+    },
+  },
+  /* ---------------- 7. Счёт в банке ---------------- */
+  {
+    id: 'ep7-bank', title: 'Счёт в банке', place: 'Отделение банка на Флэтбуш-авеню',
+    intro: 'Первая зарплата скоро придёт — пора открыть американский счёт. Операционистка мисс Гарсия готова помочь.',
+    phrases: ["I'd like to open an account", 'I need to deposit a check', "There's a fee", "That's a rip-off", "What's the interest rate?"],
+    start: 'n1',
+    nodes: {
+      n1: {
+        who: 'garcia', say: 'Hi, welcome to First City Bank! How can I help you today?', ru: 'Здравствуйте, добро пожаловать в First City Bank! Чем могу помочь?',
+        reply: { type: 'open', prompt: 'Скажи, зачем ты в банке: открыть счёт или внести чек.',
+          meanings: [
+            { id: 'account', label: 'открыть счёт', keys: ['open an account', 'new account', 'checking account', 'savings account', 'bank account'],
+              react: { say: "Sure! Let's get you set up.", mood: 'smile' }, next: 'n2' },
+            { id: 'deposit', label: 'внести чек', keys: ['deposit a check', 'deposit', 'cash a check', 'my paycheck'],
+              react: { say: "Of course! First, let's open an account for you.", mood: 'smile' }, next: 'n2' },
+          ],
+          samples: ["I'd like to open an account.", 'Hi! I need to open a checking account.', 'I need to deposit a check — my first paycheck!', 'I just moved here, so I need a bank account.'],
+          fallbackNext: 'n2' },
+      },
+      n2: {
+        who: 'garcia', say: 'Do you have a photo ID and proof of address?', ru: 'У вас есть документ с фото и подтверждение адреса?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "Yep, here's my passport and my lease.",
+            react: { say: 'Perfect, that works.', mood: 'smile' },
+            coach: '«Here\'s my…» — «вот мой…». Протягиваешь документ и называешь его — так и делают.', next: 'n3' },
+          { tone: 'formal', text: 'I am in possession of the required identification documents.',
+            react: { say: "Great... so, can I see them?", mood: 'confused' },
+            coach: '«In possession of» — язык протокола. Проще: «Yes, here you go».', next: 'n3' },
+          { tone: 'rude', text: 'Why do you need all that?',
+            react: { say: "It's the law, sorry. Just a quick check.", mood: 'frown' },
+            coach: 'Вопрос нормальный, но тон подозрительный. Мягче: «Sure — just curious, why do you need it?»', next: 'n2b' },
+        ] },
+      },
+      n2b: { who: 'garcia', say: 'Every bank in the US asks for it. Thanks for understanding!', ru: 'Это спрашивает любой банк в США. Спасибо за понимание!', next: 'n3' },
+      n3: {
+        who: 'garcia', say: 'Great. Just so you know, this checking account has a twelve-dollar monthly fee.', ru: 'Отлично. Чтобы вы знали: у этого счёта ежемесячная комиссия — двенадцать долларов.',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "Oh, there's a fee? Is there any way to waive it?",
+            react: { say: "Yes! It's free if you set up direct deposit from your job.", mood: 'warm' },
+            coach: '«Waive the fee» — «отменить комиссию». В американском банке это можно и нужно спрашивать.', next: 'n4' },
+          { tone: 'formal', text: 'I consider this fee to be unreasonable.',
+            react: { say: 'I understand. It goes away with direct deposit, though.', mood: 'neutral' },
+            coach: 'Звучит как жалоба в письменном виде. Вслух проще: «Is there any way to avoid the fee?»', next: 'n4' },
+          { tone: 'rude', text: "Twelve bucks a month? That's a rip-off.",
+            react: { say: 'I hear you.', mood: 'frown' },
+            coach: '«Rip-off» — «грабёж». Сказать можно, но операционистка цены не назначает. Лучше спросить, как её избежать.', next: 'n3b' },
+        ] },
+      },
+      n3b: { who: 'garcia', say: "Good news, though: it's free with direct deposit from your job.", ru: 'Но есть хорошая новость: с зарплатой на этот счёт комиссии нет.', next: 'n4' },
+      n4: {
+        who: 'garcia', say: "I'll also open a savings account for you. Any questions?", ru: 'Ещё открою вам сберегательный счёт. Есть вопросы?',
+        reply: { type: 'open', prompt: 'Задай вопрос: про процент, про карту или про приложение банка.',
+          meanings: [
+            { id: 'rate', label: 'вопрос про процент', keys: ['interest rate', 'interest', 'how much do i earn'],
+              react: { say: 'Four percent a year on savings.', mood: 'smile' }, next: 'n5' },
+            { id: 'card', label: 'вопрос про карту', keys: ['debit card', 'my card', 'the card', 'credit card'],
+              react: { say: "Your debit card comes in the mail in about a week.", mood: 'smile' }, next: 'n5' },
+            { id: 'app', label: 'вопрос про приложение', keys: ['app', 'online banking', 'apple pay', 'on my phone'],
+              react: { say: 'Yep — just download our app and log in.', mood: 'smile' }, next: 'n5' },
+          ],
+          samples: ["What's the interest rate?", 'When will I get my debit card?', 'Do you have an app for online banking?', 'Can I use the card with Apple Pay?'],
+          fallbackNext: 'n5' },
+      },
+      n5: { who: 'garcia', say: "You're all set! Welcome to First City Bank.", ru: 'Всё готово! Добро пожаловать в First City Bank.', end: true },
+    },
+  },
+
+  /* ---------------- 8. Засор на кухне ---------------- */
+  {
+    id: 'ep8-sink', title: 'Засор на кухне', place: 'Бруклин, квартира на третьем этаже',
+    intro: 'Вечер, раковина снова засорилась, а у Мэгги сел телефон. Звонить мистеру Окафору придётся тебе.',
+    phrases: ['The sink is clogged', 'My phone died', "Who's calling?", "I'll call the plumber", "It's a bad connection", 'Can you speak up?', "Pizza's on me"],
+    start: 'n1',
+    nodes: {
+      n1: {
+        who: 'maggie', say: 'Ugh, the sink is clogged again! And my phone died. Can you call Mr. Okafor?', ru: 'Ну вот, раковина опять засорилась! А у меня сел телефон. Позвонишь мистеру Окафору?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "Sure, I'll call him right now.",
+            react: { say: 'Thank you! You\'re a lifesaver.', mood: 'warm' },
+            coach: 'Коротко и по-соседски. «Right now» — «прямо сейчас».', next: 'n2' },
+          { tone: 'formal', text: 'Certainly. I shall contact the landlord immediately.',
+            react: { say: '"Shall"? Okay, Your Majesty. Thanks!', mood: 'laugh' },
+            coach: '«Shall» в США звучит торжественно, почти по-королевски. Проще: «Sure, I\'ll call him».', next: 'n2' },
+          { tone: 'rude', text: "Why me? It's your mess.",
+            react: { say: 'Wow. Okay...', mood: 'frown' },
+            coach: 'Соседи делят и хорошее, и засоры. Если не хочется — скажи мягче: «Can it wait till your phone charges?»', next: 'n1b' },
+        ] },
+      },
+      n1b: { who: 'maggie', say: "Fine, sorry. I'll do the dishes all week — please call him?", ru: 'Ладно, прости. Всю неделю мою посуду — позвони ему, пожалуйста?', next: 'n2' },
+      n2: {
+        who: 'okafor', say: "Hello? Who's calling?", ru: 'Алло? Кто это?',
+        reply: { type: 'open', prompt: 'Представься по телефону — или сразу скажи, в чём проблема.',
+          meanings: [
+            { id: 'intro', label: 'представление', keys: ['this is', 'it is', 'your tenant', 'new tenant', 'roommate', 'apartment'],
+              react: { say: "Oh, hello! How's the apartment treating you?", mood: 'smile' }, next: 'n3' },
+            { id: 'problem', label: 'сразу о проблеме', keys: ['sink is clogged', 'clogged', 'sink', 'leaking', 'problem'],
+              react: { say: 'Oh no, not again!', mood: 'surprised' }, next: 'n4' },
+          ],
+          samples: ["Hi, Mr. Okafor! This is Maggie's new roommate.", "Hi, it's your new tenant from apartment 3B.", 'Hi! The sink is clogged in our kitchen.', 'Hello, we have a problem with the kitchen sink.'],
+          fallbackNext: 'n3' },
+      },
+      n3: {
+        who: 'okafor', say: "Good, good. So, what's going on?", ru: 'Хорошо, хорошо. Так что случилось?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'The sink is clogged again. Could you send someone?',
+            react: { say: "Of course. I'll call the plumber.", mood: 'smile' },
+            coach: 'Проблема + просьба в одном звонке — идеально. «Could you send someone?» — вежливо и ясно.', next: 'n4' },
+          { tone: 'formal', text: 'I regret to inform you that there is a blockage in the sink.',
+            react: { say: "A blockage... got it. I'll call the plumber.", mood: 'confused' },
+            coach: '«I regret to inform you» — так сообщают плохие новости в письмах. Проще: «The sink is clogged».', next: 'n4' },
+          { tone: 'rude', text: 'Your sink is broken again. Fix it.',
+            react: { say: "...I'll call the plumber. A \"please\" would be nice.", mood: 'frown' },
+            coach: 'По сути всё верно, но приказ хозяину квартиры портит отношения. Добавь «Could you…?»', next: 'n4' },
+        ] },
+      },
+      n4: {
+        who: 'okafor', say: "Sorry, it's a bad connection — can you speak up? When are you home?", ru: 'Извини, плохо слышно — можешь погромче? Когда ты будешь дома?',
+        reply: { type: 'open', prompt: 'Скажи погромче, когда ты дома, чтобы пришёл сантехник.',
+          meanings: [
+            { id: 'time', label: 'время', keys: ['i am home', 'after', 'tomorrow', 'tonight', 'morning', 'afternoon', 'evening', 'anytime', 'any time', 'all day'],
+              react: { say: "Perfect. He'll be there. Thanks for letting me know!", mood: 'smile' }, next: 'n5' },
+          ],
+          samples: ["I'm home after six.", 'Tomorrow morning works for me.', "I'm free all day Saturday.", 'Anytime after five is fine.'],
+          fallbackNext: 'n5' },
+      },
+      n5: { who: 'maggie', say: "You handled that like a pro. Pizza's on me tonight!", ru: 'Справились как профи. Пицца сегодня за мой счёт!', end: true },
     },
   },
 ];

@@ -52,7 +52,7 @@ describe('Проверка открытой реплики по смыслам',
 
 describe('Эпизоды: схема и данные', () => {
   it('партии 1–2 — эпизоды по порядку, id уникальны', () => {
-    expect(EPS.length).toBe(6);
+    expect(EPS.length).toBe(8);
     expect(new Set(EPS.map((e) => e.id)).size).toBe(EPS.length);
     EPS.forEach((ep, i) => expect(ep.id.startsWith('ep' + (i + 1) + '-')).toBe(true));
   });
