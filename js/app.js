@@ -284,6 +284,7 @@
     const ttsOk = TTS.initTTS();
     Dictation.init(window.ER);
     Shadowing.init(window.ER);
+    if (window.LadderUI) LadderUI.init(window.ER);
     IELTS.init(window.ER);
     Search.init(window.ER);
     Onboarding.init(window.ER);
@@ -489,6 +490,7 @@
     // Остановить то, что продолжало работать от прошлого экрана
     if (window.TTS) TTS.stopSpeaking();
     if (window.Shadowing && Shadowing.stop) Shadowing.stop();
+    if (window.LadderUI) LadderUI.stop();
     if (window.IELTS) IELTS.stop();
     closeWordPopup();
 
@@ -554,6 +556,7 @@
     if (tabId === 'ielts') IELTS.bind();
     if (tabId === 'practice' && state.practiceMode === 'dictation') Dictation.bindSetup();
     if (tabId === 'practice' && state.practiceMode === 'shadowing') Shadowing.bindSetup();
+    if (tabId === 'practice' && state.practiceMode === 'ladder') LadderUI.bindSetup();
     if (VOCAB_STORES[tabId]) bindLazyLoading(tabId);
   }
 
@@ -836,6 +839,7 @@
           </div>
           ${headHtml}
           ${extraBlock}
+          ${window.Ladder && Ladder.isUsCard(cardData) ? ladderButtonHtml(cardData, rec) : ''}
           ${(p.examples || []).length ? `<h3>Примеры</h3>
           <div class="examples">${examplesHtml(p)}</div>` : ''}
           ${errorsBlock}
@@ -1137,6 +1141,17 @@
 
   /* ---------- SRS-кнопки ---------- */
 
+  // Американская разговорная фраза: вход в лестницу упражнений (ladder_ui.js)
+  function ladderButtonHtml(cardData, rec) {
+    const step = LadderUI.stepOf(rec);
+    const title = Ladder.STEPS[step - 1].title;
+    return `
+      <div class="ladder-entry">
+        <button class="btn-primary ladder-train-btn" data-id="${escapeAttr(cardData.id)}" type="button">🪜 Тренировать: сказать, а не прочитать</button>
+        <span class="ladder-entry-step">Ступень ${step} из 8 · ${title}</span>
+      </div>`;
+  }
+
   function srsButtonsHtml(isNew) {
     if (isNew) {
       return `
@@ -1211,6 +1226,7 @@
         <button class="mode-btn ${!state.practiceMode ? 'active' : ''}" data-mode="srs" type="button">🔄 SRS-повторение</button>
         <button class="mode-btn ${state.practiceMode === 'dictation' ? 'active' : ''}" data-mode="dictation" type="button">✍️ Диктант</button>
         <button class="mode-btn ${state.practiceMode === 'shadowing' ? 'active' : ''}" data-mode="shadowing" type="button">🎤 Shadowing</button>
+        <button class="mode-btn ${state.practiceMode === 'ladder' ? 'active' : ''}" data-mode="ladder" type="button">🪜 Лестница фраз</button>
       </div>`;
 
     let panel;
@@ -1218,6 +1234,8 @@
       panel = Dictation.renderSetup();
     } else if (state.practiceMode === 'shadowing') {
       panel = Shadowing.renderSetup();
+    } else if (state.practiceMode === 'ladder') {
+      panel = await LadderUI.renderSetup();
     } else {
       panel = due.length ? `
         <h2 class="detail-title">Повторение</h2>
@@ -1620,6 +1638,8 @@
         switchTab('practice');
         return;
       }
+      const lt = e.target.closest('.ladder-train-btn');
+      if (lt) { LadderUI.startSingle(lt.dataset.id); return; }
       const ss = e.target.closest('#start-session-btn');
       if (ss) { startSessionUI(); return; }
       const ep = e.target.closest('.error-practice');

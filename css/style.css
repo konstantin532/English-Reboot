@@ -2824,3 +2824,101 @@ button:not([class]):hover { background: var(--fill-strong); }
 .user-level-display .level-next, .user-level-display p { margin: 0; font-size: 12.5px; color: var(--text-muted); }
 .league-card, [class*="league"] { font-family: var(--font-main) !important; }
 [class*="league"] .card, .league-card { border: 0 !important; box-shadow: var(--shadow-card); }
+
+/* ==========================================================================
+   Этап 1: лестница упражнений (ladder_ui.js)
+   ========================================================================== */
+.ladder-legend {
+  list-style: none; padding: 0; margin: 12px 0 16px;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px;
+  font-size: 14px; color: var(--text-muted);
+}
+.ladder-legend li { display: flex; align-items: center; gap: 8px; }
+.ladder-legend-n, .ladder-dot {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; flex: none; border-radius: var(--radius-round);
+  font-size: 12px; font-weight: 700;
+  background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border);
+}
+.ladder-card { display: flex; flex-direction: column; gap: 12px; }
+.ladder-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ladder-head .session-counter { margin: 0; }
+.ladder-dots { display: flex; gap: 4px; }
+.ladder-dot.is-done { background: var(--success); border-color: var(--success); color: #fff; }
+.ladder-dot.is-current { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); transform: scale(1.12); }
+.ladder-dot.is-skipped { opacity: 0.35; border-style: dashed; }
+.ladder-step-title { margin: 0; font-size: var(--text-xl, 22px); }
+.ladder-step-n {
+  display: inline-block; margin-right: 6px; padding: 2px 8px; vertical-align: middle;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
+  color: var(--accent-strong); background: var(--accent-soft); border-radius: var(--radius-round);
+}
+.ladder-prompt { margin: 0; font-size: 16px; color: var(--text); }
+.ladder-sub { margin: 4px 0; color: var(--text-muted); font-size: 14px; }
+.ladder-cue {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: var(--radius); background: var(--bg);
+  border-left: 3px solid var(--info);
+}
+.ladder-cue-label { color: var(--text-muted); font-size: 13px; }
+.ladder-cue-text { font-weight: 600; }
+.ladder-listen, .ladder-row, .ladder-rec, .ladder-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ladder-actions { justify-content: flex-end; }
+.ladder-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ladder-opt, .ladder-word {
+  font-family: inherit; font-size: 15px; text-align: left; cursor: pointer;
+  padding: 12px 14px; color: var(--text); background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.ladder-opt:hover:not(:disabled), .ladder-word:hover:not(:disabled) { border-color: var(--accent); }
+.ladder-opt:active:not(:disabled), .ladder-word:active:not(:disabled) { transform: scale(0.98); }
+.ladder-opt:disabled, .ladder-word:disabled { cursor: default; }
+.ladder-opt.is-correct { background: rgba(16, 185, 129, 0.14); border-color: var(--success); color: var(--success); font-weight: 700; }
+.ladder-opt.is-wrong { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+.ladder-word { padding: 8px 12px; text-align: center; }
+.ladder-answer, .ladder-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 48px; padding: 8px; border-radius: var(--radius); }
+.ladder-answer { border: 2px dashed var(--border); }
+.ladder-answer.is-correct { border-color: var(--success); border-style: solid; }
+.ladder-answer.is-wrong { border-color: var(--danger); border-style: solid; }
+.ladder-placeholder { color: var(--text-muted); font-size: 14px; align-self: center; padding: 0 4px; }
+.ladder-input {
+  width: 100%; box-sizing: border-box; font-family: inherit; font-size: 17px;
+  padding: 12px 14px; color: var(--text); background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.ladder-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.ladder-input.is-correct { border-color: var(--success); }
+.ladder-input.is-wrong { border-color: var(--danger); }
+.ladder-textarea { resize: vertical; min-height: 64px; }
+.ladder-phrase { display: flex; align-items: flex-start; gap: 8px; padding: 10px 0; }
+.ladder-phrase .example-text { font-size: 18px; }
+.ladder-rec-status { font-size: 14px; color: var(--text-muted); }
+.ladder-feedback:empty { display: none; }
+.ladder-feedback { display: flex; flex-direction: column; gap: 6px; animation: sectionIn 0.25s ease both; }
+.ladder-verdict { padding: 10px 14px; border-radius: var(--radius); border-left: 3px solid var(--success); background: var(--bg); }
+.ladder-verdict.is-miss { border-left-color: var(--warning); }
+.ladder-event { margin: 0; font-weight: 600; }
+.ladder-event.is-up { color: var(--success); }
+.ladder-event.is-down { color: var(--warning); }
+.ladder-fact { margin: 0; font-size: 14px; color: var(--text-muted); }
+.ladder-fact.is-ok { color: var(--success); font-weight: 600; }
+.ladder-samples, .ladder-tones { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.ladder-samples li, .ladder-tones li {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 12px; background: var(--bg); border-radius: var(--radius);
+}
+.ladder-tones li.is-active { outline: 2px solid var(--success); }
+.ladder-tone-label { font-size: 12px; color: var(--text-muted); flex-basis: 100%; }
+.ladder-tone-text { font-weight: 600; }
+.ladder-entry { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 12px 0 4px; }
+.ladder-entry-step { font-size: 13px; color: var(--text-muted); }
+.ladder-summary p { margin: 6px 0; }
+
+@media (max-width: 640px) {
+  .ladder-options { grid-template-columns: 1fr; }
+  .ladder-legend { grid-template-columns: 1fr; }
+  .ladder-actions { justify-content: stretch; }
+  .ladder-actions > * { flex: 1 1 auto; }
+}
+.ladder-mood { margin: 0; padding: 8px 12px; border-radius: var(--radius); background: var(--accent-soft); font-weight: 600; }

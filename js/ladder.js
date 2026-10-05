@@ -158,6 +158,15 @@ const Ladder = (() => {
     return false;
   }
 
+  // Настроение собеседника для импровизации: та же реплика звучит по-разному
+  const MOODS = [
+    { key: 'rush', ru: 'Собеседник торопится — ответь коротко' },
+    { key: 'happy', ru: 'Собеседник в отличном настроении — подхвати его' },
+    { key: 'grumpy', ru: 'Собеседник не в духе — ответь спокойно и дружелюбно' },
+    { key: 'boss', ru: 'Это твой начальник — чуть вежливее обычного' },
+    { key: 'friend', ru: 'Это твой близкий друг — можно совсем просто' },
+  ];
+
   /* ---------- Случайность (подменяется в тестах) ---------- */
 
   function shuffle(arr, rng) {
@@ -235,19 +244,21 @@ const Ladder = (() => {
       }
       case 6:
         // TODO(этап 5): заменить самооценку проверкой через SpeechRecognition
-        return { kind: 'say', step, prompt: 'Скажи вслух', cue: me.a, text: me.b, phrase: me.front };
+        return { kind: 'say', step, prompt: 'Ответь собеседнику вслух — с американским произношением', cue: me.a, text: me.b, phrase: me.front };
       case 7: {
         // TODO(этап 3): проверка по «смыслам» вместо самооценки
         const t = toneOf(me.front, table);
-        const samples = [me.b, me.ex, t ? t.neutral : null].filter((s, i, arr) => s && arr.indexOf(s) === i).slice(0, 3);
+        const norm = (x) => normText(x);
+        const samples = [me.b, me.ex, t && t.neutral, t && t.friend, t && t.polite, me.front]
+          .filter((x, i, arr) => x && arr.findIndex((y) => y && norm(y) === norm(x)) === i).slice(0, 3);
         return { kind: 'own', step, prompt: 'Ответь своими словами, используя «' + me.front + '»',
           cue: me.a, phrase: me.front, samples };
       }
       case 8: {
-        // TODO(этап 4): полноценная импров-рулетка (настроение, таймер 20–30 с)
-        const other = pick(sameTopicPool(me, items, true).filter((x) => x.a), rng) || me;
-        return { kind: 'improv', step, prompt: 'Импровизация: ответь без подготовки и вверни «' + me.front + '»',
-          cue: other.a, theme: me.theme, phrase: me.front, samples: [me.b, me.ex].filter(Boolean) };
+        // TODO(этап 4): полноценная импров-рулетка (карточки ситуаций, таймер 20–30 с)
+        const mood = pick(MOODS, rng);
+        return { kind: 'improv', step, prompt: 'Без подготовки: ответь так, чтобы прозвучало «' + me.front + '»',
+          cue: me.a, mood, theme: me.theme, phrase: me.front, samples: [me.b, me.ex].filter(Boolean) };
       }
       default:
         return null;
@@ -353,7 +364,7 @@ const Ladder = (() => {
 
   return {
     loadState, saveResult,
-    STEPS, MAX_STEP, TONE_STEP, RULES, TONE_LABELS,
+    STEPS, MAX_STEP, TONE_STEP, RULES, TONE_LABELS, MOODS,
     normalize, canAdvance, nextStep, prevStep, applyAnswer,
     itemFromCard, isUsCard, toneOf, hasTone,
     similar, sameTopicPool, pairKey, buildExercise, shuffle,
