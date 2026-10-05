@@ -2996,3 +2996,35 @@ button:not([class]):hover { background: var(--fill-strong); }
   .passport-score { grid-column: 2; grid-row: 2; }
   .passport-train { grid-column: 3; grid-row: 1 / span 2; }
 }
+
+/* ==========================================================================
+   Этап 2: «Сегодня» — урок за 15 минут (today_ui.js)
+   ========================================================================== */
+.today { display: flex; flex-direction: column; gap: 16px; }
+.today-hero { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 28px; }
+.today-title { margin: 0; font-size: var(--text-2xl, 30px); }
+.today-coach { margin: 0; font-size: 17px; line-height: 1.5; max-width: 52ch; }
+.today-start { font-size: 18px; padding: 14px 36px; min-width: 220px; }
+.today-sub { margin: 0; color: var(--text-muted); font-size: 14px; }
+.today-big { margin: 0; font-size: 20px; line-height: 1.5; }
+.today-big b { color: var(--accent-strong); font-size: 1.15em; }
+.today-plan { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; color: var(--text-muted); font-size: 15px; }
+.today-plan li { display: flex; gap: 10px; align-items: baseline; }
+.today-plan-n {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  min-width: 24px; height: 24px; padding: 0 6px; border-radius: var(--radius-round);
+  background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; font-size: 13px;
+}
+.today-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.today-tile {
+  display: flex; flex-direction: column; gap: 2px; padding: 16px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+}
+.today-tile b { font-size: 28px; line-height: 1.1; }
+.today-tile span { color: var(--text-muted); font-size: 13px; }
+.ladder-intro .conversation-dialog { margin: 0; }
+@media (max-width: 640px) {
+  .today-hero { padding: 20px; }
+  .today-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .today-start { width: 100%; }
+}

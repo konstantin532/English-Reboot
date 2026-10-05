@@ -271,6 +271,11 @@ const LadderUI = (() => {
       <span class="ladder-cue-text">«${esc(cue)}»</span>${audioBtn(cue, 'Прослушать реплику')}</div>`;
   }
 
+  // «Упражнение 3 из 15 · тема» (лестница) / «Задание 3 из 12 · Разминка · тема» (урок «Сегодня»)
+  const counterText = (task, me) => (task.label
+    ? `Задание ${st.idx + 1} из ${st.queue.length} · ${esc(task.label)} · ${esc(me.theme)}`
+    : `Упражнение ${st.idx + 1} из ${st.queue.length} · ${esc(me.theme)}`);
+
   function renderExercise() {
     if (st.idx >= st.queue.length) { finish(); return; }
     const task = st.queue[st.idx];
@@ -290,7 +295,7 @@ const LadderUI = (() => {
         <div class="card ladder-card" id="ladder-root" data-step="${ex.step}" data-kind="${ex.kind}">
           <div class="session-progress"><div class="session-progress-fill" style="width:${pct}%"></div></div>
           <div class="ladder-head">
-            <p class="session-counter">${esc(task.label || 'Упражнение')} ${st.idx + 1} из ${st.queue.length} · ${esc(me.theme)}</p>
+            <p class="session-counter">${counterText(task, me)}</p>
             ${dotsHtml(ladder, me)}
           </div>
           <h2 class="ladder-step-title"><span class="ladder-step-n">Ступень ${ex.step}</span> ${step.title}</h2>
@@ -317,7 +322,7 @@ const LadderUI = (() => {
         <div class="card ladder-card ladder-intro" id="ladder-root" data-kind="intro">
           <div class="session-progress"><div class="session-progress-fill" style="width:${pct}%"></div></div>
           <div class="ladder-head">
-            <p class="session-counter">${esc(task.label || 'Новая фраза')} ${st.idx + 1} из ${st.queue.length} · ${esc(me.theme)}</p>
+            <p class="session-counter">${counterText(task, me)}</p>
           </div>
           <h2 class="ladder-step-title"><span class="ladder-step-n">Новая фраза</span> Послушай и повтори вслух</h2>
           ${phraseHtml(me.front)}

@@ -16,15 +16,16 @@
   // Каждый раздел — «линия метро»: цвет и буква значка (цвета линий нью-йоркского метро).
   // shape: 'circle' — разделы с карточками, 'diamond' — практика (как экспрессы в метро).
   const TABS = [
-    { id: 'grammar',      title: 'Грамматика',        num: '01', group: 'Учить',    glyph: 'G', line: '#0039A6' },
-    { id: 'phrasal',      title: 'Фразовые глаголы',  num: '02', group: 'Учить',    glyph: 'P', line: '#FF6319' },
-    { id: 'collocations', title: 'Коллокации',        num: '03', group: 'Учить',    glyph: 'C', line: '#6CBE45' },
-    { id: 'idioms',       title: 'Идиомы',            num: '04', group: 'Учить',    glyph: 'I', line: '#B933AD' },
-    { id: 'conversation', title: 'Разговорные фразы', num: '05', group: 'Учить',    glyph: 'T', line: '#EE352E' },
-    { id: 'slang',        title: 'Сленг',             num: '06', group: 'Учить',    glyph: 'S', line: '#FCCC0A', ink: '#111' },
-    { id: 'minimal',      title: 'Minimal Pairs',     num: '07', group: 'Учить',    glyph: 'M', line: '#996633' },
-    { id: 'reading',      title: 'Чтение',            num: '08', group: 'Учить',    glyph: 'R', line: '#00933C' },
-    { id: 'personal',     title: 'Моя колода',        num: '09', group: 'Учить',    glyph: 'D', line: '#808183' },
+    { id: 'today',        title: 'Сегодня',           num: '00', group: null,       glyph: '▶', line: '#F97316' },
+    { id: 'grammar',      title: 'Грамматика',        num: '01', group: 'Библиотека', glyph: 'G', line: '#0039A6' },
+    { id: 'phrasal',      title: 'Фразовые глаголы',  num: '02', group: 'Библиотека', glyph: 'P', line: '#FF6319' },
+    { id: 'collocations', title: 'Коллокации',        num: '03', group: 'Библиотека', glyph: 'C', line: '#6CBE45' },
+    { id: 'idioms',       title: 'Идиомы',            num: '04', group: 'Библиотека', glyph: 'I', line: '#B933AD' },
+    { id: 'conversation', title: 'Разговорные фразы', num: '05', group: 'Библиотека', glyph: 'T', line: '#EE352E' },
+    { id: 'slang',        title: 'Сленг',             num: '06', group: 'Библиотека', glyph: 'S', line: '#FCCC0A', ink: '#111' },
+    { id: 'minimal',      title: 'Minimal Pairs',     num: '07', group: 'Библиотека', glyph: 'M', line: '#996633' },
+    { id: 'reading',      title: 'Чтение',            num: '08', group: 'Библиотека', glyph: 'R', line: '#00933C' },
+    { id: 'personal',     title: 'Моя колода',        num: '09', group: 'Библиотека', glyph: 'D', line: '#808183' },
     { id: 'practice',     title: 'Тренажёр',          num: '10', group: 'Практика', glyph: 'X', line: '#00A1DE', shape: 'diamond' },
     { id: 'ielts',        title: 'IELTS',             num: '11', group: 'Практика', glyph: 'E', line: '#0039A6', shape: 'diamond' },
     { id: 'progress',     title: 'Прогресс',          num: '12', group: 'Я',        glyph: '%', line: '#1B1E24' },
@@ -66,7 +67,7 @@
   ];
 
   let settings = { ...DEFAULT_SETTINGS };
-  let currentTab = 'grammar';
+  let currentTab = 'today';
   let goalCelebrated = false;
   let deferredPrompt = null;
   let goalDay = null;      // дата, к которой относится goalCelebrated
@@ -176,6 +177,7 @@
     await persistSetting('daily_goal', goal);
     refreshHeaderStats();
     toast('Уровень ' + level + ' сохранён. Добро пожаловать!', 'success');
+    switchTab('today'); // после онбординга — сразу урок дня
   }
 
   /* ---------- PWA: Service Worker и установка ---------- */
@@ -286,6 +288,7 @@
     Shadowing.init(window.ER);
     if (window.LadderUI) LadderUI.init(window.ER);
     if (window.TrapsUI) TrapsUI.init();
+    if (window.TodayUI) TodayUI.init(window.ER);
     IELTS.init(window.ER);
     Search.init(window.ER);
     Onboarding.init(window.ER);
@@ -307,7 +310,7 @@
     await refreshHeaderStats();
     markReady();
 
-    switchTab('grammar');
+    switchTab('today');
 
     if (await Onboarding.needsOnboarding()) Onboarding.startOnboarding();
 
@@ -462,7 +465,7 @@
     const nav = document.getElementById('main-nav');
     let lastGroup = null;
     nav.innerHTML = TABS.map((t) => {
-      const head = t.group !== lastGroup ? `<p class="nav-group">${t.group}</p>` : '';
+      const head = t.group && t.group !== lastGroup ? `<p class="nav-group">${t.group}</p>` : '';
       lastGroup = t.group;
       return `${head}
       <button class="nav-link" data-tab="${t.id}" type="button" style="--line:${t.line}">
@@ -537,6 +540,7 @@
   }
 
   const RENDERERS = {
+    today:        () => TodayUI.render(),
     grammar:      renderGrammar,
     phrasal:      (t) => renderVocabList(t, 'phrasal'),
     collocations: (t) => renderVocabList(t, 'collocations'),
@@ -553,6 +557,7 @@
   };
 
   function bindTabEvents(tabId) {
+    if (tabId === 'today') TodayUI.bind();
     if (tabId === 'settings') bindSettings();
     if (tabId === 'ielts') IELTS.bind();
     if (tabId === 'practice' && state.practiceMode === 'dictation') Dictation.bindSetup();
@@ -2111,7 +2116,7 @@
     });
     on('logo-link', (e) => {
       e.preventDefault();
-      switchTab('grammar');
+      switchTab('today');
       closeMobileNav();
     });
     on('nav-toggle', toggleMobileNav);
