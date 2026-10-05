@@ -12,6 +12,8 @@ const ctx = { console: { log() {}, warn() {}, error() {} }, CONVERSATION_CARDS: 
 ctx.window = ctx;
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.resolve(process.cwd(), 'js/content_us.js'), 'utf8'), ctx);
+vm.runInContext(fs.readFileSync(path.resolve(process.cwd(), 'js/tone_us.js'), 'utf8') + ';this.__T = TONE_VARIANTS;', ctx);
+const TONES = ctx.__T;
 const ITEMS = ctx.CONVERSATION_CARDS.filter(L.isUsCard).map(L.itemFromCard);
 const byId = new Map(ITEMS.map((x) => [x.id, x]));
 const byB = new Map(ITEMS.map((x) => [x.b, x]));
@@ -106,6 +108,22 @@ describe('Лестница: ступень 5 «Смени тон»', () => {
     const ex = L.buildExercise(5, me, ITEMS, { tones, rng: rngFrom(1) });
     expect(ex.options.length).toBe(3);
     expect(ex.options[ex.correct]).toBe(tones[me.front][ex.tone]);
+  });
+});
+
+describe('Варианты тона (tone_us.js)', () => {
+  it('первая партия — 50 фраз, каждая есть в content_us.js символ в символ', () => {
+    const keys = Object.keys(TONES);
+    expect(keys.length).toBe(50);
+    keys.forEach((k) => expect(byFront.has(k)).toBe(true));
+  });
+  it('у каждой фразы три разных варианта, упражнение строится', () => {
+    Object.entries(TONES).forEach(([front, t], i) => {
+      expect(new Set([t.polite, t.neutral, t.friend]).size).toBe(3);
+      expect(L.hasTone(front, TONES)).toBe(true);
+      const ex = L.buildExercise(5, byFront.get(front), ITEMS, { tones: TONES, rng: rngFrom(i) });
+      expect(ex.options[ex.correct]).toBe(t[ex.tone]);
+    });
   });
 });
 
