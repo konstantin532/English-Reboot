@@ -11,7 +11,8 @@
         дальше — со слабыми ловушками акцента);
      2) новое — 3 новые фразы ОДНОЙ темы: знакомство + «Повтори вслух»,
         затем 3 круга по лестнице;
-     TODO(этап 3): блок сцены после новых фраз — только когда сцены готовы.
+     3) сцена — следующий непройденный эпизод истории (scenes_us.js); её
+        проигрывает ScenesUI после заданий лестницы (поле scene плана);
      TODO(этап 4): импровизация в конце урока — только когда она готова.
    ========================================================================== */
 
@@ -53,8 +54,9 @@ const Today = (() => {
    *   passport  — settings.accent_passport (может быть null)
    *   lookup    — источник IPA для разметки ловушек (может быть null)
    *   theme     — тема новых фраз (необязательно)
+   *   scene     — id эпизода сцены для этого урока (или null)
    *   warmup / fresh / rounds — размеры урока
-   * @returns {{ warmup: string[], fresh: string[], theme: string|null, tasks: object[] }}
+   * @returns {{ warmup: string[], fresh: string[], theme: string|null, tasks: object[], scene: string|null }}
    */
   function buildLesson(input) {
     const o = { ...DEFAULTS, ...(input || {}) };
@@ -80,27 +82,31 @@ const Today = (() => {
     // Знакомство: послушай и повтори вслух — первая фраза вслух в первые минуты урока
     fresh.forEach((id) => tasks.push({ type: 'intro', id, label: LABELS.intro }));
     for (let r = 0; r < o.rounds; r++) fresh.forEach((id) => tasks.push({ type: 'ex', id, label: LABELS.fresh }));
-    // TODO(этап 3): tasks.push({ type: 'scene', … }) — сцена на фразах урока
     // TODO(этап 4): tasks.push({ type: 'improv', … }) — импров-рулетка в конце
 
-    return { warmup, fresh, theme: fresh.length ? theme : null, tasks };
+    return { warmup, fresh, theme: fresh.length ? theme : null, tasks, scene: o.scene || null };
   }
 
   /* ---------- Сохранённый урок: можно прервать и продолжить в тот же день ---------- */
 
-  // Состояние урока в settings.today_lesson; урок другого дня не продолжаем
+  // Состояние урока в settings.today_lesson; урок другого дня не продолжаем.
+  // phase: 'tasks' — задания лестницы, 'scene' — задания пройдены, осталась сцена.
   function resumable(saved, today) {
     if (!saved || typeof saved !== 'object') return null;
     if (saved.date !== today || saved.done) return null;
-    if (!Array.isArray(saved.tasks) || !saved.tasks.length) return null;
-    const idx = Math.max(0, Math.min(Number(saved.idx) || 0, saved.tasks.length));
-    if (idx >= saved.tasks.length) return null;
-    return { ...saved, idx };
+    const tasks = Array.isArray(saved.tasks) ? saved.tasks : [];
+    const idx = Math.max(0, Math.min(Number(saved.idx) || 0, tasks.length));
+    if (idx < tasks.length) return { ...saved, tasks, idx, phase: 'tasks' };
+    if (saved.scene && !saved.sceneDone) return { ...saved, tasks, idx, phase: 'scene' };
+    return null;
   }
+
+  // В уроке есть что делать: задания или сцена
+  const hasWork = (plan) => !!(plan && ((plan.tasks && plan.tasks.length) || plan.scene));
 
   const doneToday = (saved, today) => !!(saved && saved.date === today && saved.done);
 
-  return { DEFAULTS, LABELS, buildLesson, pickTheme, resumable, doneToday };
+  return { DEFAULTS, LABELS, buildLesson, pickTheme, resumable, doneToday, hasWork };
 })();
 
 if (typeof globalThis !== 'undefined') globalThis.Today = Today;

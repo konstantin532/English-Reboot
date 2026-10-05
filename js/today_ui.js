@@ -42,7 +42,8 @@ const TodayUI = (() => {
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
     const started = new Set(((prog.success && prog.data) || []).map((r) => r.cardId));
     const lookup = window.TrapsUI ? await TrapsUI.ensureLookup() : null;
-    return Today.buildLesson({ items, due, started, passport: pass.success ? pass.data : null, lookup });
+    const scene = window.ScenesUI ? await ScenesUI.nextEpisodeId() : null;
+    return Today.buildLesson({ items, due, started, passport: pass.success ? pass.data : null, lookup, scene });
   }
 
   async function dayStats() {
@@ -78,6 +79,7 @@ const TodayUI = (() => {
     if (plan.fresh.length) {
       rows.push(`<li><span class="today-plan-n">${plan.fresh.length}</span> Новое — ${plan.fresh.length} ${plural(plan.fresh.length, 'фраза', 'фразы', 'фраз')} темы «${esc(plan.theme)}»: послушай, повтори вслух, пройди по лестнице</li>`);
     }
+    if (plan.scene) rows.push(`<li><span class="today-plan-n">🎬</span> Сцена — «${esc(ScenesUI.titleOf(plan.scene))}»: поговори с героями истории</li>`);
     return `<ul class="today-plan">${rows.join('')}</ul>`;
   }
 
@@ -92,11 +94,13 @@ const TodayUI = (() => {
       main = `
         <p class="today-coach">${COACH.resume}</p>
         <button class="btn-primary today-start" id="today-continue" type="button">Продолжить урок</button>
-        <p class="today-sub">Задание ${resume.idx + 1} из ${resume.tasks.length}${resume.theme ? ` · тема «${esc(resume.theme)}»` : ''}</p>`;
+        <p class="today-sub">${resume.phase === 'scene'
+          ? `Осталась сцена «${esc(ScenesUI.titleOf(resume.scene))}»`
+          : `Задание ${resume.idx + 1} из ${resume.tasks.length}${resume.theme ? ` · тема «${esc(resume.theme)}»` : ''}`}</p>`;
     } else {
       const plan = await buildPlan();
       const done = Today.doneToday(saved, today);
-      if (!plan.tasks.length) {
+      if (!Today.hasWork(plan)) {
         main = `<p class="today-coach">${COACH.empty}</p>
           <button class="btn today-start" id="today-library" type="button">Открыть библиотеку</button>`;
       } else {
@@ -128,35 +132,58 @@ const TodayUI = (() => {
   const callbacks = (lesson) => ({
     onProgress: (idx) => { lesson.idx = idx; return save(lesson); },
     onQuit: () => ER.switchTab('today'),
-    onFinish: async () => { lesson.idx = lesson.tasks.length; lesson.done = true; await save(lesson); showSummary(); },
+    onFinish: async () => {
+      lesson.idx = lesson.tasks.length;
+      await save(lesson);
+      if (lesson.scene && !lesson.sceneDone && window.ScenesUI) runScene(lesson);
+      else finishLesson(lesson);
+    },
   });
+
+  // Сцена после заданий лестницы: следующий эпизод истории
+  function runScene(lesson) {
+    ScenesUI.play(lesson.scene, {
+      onFinish: async () => { lesson.sceneDone = true; await finishLesson(lesson); },
+      onQuit: () => ER.switchTab('today'),
+    });
+  }
+
+  async function finishLesson(lesson) {
+    lesson.done = true;
+    await save(lesson);
+    showSummary(lesson);
+  }
 
   async function start() {
     const btn = document.getElementById('today-start');
     if (btn) btn.disabled = true;
     const plan = await buildPlan();
-    if (!plan.tasks.length) { ER.toast(COACH.empty); ER.switchTab('today'); return; }
-    const lesson = { date: SRS.todayStr(), tasks: plan.tasks, idx: 0, theme: plan.theme, done: false };
+    if (!Today.hasWork(plan)) { ER.toast(COACH.empty); ER.switchTab('today'); return; }
+    const lesson = { date: SRS.todayStr(), tasks: plan.tasks, idx: 0, theme: plan.theme, scene: plan.scene, sceneDone: false, done: false };
     await save(lesson);
+    if (!lesson.tasks.length) { runScene(lesson); return; }
     LadderUI.runQueue(lesson.tasks, { startIdx: 0, ...callbacks(lesson) });
   }
 
   async function resume() {
     const lesson = Today.resumable(await loadSaved(), SRS.todayStr());
     if (!lesson) { ER.switchTab('today'); return; }
+    if (lesson.phase === 'scene') { runScene(lesson); return; }
     LadderUI.runQueue(lesson.tasks, { startIdx: lesson.idx, ...callbacks(lesson) });
   }
 
   /* ---------- Итог дня ---------- */
 
-  async function showSummary() {
+  async function showSummary(lesson) {
     const s = await dayStats();
+    const scene = lesson && lesson.sceneDone && window.ScenesUI ? ScenesUI.titleOf(lesson.scene) : '';
     document.getElementById('content').innerHTML = `
       <div class="section-wrap today">
         <div class="card today-hero today-summary" id="today-summary">
           <h2 class="today-title">Итог дня 🎉</h2>
           <p class="today-big">Сказано вслух: <b>${s.spoken}</b> ${plural(s.spoken, 'фраза', 'фразы', 'фраз')}.
             Открыто ступеней: <b>${s.stepsUp}</b>.</p>
+          ${scene ? `<p class="today-sub" id="today-scene-done">🎬 Сцена «${esc(scene)}» пройдена</p>` : ''}
           <p class="today-sub">${s.minutes === '<1' ? 'меньше минуты' : `${s.minutes} ${plural(s.minutes, 'минута', 'минуты', 'минут')}`} занятий сегодня ·
             серия ${s.streak} ${plural(s.streak, 'день', 'дня', 'дней')}</p>
           <p class="today-coach">${COACH.summary}</p>

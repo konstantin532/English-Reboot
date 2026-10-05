@@ -100,6 +100,20 @@ describe('Урок «Сегодня»: продолжение прерванно
     expect(Today.resumable({ date: '2026-10-05', tasks, idx: 2 }, '2026-10-05')).toBe(null);
     expect(Today.resumable(null, '2026-10-05')).toBe(null);
   });
+  it('задания пройдены, но сцена — нет: продолжаем со сцены', () => {
+    const r = Today.resumable({ date: '2026-10-05', tasks, idx: 2, scene: 'ep1-airport' }, '2026-10-05');
+    expect(r.phase).toBe('scene');
+    expect(Today.resumable({ date: '2026-10-05', tasks, idx: 2, scene: 'ep1-airport', sceneDone: true }, '2026-10-05')).toBe(null);
+    expect(Today.resumable({ date: '2026-10-05', tasks: [], idx: 0, scene: 'ep1-airport' }, '2026-10-05').phase).toBe('scene');
+    expect(Today.resumable({ date: '2026-10-05', tasks, idx: 0 }, '2026-10-05').phase).toBe('tasks');
+  });
+  it('сцена попадает в план; урок только со сценой — не пустой', () => {
+    const l = Today.buildLesson({ items: ITEMS, due: [], started: new Set(ITEMS.map((x) => x.id)), scene: 'ep2-taxi' });
+    expect(l.tasks).toEqual([]);
+    expect(l.scene).toBe('ep2-taxi');
+    expect(Today.hasWork(l)).toBe(true);
+    expect(Today.hasWork({ tasks: [], scene: null })).toBe(false);
+  });
   it('урок дня пройден', () => {
     expect(Today.doneToday({ date: '2026-10-05', done: true }, '2026-10-05')).toBe(true);
     expect(Today.doneToday({ date: '2026-10-04', done: true }, '2026-10-05')).toBe(false);
