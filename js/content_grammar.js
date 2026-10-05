@@ -526,7 +526,7 @@ card('g013','A2',['прилагательные','порядок'],
  q('Choose the correct order:',['a leather nice bag','a nice leather bag','a bag nice leather','a nice bag leather'],1),
  q('___ car',['a red Japanese new','a Japanese red new','a new red Japanese','a new Japanese red'],2),
  q('She adopted ___ puppy.',['a brown little','a little brown','little a brown','brown a little'],1),
- q('It was ___ day.',['a cold rainy autumn','a rainy cold autumn','an autumn cold rainy','a cold autumn rainy'],0),
+ q('It was ___ day.',['a cold rainy fall','a rainy cold fall','a fall cold rainy','a cold fall rainy'],0),
  q('He gave me ___ box.',['a small square cardboard','a cardboard small square','a square small cardboard','a cardboard square small'],0),
 ]),
 
@@ -1205,8 +1205,8 @@ card('g041','B1',['каузатив'],
 [
  ex('I had my hair cut yesterday.',[
   w('I','pron','/aɪ/'), w('had','verb','/hæd/'), w('my','pron','/maɪ/'), w('hair','noun','/hɛr/'), w('cut','verb','/kʌt/'), w('yesterday','adv','/ˈjɛstɚdeɪ/',{s:0})]),
- ex('She is having her flat renovated.',[
-  w('She','pron','/ʃi/'), w('is','aux','/ɪz/'), w('having','verb','/ˈhævɪŋ/',{s:0}), w('her','pron','/hɝ/'), w('flat','noun','/flæt/'), w('renovated','verb','/ˈrɛnəveɪtɪd/',{s:0})]),
+ ex('She is having her apartment renovated.',[
+  w('She','pron','/ʃi/'), w('is','aux','/ɪz/'), w('having','verb','/ˈhævɪŋ/',{s:0}), w('her','pron','/hɝ/'), w('apartment','noun','/əˈpɑrtmənt/',{s:1}), w('renovated','verb','/ˈrɛnəveɪtɪd/',{s:0})]),
  ex('We must have the roof repaired.',[
   w('We','pron','/wi/'), w('must','modal','/mʌst/'), w('have','verb','/hæv/'), w('the','art','/ðə/'), w('roof','noun','/ruf/'), w('repaired','verb','/rɪˈpɛrd/',{s:1})]),
 ],
@@ -1368,7 +1368,7 @@ card('g047','B1',['предложения','предпочтения'],
 ],
 [
  q("I'd rather ___ at home.",['to stay','staying','stay','stayed'],2),
- q('How about ___ to the cinema?',['to go','going','go','we go'],1),
+ q('How about ___ to the movies?',['to go','going','go','we go'],1),
  q('___ visit grandma this weekend!',["Let's to","Let's",'Lets','Let us to'],1),
  q('The book is worth ___.',['to read','reading','read','to reading'],1),
  q("It's cold — I'd rather not ___ out.",['to go','going','go','went'],2),
@@ -1396,7 +1396,7 @@ card('g048','B1',['разговорные конструкции'],
  q('The thing is, I ___ really busy this week.',['am','be','being','is'],0),
  q('___, have you heard from Max lately?',['By the way','In the way','On the way','By way'],0),
  q("I like it. ___, it's not perfect, but it works.",['I mean','By the way','The thing is','I wonder'],0),
- q('I was wondering ___ you could give me a lift.',['that','if','what','does'],1),
+ q('I was wondering ___ you could give me a ride.',['that','if','what','does'],1),
 ]),
 
 ];
