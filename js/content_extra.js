@@ -55,7 +55,9 @@ dark:"dɑrk|a",light:"laɪt|n",tall:"tɔl|a",long:"lɔŋ|a",short:"ʃɔrt|a",big
 new:"nu|a",first:"fɝst|u",second:"ˈsɛkənd|u|0",third:"θɝd|u",next:"nɛkst|a",last:"læst|a",every:"ˈɛvri|t|0",
 each:"itʃ|t",before:"bɪˈfɔr|p|1",after:"ˈæftɚ|p|0",during:"ˈdʊrɪŋ|p|0",until:"ənˈtɪl|p|1",again:"əˈɡɛn|d|1",
 also:"ˈɔlsoʊ|d|0",only:"ˈoʊnli|d|0",maybe:"ˈmeɪbi|d|0",sorry:"ˈsɑri|a|0",here2:"hɪə|d",late:"leɪt|a",
-busy:"ˈbɪzi|a|0",tired:"ˈtaɪɚd|a|0",right:"raɪt|a",wrong:"rɔŋ|a",money2:"ˈmʌni|n|0"
+busy:"ˈbɪzi|a|0",tired:"ˈtaɪɚd|a|0",right:"raɪt|a",wrong:"rɔŋ|a",money2:"ˈmʌni|n|0",
+// американский сленг (этап 7): IPA по CMU-нормам
+"c'mere":"kəˈmɪr|v",didja:"ˈdɪdʒə|x|0",hadda:"ˈhædə|v|0",lotsa:"ˈlɑtsə|d|0",ya:"jə|pr","'kay":"keɪ|d",energy:"ˈɛnɚdʒi|n|0",
 };
 
 /* ---------- Утилиты ---------- */
@@ -199,7 +201,7 @@ S("yeah","yes","/jeə/","/jeə/","A2",["{Yeah}, I'll come.","{Yeah}, that's righ
 S("whereya","where are you","/ˈweə ɑː juː/","/ˈweəjə/","B1",["{Whereya} at? I'm waiting.","{Whereya} going tonight?"],"Выберите разговорный вариант: ___ ?|Whereya|Where are you|Whereya'|Wereya|0"),
 S("howya","how are you","/ˈhaʊ ɑː juː/","/ˈhaʊjə/","B1",["{Howya} doing today?","{Howya} after the trip?"],"___ ? Long time no see!|Howya|How are you|Howya'|Hawya|0"),
 S("whaddaya","what do you","/ˈwɒt də juː/","/ˈwɒdəjə/","B1",["{Whaddaya} think?","{Whaddaya} want for dinner?"],"___ mean by that?|Whaddaya|What do you|Whaddaya'|Waddaya of|0"),
-S("howzza","how is your","/ˈhaʊz jə/","/ˈhaʊzə/","B1",["{Howzza} week going?","{Howzza} new job?"],"___ family doing?|Howzza|How is your|Howzza'|Hawzza|0"),
+S("c'mere","come here","/ˈkʌm hɪr/","/kəˈmɪr/","A2",["{C'mere}, look at this!","{C'mere} for a sec."],"___ , I need to show you something.|C'mere|Come her|C'mere'|Cmere of|0"),
 S("couldja","could you","/ˈkʊd juː/","/ˈkʊdʒə/","B1",["{Couldja} pass the salt?","{Couldja} help me out?"],"___ open the window?|Couldja|Could you|Couldja'|Cudja of|0"),
 S("wouldja","would you","/ˈwʊd juː/","/ˈwʊdʒə/","B1",["{Wouldja} look at that!","{Wouldja} believe it?"],"___ quit that noise!|Wouldja|Would you|Wouldja'|Wudja of|0"),
 S("whycha","why are you","/ˈwaɪ ɑː juː/","/ˈwaɪtʃə/","B1",["{Whycha} so quiet today?","{Whycha} laughing?"],"___ mad at me?|Whycha|Why are you|Whycha'|Whysha|0"),
@@ -211,22 +213,20 @@ S("y'all","you all","/juː ɔːl/","/jɔːl/","A2",["{Y'all} ready to order?","M
 S("prolly","probably","/ˈprɒbəbli/","/ˈprɒli/","B1",["I'll {prolly} be late.","He's {prolly} still asleep."],"She'll ___ say yes.|prolly|probly|probbly|proply|0"),
 S("nah","no","/nɑː/","/nɑː/","A2",["{Nah}, I'm good, thanks.","Tea? — {Nah}, coffee."],"Wanna join? — ___ , maybe later.|Nah|Nah-|Nahh of|Naho|0"),
 S("yep","yes","/jep/","/jep/","A2",["{Yep}, that's me.","{Yep}, works for me."],"Ready? — ___ , let's go.|Yep|Yeps|Yep-|Yapp|0"),
-S("innit","isn't it","/ˈɪznt ɪt/","/ˈɪnɪt/","B1",["Cold today, {innit}?","Nice car, {innit}?"],"Lovely day, ___ ?|innit|innit-|in it the|innita|0"),
+S("didja","did you","/ˈdɪd ju/","/ˈdɪdʒə/","A2",["{Didja} see the game last night?","{Didja} eat yet?"],"___ get my text?|Didja|Did ja of|Didja'|Dija|0"),
 S("tho","though","/ðəʊ/","/ðəʊ/","B1",["It's pricey, {tho}.","I liked it {tho}."],"The film was long, ___.|tho|thou|tho-|thoug|0"),
 S("thru","through","/θruː/","/θruː/","A2",["We drove {thru} the night.","Read it {thru} once more."],"He walked ___ the park.|thru|throu|thru-|thrue|0"),
-S("lotta","lot of","/ˈlɒt əv/","/ˈlɒtə/","A2",["There's a {lotta} work today.","Thanks a {lotta} help!", "— hmm"], "We had a ___ fun.|lotta|lot|lotta'|lota|0"),
+S("lotta","lot of","/ˈlɒt əv/","/ˈlɒtə/","A2",["There's a {lotta} work today.","I got a {lotta} replies."],"We had a ___ fun.|lotta|lot|lota|lotta of|0"),
 S("lotsa","lots of","/ˈlɒts əv/","/ˈlɒtsə/","A2",["{Lotsa} people came.","She's got {lotsa} energy."],"There are ___ options.|lotsa|lots|lotsa'|lotsa of|0"),
-S("cuppa","cup of tea","/ˈkʌp əv tiː/","/ˈkʌpə/","B1",["Fancy a {cuppa}?","I'd love a {cuppa} right now."],"Let's have a ___ .|cuppa|cup|cuppa'|cuppa of|0"),
+S("ya","you","/ju/","/jə/","A2",["See {ya} tomorrow!","Thank {ya} so much."],"Nice to meet ___ !|ya|ya'|yaa of|yah|0"),
 S("needa","need to","/ˈniːd tə/","/ˈniːdə/","A2",["We {needa} talk.","You {needa} rest."],"I ___ leave early.|needa|need|needa'|needa of|0"),
-S("useta","used to","/ˈjuːzd tə/","/ˈjuːstə/","B1",["I {useta} live in Leeds.","She {useta} smoke."],"He ___ play hockey.|useta|used|useta'|useta of|0"),
+S("useta","used to","/ˈjuːzd tə/","/ˈjuːstə/","B1",["I {useta} live in Boston.","She {useta} smoke."],"He ___ play hockey.|useta|used|useta'|useta of|0"),
 S("cuz","because","/bɪˈkɒz/","/kʌz/","B1",["I left early cuz I was tired.","Stay home cuz it's icy."],"He's upset ___ the delay.|cuz|cuz'|coz of the|cauze|0"),
-S("ta","thanks","/θæŋks/","/tæ/","A2",["{Ta} for the lift!","Coffee? — {Ta}, lovely."],"___ , that's kind of you.|Ta|Ta-|Taa of|Tah|0"),
-S("loadsa","loads of","/ˈləʊdz əv/","/ˈləʊdzə/","B1",["We've got {loadsa} time.","She has {loadsa} friends."],"There were ___ taxis.|loadsa|loads|loadsa'|loadsa of|0"),
+S("'kay","okay","/oʊˈkeɪ/","/keɪ/","A2",["{'Kay}, see you at six.","{'Kay}, I'll call you back."],"___ , let's do it.|'Kay|Kay of|'Kay'|K-ay|0"),
+S("hadda","had to","/ˈhæd tə/","/ˈhædə/","B1",["I {hadda} work late yesterday.","We {hadda} wait an hour."],"She ___ leave early.|hadda|had|hadda'|hadda of|0"),
 S("s'pose","suppose","/səˈpəʊz/","/ˈspəʊz/","B1",["I {s'pose} you're right.","{S'pose} we try again?"],"I ___ so, yes.|s'pose|spose|s'pose'|s'posa|0"),
 S("wassup","what's up","/ˈwɒts ʌp/","/wəˈsʌp/","A2",["{Wassup}? You look worried.","{Wassup} this weekend?"],"___ , long time!|Wassup|What's up|Wassup'|Wassap'|0"),
 ];
-// Примечание: строка «lotta» выше содержит черновой пример — финальная версия ниже перезаписывает его.
-SLANG_CARDS[61] = S("lotta","lot of","/ˈlɒt əv/","/ˈlɒtə/","A2",["There's a {lotta} work today.","I got a {lotta} replies."],"We had a ___ fun.|lotta|lot|lota|lotta of|0");
 
 /* ---------- РАЗГОВОРНЫЕ ФРАЗЫ (100) ---------- */
 const CV_PAIRS = []; // {front, tr, cat} — накопленные карточки
