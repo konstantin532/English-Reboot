@@ -93,7 +93,7 @@ const LadderUI = (() => {
         </div>
         <button class="btn-primary" id="ladder-start" type="button">Начать</button>
         <p class="setting-hint">Сначала — фразы, которые пора повторить (решает FSRS), потом новые.
-          ${spoken ? `Сегодня ты сказал вслух: <b>${spoken}</b> ${ER.plural(spoken, 'фразу', 'фразы', 'фраз')}.` : ''}</p>
+          ${spoken ? `Сегодня сказано вслух: <b>${spoken}</b> ${ER.plural(spoken, 'фраза', 'фразы', 'фраз')}.` : ''}</p>
       </div>`;
   }
 
@@ -385,7 +385,7 @@ const LadderUI = (() => {
               <button class="btn btn-ghost ladder-selfbtn" type="button" data-ok="0">Ещё потренирую</button>
             </div>
           </div>
-          <p class="setting-hint">Временная версия: автоматической проверки произношения пока нет — оцениваешь сам.</p>`;
+          <p class="setting-hint">Временная версия: автоматической проверки произношения пока нет — оценка за тобой.</p>`;
       case 'own':
       case 'improv':
         return `${ex.mood ? `<p class="ladder-mood">🎭 ${esc(ex.mood.ru)}</p>` : ''}${cueHtml(ex.cue)}
@@ -393,7 +393,7 @@ const LadderUI = (() => {
             placeholder="Напиши ответ или скажи его вслух…"></textarea>
           ${recorderHtml()}
           <div class="ladder-row" id="ladder-done-row"><button class="btn-primary" id="ladder-done" type="button">Готово — показать образцы</button></div>
-          <p class="setting-hint">Временная версия: ответ своими словами пока не проверяется автоматически — покажем образцы, оценишь сам.</p>`;
+          <p class="setting-hint">Временная версия: ответ своими словами пока не проверяется автоматически — покажем образцы, оценка за тобой.</p>`;
       default:
         return '';
     }
@@ -741,8 +741,8 @@ const LadderUI = (() => {
     ER.showModal(`
       <h3 id="ladder-summary-title">Готово! 🪜</h3>
       <div class="session-result ladder-summary">
-        <p>Ты сказал вслух: <strong>${s.spoken}</strong> ${ER.plural(s.spoken, 'фразу', 'фразы', 'фраз')}</p>
-        <p>Открыл ступеней: <strong>${s.ups}</strong>${s.downs ? ` · шагов назад: ${s.downs}` : ''}</p>
+        <p>Сказано вслух: <strong>${s.spoken}</strong> ${ER.plural(s.spoken, 'фраза', 'фразы', 'фраз')}</p>
+        <p>Открыто ступеней: <strong>${s.ups}</strong>${s.downs ? ` · шагов назад: ${s.downs}` : ''}</p>
         <p>Верных ответов: <strong>${s.correct}</strong> из ${s.total}</p>
       </div>
       <div class="session-actions">

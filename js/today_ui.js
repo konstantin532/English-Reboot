@@ -155,8 +155,8 @@ const TodayUI = (() => {
       <div class="section-wrap today">
         <div class="card today-hero today-summary" id="today-summary">
           <h2 class="today-title">Итог дня 🎉</h2>
-          <p class="today-big">Ты сказал вслух <b>${s.spoken}</b> ${plural(s.spoken, 'фразу', 'фразы', 'фраз')}
-            и открыл <b>${s.stepsUp}</b> ${plural(s.stepsUp, 'ступень', 'ступени', 'ступеней')}.</p>
+          <p class="today-big">Сказано вслух: <b>${s.spoken}</b> ${plural(s.spoken, 'фраза', 'фразы', 'фраз')}.
+            Открыто ступеней: <b>${s.stepsUp}</b>.</p>
           <p class="today-sub">${s.minutes === '<1' ? 'меньше минуты' : `${s.minutes} ${plural(s.minutes, 'минута', 'минуты', 'минут')}`} занятий сегодня ·
             серия ${s.streak} ${plural(s.streak, 'день', 'дня', 'дней')}</p>
           <p class="today-coach">${COACH.summary}</p>

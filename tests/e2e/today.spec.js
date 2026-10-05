@@ -69,8 +69,8 @@ test('«Сегодня»: после онбординга урок открыв�
 
   // Итог дня: честные цифры из статистики дня
   const summary = page.locator('#today-summary');
-  await expect(summary).toContainText('Ты сказал вслух 3 фразы');
-  await expect(summary).toContainText('открыл 3 ступени');
+  await expect(summary).toContainText('Сказано вслух: 3 фразы');
+  await expect(summary).toContainText('Открыто ступеней: 3');
   await expect(summary).toContainText('серия 1 день');
 
   // Главная: урок дня пройден, плитки обновились

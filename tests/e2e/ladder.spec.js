@@ -45,7 +45,7 @@ test('лестница: фраза с карточки проходит ступ
   await page.locator('#ladder-next').click();
 
   // Итог сессии честно считает открытые ступени и верные ответы
-  await expect(page.locator('.ladder-summary')).toContainText('Открыл ступеней: 1');
+  await expect(page.locator('.ladder-summary')).toContainText('Открыто ступеней: 1');
   await expect(page.locator('.ladder-summary')).toContainText('3 из 3');
   await page.locator('#ladder-close').click();
 
