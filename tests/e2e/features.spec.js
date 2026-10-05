@@ -24,8 +24,9 @@ test('меню-«карта линий»: группы и значки, поло
   await start(page);
   const nav = page.locator('#main-nav');
   await expect(nav).toBeVisible();
-  await expect(nav.locator('.nav-group')).toHaveCount(3);
-  await expect(nav.locator('.nav-link .line-bullet')).toHaveCount(13);
+  await expect(nav.locator('.nav-group')).toHaveCount(3); // Библиотека, Практика, Я; «Сегодня» — над группами
+  await expect(nav.locator('.nav-link .line-bullet')).toHaveCount(14);
+  await expect(nav.locator('.nav-link').first()).toHaveAttribute('data-tab', 'today');
   await page.locator('.nav-link[data-tab="reading"]').click();
   await expect.poll(() => page.evaluate(() => document.body.dataset.tab)).toBe('reading');
   await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).getPropertyValue('--line').trim().toUpperCase()))
@@ -89,6 +90,8 @@ test('офлайн: после первого запуска приложени�
   await context.setOffline(true);
   await page.reload();
   await expect(page.locator('#main-nav .nav-link').first()).toBeVisible({ timeout: 10000 });
-  await expect(page.locator('.section-header h2')).toBeVisible();
+  // стартовый экран — «Сегодня»: урок строится из IndexedDB, today*.js — из кэша Service Worker
+  await expect(page.locator('.today-title')).toBeVisible();
+  await expect(page.locator('#today-start, #today-continue').first()).toBeVisible();
   await context.setOffline(false);
 });
