@@ -184,7 +184,9 @@
     await persistSetting('daily_goal', goal);
     refreshHeaderStats();
     toast('Уровень ' + level + ' сохранён. Добро пожаловать!', 'success');
-    switchTab('today'); // после онбординга — сразу урок дня
+    // После онбординга — урок дня (с новым уровнем). Если ученик уже ушёл в другой раздел
+    // или начал задание, не выдёргиваем его обратно.
+    if (currentTab === 'today' && !moduleScreen && !state.inSession) switchTab('today');
   }
 
   /* ---------- PWA: Service Worker и установка ---------- */
