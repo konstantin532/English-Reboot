@@ -1,6 +1,6 @@
 /**
  * scripts/audit_content.mjs — проверка «живости» контента (этап 7).
- * Запуск: node scripts/audit_content.mjs [--cmu путь/к/cmudict.dict]  →  docs/content-audit.md (+ .json)
+ * Запуск: node scripts/audit_content.mjs [--cmu путь/к/cmudict.dict] [--out папка]  →  docs/content-audit.md (+ .json)
  *   cmudict.dict: git clone https://github.com/cmusphinx/cmudict (BSD-2-Clause). Без него
  *   американский вариант берётся только из js/lex_us.js (там лишь часть слов).
  * Это dev-инструментарий: приложение этот файл не использует. Скрипт НИЧЕГО не меняет в
@@ -114,7 +114,7 @@ function britishMarks(word, ipa) {
   const m = [];
   if (/ɒ/.test(ipa)) m.push('ɒ (в США — ɑ/ɔ)');
   if (/əʊ/.test(ipa)) m.push('əʊ (в США — oʊ)');
-  if (/eə|ɪə|ʊə/.test(ipa)) m.push('eə/ɪə/ʊə (в США — ɛr/ɪr/ʊr)');
+  if (/eə|(?<!a)ɪə|(?<!a)ʊə/.test(ipa)) m.push('eə/ɪə/ʊə (в США — ɛr/ɪr/ʊr)'); // aɪə/aʊə (quiet, towel) — это два слога, не британское
   if (/[aeiouy]r/i.test(word) && !/[rɚɝ]/.test(ipa)) m.push('нет r (в США r слышен)');
   else if (/ː/.test(ipa)) m.push('ː (долготу в американских словарях не пишут)');
   return m;
@@ -422,7 +422,10 @@ dupRows.forEach((r) => {
 });
 lines.push('');
 
-fs.mkdirSync(path.join(ROOT, 'docs'), { recursive: true });
-fs.writeFileSync(path.join(ROOT, 'docs', 'content-audit.md'), lines.join('\n'));
-fs.writeFileSync(path.join(ROOT, 'docs', 'content-audit.json'), JSON.stringify({ ipa: ipaRows, looseIpa, brSlang, words: W, spelling: SP, bookish: BK, duplicates: dupRows }, null, 1));
+// --out папка: повторная проверка после правок, не затирая исходный отчёт в docs/
+const outArg = process.argv.indexOf('--out');
+const OUT = outArg > 0 ? path.resolve(process.argv[outArg + 1]) : path.join(ROOT, 'docs');
+fs.mkdirSync(OUT, { recursive: true });
+fs.writeFileSync(path.join(OUT, 'content-audit.md'), lines.join('\n'));
+fs.writeFileSync(path.join(OUT, 'content-audit.json'), JSON.stringify({ ipa: ipaRows, looseIpa, brSlang, words: W, spelling: SP, bookish: BK, duplicates: dupRows }, null, 1));
 console.log(`Карточек: ${cards.length}. IPA: ${ipaRows.length} (авто: ${auto.length}, вручную: ${manual.length}), прочая IPA: ${looseIpa.length}, слова: ${W.length}, написание: ${SP.length}, книжное: ${BK.length}, дубли: ${dupRows.length}`);

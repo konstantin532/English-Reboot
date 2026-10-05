@@ -7,7 +7,7 @@
 
 /* ---------- Хелперы записи ---------- */
 
-// Слово: w("work","verb","/wɜːk/",{s:0,sl:[1],sp:[2]})
+// Слово: w("work","verb","/wɝk/",{s:0,sl:[1],sp:[2]})
 // s — индекс ударного слога, sl — немые буквы, sp — неожиданные звуки
 const w = (word, pos, ipa, o = {}) => {
   const p = { word, pos, ipa, silent: o.sl || [], surprise: o.sp || [] };
@@ -38,11 +38,11 @@ card('g049','A1',['глагол to be','базовое'],
 'Главный глагол «быть». В русском «я студент» — без глагола, в английском он обязателен: I am a student. Форма зависит от подлежащего.',
 [
  ex('I am a student.',[
-  w('I','pron','/aɪ/'), w('am','verb','/æm/'), w('a','art','/ə/'), w('student','noun','/ˈstjuːdənt/',{s:0})]),
+  w('I','pron','/aɪ/'), w('am','verb','/æm/'), w('a','art','/ə/'), w('student','noun','/ˈstudənt/',{s:0})]),
  ex('She is my sister.',[
-  w('She','pron','/ʃiː/'), w('is','verb','/ɪz/'), w('my','pron','/maɪ/'), w('sister','noun','/ˈsɪstə/',{s:0})]),
+  w('She','pron','/ʃi/'), w('is','verb','/ɪz/'), w('my','pron','/maɪ/'), w('sister','noun','/ˈsɪstɚ/',{s:0})]),
  ex('They are happy.',[
-  w('They','pron','/ðeɪ/'), w('are','verb','/ɑː/'), w('happy','adj','/ˈhæpi/',{s:0})]),
+  w('They','pron','/ðeɪ/'), w('are','verb','/ɑr/'), w('happy','adj','/ˈhæpi/',{s:0})]),
 ],
 [
  err('I is a student.','I am a student.','С местоимением I всегда am.'),
@@ -62,11 +62,11 @@ card('g050','A1',['глагол to be','вопросы'],
 'Чтобы задать вопрос, to be выходит вперёд: You are okay → Are you okay? Специальные вопросы начинаются с What/Where/How, затем to be.',
 [
  ex('Are you okay?',[
-  w('Are','verb','/ɑː/'), w('you','pron','/juː/'), w('okay','adj','/ˌəʊˈkeɪ/',{s:1})]),
+  w('Are','verb','/ɑr/'), w('you','pron','/ju/'), w('okay','adj','/oʊˈkeɪ/',{s:1})]),
  ex('Is this your bag?',[
-  w('Is','verb','/ɪz/'), w('this','pron','/ðɪs/'), w('your','pron','/jɔː/'), w('bag','noun','/bæɡ/')]),
+  w('Is','verb','/ɪz/'), w('this','pron','/ðɪs/'), w('your','pron','/jɔr/'), w('bag','noun','/bæɡ/')]),
  ex('Where is the station?',[
-  w('Where','adv','/weə/'), w('is','verb','/ɪz/'), w('the','art','/ðə/'), w('station','noun','/ˈsteɪʃən/',{s:0,sp:[4,5]})],
+  w('Where','adv','/wɛr/'), w('is','verb','/ɪz/'), w('the','art','/ðə/'), w('station','noun','/ˈsteɪʃən/',{s:0,sp:[4,5]})],
   'station — ti читается /ʃ/'),
 ],
 [
@@ -87,11 +87,11 @@ card('g051','A1',['числа','возраст'],
 'Возраст в английском — через to be, не через have: I am ten years old. Числительные 13–19 оканчиваются на -teen: thirteen, fourteen, fifteen.',
 [
  ex('I am ten years old.',[
-  w('I','pron','/aɪ/'), w('am','verb','/æm/'), w('ten','num','/ten/'), w('years','noun','/jɪəz/'), w('old','adj','/əʊld/')]),
+  w('I','pron','/aɪ/'), w('am','verb','/æm/'), w('ten','num','/tɛn/'), w('years','noun','/jɪrz/'), w('old','adj','/oʊld/')]),
  ex('How old are you?',[
-  w('How','adv','/haʊ/'), w('old','adj','/əʊld/'), w('are','verb','/ɑː/'), w('you','pron','/juː/')]),
+  w('How','adv','/haʊ/'), w('old','adj','/oʊld/'), w('are','verb','/ɑr/'), w('you','pron','/ju/')]),
  ex('My brother is seven.',[
-  w('My','pron','/maɪ/'), w('brother','noun','/ˈbrʌðə/',{s:0}), w('is','verb','/ɪz/'), w('seven','num','/ˈsevn/',{s:0})]),
+  w('My','pron','/maɪ/'), w('brother','noun','/ˈbrʌðə/',{s:0}), w('is','verb','/ɪz/'), w('seven','num','/ˈsɛvn/',{s:0})]),
 ],
 [
  err('I have ten years.','I am ten years old.','Возраст — через to be, не через have.'),
@@ -111,11 +111,11 @@ card('g052','A1',['знакомство','базовое'],
 'Первые фразы любого разговора: приветствие, имя, «приятно познакомиться». После My name всегда нужен is: My name is Anna.',
 [
  ex('Hello! My name is Anna.',[
-  w('Hello','adv','/həˈləʊ/',{s:1}), w('My','pron','/maɪ/'), w('name','noun','/neɪm/'), w('is','verb','/ɪz/'), w('Anna','noun','/ˈænə/',{s:0})]),
+  w('Hello','adv','/həˈloʊ/',{s:1}), w('My','pron','/maɪ/'), w('name','noun','/neɪm/'), w('is','verb','/ɪz/'), w('Anna','noun','/ˈænə/',{s:0})]),
  ex('Nice to meet you.',[
-  w('Nice','adj','/naɪs/'), w('to','part','/tə/'), w('meet','verb','/miːt/'), w('you','pron','/juː/')]),
+  w('Nice','adj','/naɪs/'), w('to','part','/tə/'), w('meet','verb','/mit/'), w('you','pron','/ju/')]),
  ex('How are you? — I\'m fine, thanks.',[
-  w('How','adv','/haʊ/'), w('are','verb','/ɑː/'), w('you','pron','/juː/'), w("I'm",'pron','/aɪm/'), w('fine','adj','/faɪn/'), w('thanks','noun','/θæŋks/')]),
+  w('How','adv','/haʊ/'), w('are','verb','/ɑr/'), w('you','pron','/ju/'), w("I'm",'pron','/aɪm/'), w('fine','adj','/faɪn/'), w('thanks','noun','/θæŋks/')]),
 ],
 [
  err('My name Anna.','My name is Anna.','Нужен глагол is: My name is…'),
@@ -135,12 +135,12 @@ card('g053','A1',['have got','владение'],
 '«Иметь, владеть»: I have got a dog. С he/she/it — has got. В разговоре сокращают: I\'ve got, she\'s got.',
 [
  ex('I have got a dog.',[
-  w('I','pron','/aɪ/'), w('have','verb','/hæv/'), w('got','verb','/ɡɒt/'), w('a','art','/ə/'), w('dog','noun','/dɒɡ/')]),
+  w('I','pron','/aɪ/'), w('have','verb','/hæv/'), w('got','verb','/ɡɑt/'), w('a','art','/ə/'), w('dog','noun','/dɔɡ/')]),
  ex('She has got two cats.',[
-  w('She','pron','/ʃiː/'), w('has','verb','/hæz/'), w('got','verb','/ɡɒt/'), w('two','num','/tuː/',{sl:[1]}), w('cats','noun','/kæts/')],
+  w('She','pron','/ʃi/'), w('has','verb','/hæz/'), w('got','verb','/ɡɑt/'), w('two','num','/tu/',{sl:[1]}), w('cats','noun','/kæts/')],
   'two — w немая'),
  ex('They haven\'t got a car.',[
-  w('They','pron','/ðeɪ/'), w("haven't",'verb','/ˈhævnt/'), w('got','verb','/ɡɒt/'), w('a','art','/ə/'), w('car','noun','/kɑː/')]),
+  w('They','pron','/ðeɪ/'), w("haven't",'verb','/ˈhævnt/'), w('got','verb','/ɡɑt/'), w('a','art','/ə/'), w('car','noun','/kɑr/')]),
 ],
 [
  err('She have got a pen.','She has got a pen.','С he/she/it — has got.'),
@@ -162,9 +162,9 @@ card('g054','A1',['модальные глаголы','умения'],
  ex('I can swim.',[
   w('I','pron','/aɪ/'), w('can','modal','/kæn/'), w('swim','verb','/swɪm/')]),
  ex('She can\'t drive.',[
-  w('She','pron','/ʃiː/'), w("can't",'modal','/kɑːnt/'), w('drive','verb','/draɪv/')]),
+  w('She','pron','/ʃi/'), w("can't",'modal','/kænt/'), w('drive','verb','/draɪv/')]),
  ex('Can you help me?',[
-  w('Can','modal','/kæn/'), w('you','pron','/juː/'), w('help','verb','/help/'), w('me','pron','/miː/')]),
+  w('Can','modal','/kæn/'), w('you','pron','/ju/'), w('help','verb','/hɛlp/'), w('me','pron','/mi/')]),
 ],
 [
  err('She can to swim.','She can swim.','После can — глагол без to.'),
@@ -184,11 +184,11 @@ card('g055','A1',['like','предпочтения'],
 '«Нравиться, любить»: I like music. В 3-м лице ед. ч. — likes. О действии после like ставим -ing: I like swimming.',
 [
  ex('I like music.',[
-  w('I','pron','/aɪ/'), w('like','verb','/laɪk/'), w('music','noun','/ˈmjuːzɪk/',{s:0})]),
+  w('I','pron','/aɪ/'), w('like','verb','/laɪk/'), w('music','noun','/ˈmjuzɪk/',{s:0})]),
  ex('She likes pizza.',[
-  w('She','pron','/ʃiː/'), w('likes','verb','/laɪks/'), w('pizza','noun','/ˈpiːtsə/',{s:0})]),
+  w('She','pron','/ʃi/'), w('likes','verb','/laɪks/'), w('pizza','noun','/ˈpitsə/',{s:0})]),
  ex('I don\'t like cold weather.',[
-  w('I','pron','/aɪ/'), w("don't",'aux','/dəʊnt/'), w('like','verb','/laɪk/'), w('cold','adj','/kəʊld/'), w('weather','noun','/ˈweðə/',{s:0,sp:[2,3]})],
+  w('I','pron','/aɪ/'), w("don't",'aux','/doʊnt/'), w('like','verb','/laɪk/'), w('cold','adj','/koʊld/'), w('weather','noun','/ˈwɛðɚ/',{s:0,sp:[2,3]})],
   'weather — ea читается /e/'),
 ],
 [
@@ -211,11 +211,11 @@ card('g001','A2',['существительные','базовое'],
 'Исчисляемые существительные можно посчитать: a book, two books. Неисчисляемые — нельзя: water, money, advice. К ним не добавляют -s и не ставят a/an; используют some, much, a lot of.',
 [
  ex('I need some water.',[
-  w('I','pron','/aɪ/'), w('need','verb','/niːd/'), w('some','det','/sʌm/'), w('water','noun','/ˈwɔːtər/',{s:0})]),
+  w('I','pron','/aɪ/'), w('need','verb','/nid/'), w('some','det','/sʌm/'), w('water','noun','/ˈwɔtɚ/',{s:0})]),
  ex('She has three brothers.',[
-  w('She','pron','/ʃiː/'), w('has','verb','/hæz/'), w('three','num','/θriː/'), w('brothers','noun','/ˈbrʌðəz/',{s:0})]),
+  w('She','pron','/ʃi/'), w('has','verb','/hæz/'), w('three','num','/θri/'), w('brothers','noun','/ˈbrʌðəz/',{s:0})]),
  ex('How much time do we have?',[
-  w('How','adv','/haʊ/'), w('much','det','/mʌtʃ/'), w('time','noun','/taɪm/'), w('do','aux','/də/'), w('we','pron','/wiː/'), w('have','verb','/hæv/')],
+  w('How','adv','/haʊ/'), w('much','det','/mʌtʃ/'), w('time','noun','/taɪm/'), w('do','aux','/də/'), w('we','pron','/wi/'), w('have','verb','/hæv/')],
   'do → слабая форма /də/'),
 ],
 [
@@ -236,11 +236,11 @@ card('g002','A2',['существительные','множественное �
 'Большинство существительных образуют множественное число через -s/-es. Есть исключения: man→men, child→children, foot→feet, tooth→teeth, mouse→mice.',
 [
  ex('The boxes are heavy.',[
-  w('The','art','/ðə/'), w('boxes','noun','/ˈbɒksɪz/',{s:0}), w('are','verb','/ɑː/'), w('heavy','adj','/ˈhevi/',{s:0})]),
+  w('The','art','/ðə/'), w('boxes','noun','/ˈbɑksɪz/',{s:0}), w('are','verb','/ɑr/'), w('heavy','adj','/ˈhɛvi/',{s:0})]),
  ex('Two women work here.',[
-  w('Two','num','/tuː/',{sl:[0]}), w('women','noun','/ˈwɪmɪn/',{s:0,sp:[1,3]}), w('work','verb','/wɜːk/',{sp:[1]}), w('here','adv','/hɪə/')]),
+  w('Two','num','/tu/',{sl:[0]}), w('women','noun','/ˈwɪmɪn/',{s:0,sp:[1,3]}), w('work','verb','/wɝk/',{sp:[1]}), w('here','adv','/hir/')]),
  ex('My feet hurt after the walk.',[
-  w('My','pron','/maɪ/'), w('feet','noun','/fiːt/'), w('hurt','verb','/hɜːt/'), w('after','prep','/ˈɑːftə/',{s:0}), w('the','art','/ðə/'), w('walk','noun','/wɔːk/',{sl:[3]})],
+  w('My','pron','/maɪ/'), w('feet','noun','/fit/'), w('hurt','verb','/hɝt/'), w('after','prep','/ˈæftɚ/',{s:0}), w('the','art','/ðə/'), w('walk','noun','/wɔk/',{sl:[3]})],
   'walk — l немая: /wɔːk/'),
 ],
 [
@@ -263,9 +263,9 @@ card('g003','A2',['существительные','притяжательный
  ex("This is Anna's bag.",[
   w('This','pron','/ðɪs/'), w('is','verb','/ɪz/'), w("Anna's",'noun','/ˈænəz/',{s:0}), w('bag','noun','/bæɡ/')]),
  ex("My brother's car is new.",[
-  w('My','pron','/maɪ/'), w("brother's",'noun','/ˈbrʌðəz/',{s:0}), w('car','noun','/kɑː/'), w('is','verb','/ɪz/'), w('new','adj','/njuː/')]),
+  w('My','pron','/maɪ/'), w("brother's",'noun','/ˈbrʌðəz/',{s:0}), w('car','noun','/kɑr/'), w('is','verb','/ɪz/'), w('new','adj','/nu/')]),
  ex("The students' answers were good.",[
-  w('The','art','/ðə/'), w("students'",'noun','/ˈstjuːdənts/',{s:0}), w('answers','noun','/ˈɑːnsəz/',{s:0,sl:[2]}), w('were','verb','/wɜː/'), w('good','adj','/ɡʊd/')],
+  w('The','art','/ðə/'), w("students'",'noun','/ˈstudənts/',{s:0}), w('answers','noun','/ˈænsɚz/',{s:0,sl:[2]}), w('were','verb','/wɝ/'), w('good','adj','/ɡʊd/')],
   "answer — w немая: /ˈɑːnsə/"),
 ],
 [
@@ -286,11 +286,11 @@ card('g004','A2',['артикли','a/an'],
 'A/an ставим перед исчисляемыми в ед. ч., когда предмет упоминается впервые или это один из многих. Выбор зависит от звука, а не буквы: an hour (h немая), a university /juː/.',
 [
  ex('She is an engineer.',[
-  w('She','pron','/ʃiː/'), w('is','verb','/ɪz/'), w('an','art','/ən/'), w('engineer','noun','/ˌendʒɪˈnɪə/',{s:2})]),
+  w('She','pron','/ʃi/'), w('is','verb','/ɪz/'), w('an','art','/ən/'), w('engineer','noun','/ˈɛndʒənɪr/',{s:2})]),
  ex('I saw a bird in the garden.',[
-  w('I','pron','/aɪ/'), w('saw','verb','/sɔː/'), w('a','art','/ə/'), w('bird','noun','/bɜːd/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('garden','noun','/ˈɡɑːdən/',{s:0})]),
+  w('I','pron','/aɪ/'), w('saw','verb','/sɔ/'), w('a','art','/ə/'), w('bird','noun','/bɝd/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('garden','noun','/ˈɡɑrdən/',{s:0})]),
  ex('It takes an hour by bus.',[
-  w('It','pron','/ɪt/'), w('takes','verb','/teɪks/'), w('an','art','/ən/'), w('hour','noun','/ˈaʊə/',{s:0,sl:[0]}), w('by','prep','/baɪ/'), w('bus','noun','/bʌs/')],
+  w('It','pron','/ɪt/'), w('takes','verb','/teɪks/'), w('an','art','/ən/'), w('hour','noun','/aʊr/',{s:0,sl:[0]}), w('by','prep','/baɪ/'), w('bus','noun','/bʌs/')],
   'hour — h немая: /ˈaʊə/'),
 ],
 [
@@ -311,11 +311,11 @@ card('g005','A2',['артикли','the'],
 'The используем, когда предмет конкретен или известен собеседнику: упомянут раньше, единственный в своём роде (the sun, the moon) или понятен из ситуации.',
 [
  ex('Close the door, please.',[
-  w('Close','verb','/kləʊz/'), w('the','art','/ðə/'), w('door','noun','/dɔː/'), w('please','adv','/pliːz/')]),
+  w('Close','verb','/kloʊz/'), w('the','art','/ðə/'), w('door','noun','/dɔr/'), w('please','adv','/pliz/')]),
  ex('The sun is bright today.',[
   w('The','art','/ðə/'), w('sun','noun','/sʌn/'), w('is','verb','/ɪz/'), w('bright','adj','/braɪt/'), w('today','adv','/təˈdeɪ/',{s:1})]),
  ex('I bought a shirt. The shirt is blue.',[
-  w('I','pron','/aɪ/'), w('bought','verb','/bɔːt/'), w('a','art','/ə/'), w('shirt','noun','/ʃɜːt/'), w('The','art','/ðə/'), w('shirt','noun','/ʃɜːt/'), w('is','verb','/ɪz/'), w('blue','adj','/bluː/')],
+  w('I','pron','/aɪ/'), w('bought','verb','/bɔt/'), w('a','art','/ə/'), w('shirt','noun','/ʃɝt/'), w('The','art','/ðə/'), w('shirt','noun','/ʃɝt/'), w('is','verb','/ɪz/'), w('blue','adj','/blu/')],
   'Первое упоминание — a, второе — the'),
 ],
 [
@@ -336,13 +336,13 @@ card('g006','A2',['артикли','нулевой артикль'],
 'Артикль не ставится перед неисчисляемыми и множественным числом в общем смысле (I like music, Cats are cute), перед именами, городами, большинством стран, приёмами пищи и видами спорта.',
 [
  ex('I like music and books.',[
-  w('I','pron','/aɪ/'), w('like','verb','/laɪk/'), w('music','noun','/ˈmjuːzɪk/',{s:0}), w('and','conj','/ən/'), w('books','noun','/bʊks/')],
+  w('I','pron','/aɪ/'), w('like','verb','/laɪk/'), w('music','noun','/ˈmjuzɪk/',{s:0}), w('and','conj','/ən/'), w('books','noun','/bʊks/')],
   'and → /ən/ (слабая форма)'),
  ex('She has lunch at school.',[
-  w('She','pron','/ʃiː/'), w('has','verb','/hæz/'), w('lunch','noun','/lʌntʃ/'), w('at','prep','/æt/'), w('school','noun','/skuːl/',{sp:[2,3]})],
+  w('She','pron','/ʃi/'), w('has','verb','/hæz/'), w('lunch','noun','/lʌntʃ/'), w('at','prep','/æt/'), w('school','noun','/skul/',{sp:[2,3]})],
   'school — ch → /k/'),
  ex('Cats sleep a lot.',[
-  w('Cats','noun','/kæts/'), w('sleep','verb','/sliːp/'), w('a','art','/ə/'), w('lot','adv','/lɒt/')]),
+  w('Cats','noun','/kæts/'), w('sleep','verb','/slip/'), w('a','art','/ə/'), w('lot','adv','/lɑt/')]),
 ],
 [
  err('I love the cats.','I love cats.','Обобщённое множество — без артикля; the cats = конкретные коты.'),
@@ -362,11 +362,11 @@ card('g007','A2',['местоимения','личные','притяжател�
 'Личные местоимения заменяют подлежащее (I, you, he…). Притяжательные (my, your, his…) стоят перед существительным. Абсолютные формы (mine, hers, theirs) — без существительного: This book is mine.',
 [
  ex('This is my sister. Her name is Kate.',[
-  w('This','pron','/ðɪs/'), w('is','verb','/ɪz/'), w('my','pron','/maɪ/'), w('sister','noun','/ˈsɪstə/',{s:0}), w('Her','pron','/hɜː/'), w('name','noun','/neɪm/'), w('is','verb','/ɪz/'), w('Kate','noun','/keɪt/')]),
+  w('This','pron','/ðɪs/'), w('is','verb','/ɪz/'), w('my','pron','/maɪ/'), w('sister','noun','/ˈsɪstɚ/',{s:0}), w('Her','pron','/hɝ/'), w('name','noun','/neɪm/'), w('is','verb','/ɪz/'), w('Kate','noun','/keɪt/')]),
  ex('We love our city.',[
-  w('We','pron','/wiː/'), w('love','verb','/lʌv/',{sp:[1]}), w('our','pron','/ˈaʊə/',{s:0}), w('city','noun','/ˈsɪti/',{s:0})]),
+  w('We','pron','/wi/'), w('love','verb','/lʌv/',{sp:[1]}), w('our','pron','/aʊr/',{s:0}), w('city','noun','/ˈsɪti/',{s:0})]),
  ex('The red car is theirs.',[
-  w('The','art','/ðə/'), w('red','adj','/red/'), w('car','noun','/kɑː/'), w('is','verb','/ɪz/'), w('theirs','pron','/ðeəz/')]),
+  w('The','art','/ðə/'), w('red','adj','/rɛd/'), w('car','noun','/kɑr/'), w('is','verb','/ɪz/'), w('theirs','pron','/ðɛrz/')]),
 ],
 [
  err('Me like coffee.','I like coffee.','Me — объектное местоимение; подлежащее — I.'),
@@ -386,11 +386,11 @@ card('g008','A2',['местоимения','объектные','указате�
 'Объектные местоимения стоят после глагола или предлога: see me, with him. This/these — о том, что рядом или сейчас; that/those — о том, что дальше или в прошлом.',
 [
  ex('Call me tomorrow.',[
-  w('Call','verb','/kɔːl/'), w('me','pron','/miː/'), w('tomorrow','adv','/təˈmɒrəʊ/',{s:1})]),
+  w('Call','verb','/kɔl/'), w('me','pron','/mi/'), w('tomorrow','adv','/təˈmɑroʊ/',{s:1})]),
  ex('I gave him the book.',[
   w('I','pron','/aɪ/'), w('gave','verb','/ɡeɪv/'), w('him','pron','/hɪm/'), w('the','art','/ðə/'), w('book','noun','/bʊk/')]),
  ex('These apples are sweet, but those are sour.',[
-  w('These','pron','/ðiːz/'), w('apples','noun','/ˈæpəlz/',{s:0}), w('are','verb','/ɑː/'), w('sweet','adj','/swiːt/'), w('but','conj','/bʌt/'), w('those','pron','/ðəʊz/'), w('are','verb','/ɑː/'), w('sour','adj','/ˈsaʊə/',{s:0})]),
+  w('These','pron','/ðiz/'), w('apples','noun','/ˈæpəlz/',{s:0}), w('are','verb','/ɑr/'), w('sweet','adj','/swit/'), w('but','conj','/bʌt/'), w('those','pron','/ðoʊz/'), w('are','verb','/ɑr/'), w('sour','adj','/saʊr/',{s:0})]),
 ],
 [
  err('She loves I.','She loves me.','После глагола — объектное местоимение me.'),
@@ -410,13 +410,13 @@ card('g009','A2',['местоимения','some/any'],
 'Some — в утверждениях и просьбах. Any — в отрицаниях и вопросах. Somebody/someone — кто-то; anybody — кто-нибудь/никто (в отрицаниях); nobody — никто, глагол после него в положительной форме.',
 [
  ex('There is some milk in the fridge.',[
-  w('There','adv','/ðeə/'), w('is','verb','/ɪz/'), w('some','det','/sʌm/'), w('milk','noun','/mɪlk/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('fridge','noun','/frɪdʒ/')],
+  w('There','adv','/ðɛr/'), w('is','verb','/ɪz/'), w('some','det','/sʌm/'), w('milk','noun','/mɪlk/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('fridge','noun','/frɪdʒ/')],
   "There is → there's /ðeəz/"),
  ex('Do you have any questions?',[
-  w('Do','aux','/də/'), w('you','pron','/juː/'), w('have','verb','/hæv/'), w('any','det','/ˈeni/',{sp:[0]}), w('questions','noun','/ˈkwestʃənz/',{s:0,sp:[4,5]})],
+  w('Do','aux','/də/'), w('you','pron','/ju/'), w('have','verb','/hæv/'), w('any','det','/ˈɛni/',{sp:[0]}), w('questions','noun','/ˈkwɛstʃənz/',{s:0,sp:[4,5]})],
   'Do you → /dʒə/; question — ti → /tʃ/'),
  ex('Nobody knows the answer.',[
-  w('Nobody','pron','/ˈnəʊbədi/',{s:0}), w('knows','verb','/nəʊz/',{sl:[0]}), w('the','art','/ðə/'), w('answer','noun','/ˈɑːnsə/',{s:0,sl:[2]})],
+  w('Nobody','pron','/ˈnoʊbədi/',{s:0}), w('knows','verb','/noʊz/',{sl:[0]}), w('the','art','/ðə/'), w('answer','noun','/ˈænsɚ/',{s:0,sl:[2]})],
   'know, answer — немые k и w'),
 ],
 [
@@ -437,11 +437,11 @@ card('g010','A2',['местоимения','возвратные'],
 'Возвратные местоимения показывают, что действие направлено на самого деятеля: I hurt myself. Также для усиления: I did it myself — я сам это сделал.',
 [
  ex("Be careful! Don't hurt yourself.",[
-  w('Be','verb','/biː/'), w('careful','adj','/ˈkeəfəl/',{s:0}), w("Don't",'aux','/dəʊnt/'), w('hurt','verb','/hɜːt/'), w('yourself','pron','/jɔːˈself/',{s:1})]),
+  w('Be','verb','/bi/'), w('careful','adj','/ˈkɛrfəl/',{s:0}), w("Don't",'aux','/doʊnt/'), w('hurt','verb','/hɝt/'), w('yourself','pron','/ˈjɔrsɛlf/',{s:1})]),
  ex('She taught herself French.',[
-  w('She','pron','/ʃiː/'), w('taught','verb','/tɔːt/'), w('herself','pron','/hɜːˈself/',{s:1}), w('French','noun','/frentʃ/')]),
+  w('She','pron','/ʃi/'), w('taught','verb','/tɔt/'), w('herself','pron','/hɚˈsɛlf/',{s:1}), w('French','noun','/frɛntʃ/')]),
  ex('We built the house ourselves.',[
-  w('We','pron','/wiː/'), w('built','verb','/bɪlt/'), w('the','art','/ðə/'), w('house','noun','/haʊs/'), w('ourselves','pron','/ˌaʊəˈselvz/',{s:1})]),
+  w('We','pron','/wi/'), w('built','verb','/bɪlt/'), w('the','art','/ðə/'), w('house','noun','/haʊs/'), w('ourselves','pron','/aʊɚˈsɛlvz/',{s:1})]),
 ],
 [
  err('Myself went to the shop.','I went to the shop myself.','Myself не заменяет I в роли подлежащего.'),
@@ -461,13 +461,13 @@ card('g011','A2',['местоимения','относительные'],
 'Относительные местоимения соединяют главное предложение с придаточным. Who — о людях, which — о предметах, that — можно вместо обоих в определительных придаточных, whose — чей.',
 [
  ex('The man who lives next door is a doctor.',[
-  w('The','art','/ðə/'), w('man','noun','/mæn/'), w('who','pron','/huː/',{sl:[1]}), w('lives','verb','/lɪvz/'), w('next','adj','/nekst/'), w('door','noun','/dɔː/'), w('is','verb','/ɪz/'), w('a','art','/ə/'), w('doctor','noun','/ˈdɒktə/',{s:0})],
+  w('The','art','/ðə/'), w('man','noun','/mæn/'), w('who','pron','/hu/',{sl:[1]}), w('lives','verb','/lɪvz/'), w('next','adj','/nɛkst/'), w('door','noun','/dɔr/'), w('is','verb','/ɪz/'), w('a','art','/ə/'), w('doctor','noun','/ˈdɑktɚ/',{s:0})],
   'who — w немая'),
  ex('The book which I borrowed was great.',[
-  w('The','art','/ðə/'), w('book','noun','/bʊk/'), w('which','pron','/wɪtʃ/'), w('I','pron','/aɪ/'), w('borrowed','verb','/ˈbɒrəʊd/',{s:0}), w('was','verb','/wɒz/'), w('great','adj','/ɡreɪt/',{sp:[2,3]})],
+  w('The','art','/ðə/'), w('book','noun','/bʊk/'), w('which','pron','/wɪtʃ/'), w('I','pron','/aɪ/'), w('borrowed','verb','/ˈbɑroʊd/',{s:0}), w('was','verb','/wɑz/'), w('great','adj','/ɡreɪt/',{sp:[2,3]})],
   'great — ea → /eɪ/'),
  ex("She's the girl whose father works with me.",[
-  w("She's",'pron','/ʃiːz/'), w('the','art','/ðə/'), w('girl','noun','/ɡɜːl/'), w('whose','pron','/huːz/',{sl:[1]}), w('father','noun','/ˈfɑːðə/',{s:0}), w('works','verb','/wɜːks/',{sp:[1]}), w('with','prep','/wɪð/'), w('me','pron','/miː/')]),
+  w("She's",'pron','/ʃiz/'), w('the','art','/ðə/'), w('girl','noun','/ɡɝl/'), w('whose','pron','/huz/',{sl:[1]}), w('father','noun','/ˈfɑðɚ/',{s:0}), w('works','verb','/wɝks/',{sp:[1]}), w('with','prep','/wɪð/'), w('me','pron','/mi/')]),
 ],
 [
  err('The car who is red is mine.','The car which is red is mine.','Who — только для людей; для предметов — which/that.'),
@@ -487,12 +487,12 @@ card('g012','A2',['прилагательные','сравнение'],
 'Короткие прилагательные: -er/-est (tall → taller → the tallest). Длинные (2+ слога, кроме -y): more/most. Исключения: good→better→best, bad→worse→worst, far→further.',
 [
  ex('Today is hotter than yesterday.',[
-  w('Today','adv','/təˈdeɪ/',{s:1}), w('is','verb','/ɪz/'), w('hotter','adj','/ˈhɒtə/',{s:0}), w('than','conj','/ðæn/'), w('yesterday','adv','/ˈjestədeɪ/',{s:0})]),
+  w('Today','adv','/təˈdeɪ/',{s:1}), w('is','verb','/ɪz/'), w('hotter','adj','/ˈhɑtɚ/',{s:0}), w('than','conj','/ðæn/'), w('yesterday','adv','/ˈjɛstɚdeɪ/',{s:0})]),
  ex('This film is more interesting than that one.',[
-  w('This','pron','/ðɪs/'), w('film','noun','/fɪlm/'), w('is','verb','/ɪz/'), w('more','adv','/mɔː/'), w('interesting','adj','/ˈɪntrəstɪŋ/',{s:0}), w('than','conj','/ðæn/'), w('that','pron','/ðæt/'), w('one','num','/wʌn/',{sp:[0],sl:[2]})],
+  w('This','pron','/ðɪs/'), w('film','noun','/fɪlm/'), w('is','verb','/ɪz/'), w('more','adv','/mɔr/'), w('interesting','adj','/ˈɪntrəstɪŋ/',{s:0}), w('than','conj','/ðæn/'), w('that','pron','/ðæt/'), w('one','num','/wʌn/',{sp:[0],sl:[2]})],
   'one — o → /w/, e немая'),
  ex('She is the best student in the class.',[
-  w('She','pron','/ʃiː/'), w('is','verb','/ɪz/'), w('the','art','/ðə/'), w('best','adj','/best/'), w('student','noun','/ˈstjuːdənt/',{s:0}), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('class','noun','/klɑːs/')]),
+  w('She','pron','/ʃi/'), w('is','verb','/ɪz/'), w('the','art','/ðə/'), w('best','adj','/bɛst/'), w('student','noun','/ˈstudənt/',{s:0}), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('class','noun','/klæs/')]),
 ],
 [
  err('This book is more better.','This book is better.','Нельзя соединять more и -er: или more interesting, или better.'),
@@ -512,11 +512,11 @@ card('g013','A2',['прилагательные','порядок'],
 'В английском прилагательные идут в строгом порядке: opinion → size → age → shape → colour → origin → material → purpose. Big red wooden chair — размер, цвет, материал.',
 [
  ex('She wore a beautiful long black dress.',[
-  w('She','pron','/ʃiː/'), w('wore','verb','/wɔː/'), w('a','art','/ə/'), w('beautiful','adj','/ˈbjuːtɪfəl/',{s:0}), w('long','adj','/lɒŋ/'), w('black','adj','/blæk/'), w('dress','noun','/dres/')]),
+  w('She','pron','/ʃi/'), w('wore','verb','/wɔr/'), w('a','art','/ə/'), w('beautiful','adj','/ˈbjutəfəl/',{s:0}), w('long','adj','/lɔŋ/'), w('black','adj','/blæk/'), w('dress','noun','/drɛs/')]),
  ex('He bought an old round wooden table.',[
-  w('He','pron','/hiː/'), w('bought','verb','/bɔːt/'), w('an','art','/ən/'), w('old','adj','/əʊld/'), w('round','adj','/raʊnd/'), w('wooden','adj','/ˈwʊdən/',{s:0}), w('table','noun','/ˈteɪbəl/',{s:0})]),
+  w('He','pron','/hi/'), w('bought','verb','/bɔt/'), w('an','art','/ən/'), w('old','adj','/oʊld/'), w('round','adj','/raʊnd/'), w('wooden','adj','/ˈwʊdən/',{s:0}), w('table','noun','/ˈteɪbəl/',{s:0})]),
  ex('I have a small grey Japanese car.',[
-  w('I','pron','/aɪ/'), w('have','verb','/hæv/'), w('a','art','/ə/'), w('small','adj','/smɔːl/'), w('grey','adj','/ɡreɪ/'), w('Japanese','adj','/ˌdʒæpəˈniːz/',{s:2}), w('car','noun','/kɑː/')]),
+  w('I','pron','/aɪ/'), w('have','verb','/hæv/'), w('a','art','/ə/'), w('small','adj','/smɔl/'), w('grey','adj','/ɡreɪ/'), w('Japanese','adj','/dʒæpəˈniz/',{s:2}), w('car','noun','/kɑr/')]),
 ],
 [
  err('She has a red big bag.','She has a big red bag.','Размер идёт перед цветом: big red.'),
@@ -536,11 +536,11 @@ card('g014','A2',['прилагательные','-ed/-ing'],
 'Прилагательные на -ed описывают чувства человека (the film bored me → I am bored). На -ing — свойство предмета или человека, вызывающего чувство (the film is boring).',
 [
  ex('The film was really boring.',[
-  w('The','art','/ðə/'), w('film','noun','/fɪlm/'), w('was','verb','/wɒz/'), w('really','adv','/ˈrɪəli/',{s:0}), w('boring','adj','/ˈbɔːrɪŋ/',{s:0})]),
+  w('The','art','/ðə/'), w('film','noun','/fɪlm/'), w('was','verb','/wɑz/'), w('really','adv','/ˈrɪli/',{s:0}), w('boring','adj','/ˈbɔrɪŋ/',{s:0})]),
  ex('I was bored during the lesson.',[
-  w('I','pron','/aɪ/'), w('was','verb','/wɒz/'), w('bored','adj','/bɔːd/'), w('during','prep','/ˈdjʊərɪŋ/',{s:0}), w('the','art','/ðə/'), w('lesson','noun','/ˈlesən/',{s:0})]),
+  w('I','pron','/aɪ/'), w('was','verb','/wɑz/'), w('bored','adj','/bɔrd/'), w('during','prep','/ˈdʊrɪŋ/',{s:0}), w('the','art','/ðə/'), w('lesson','noun','/ˈlɛsən/',{s:0})]),
  ex('We were surprised by the news.',[
-  w('We','pron','/wiː/'), w('were','verb','/wɜː/'), w('surprised','adj','/səˈpraɪzd/',{s:1}), w('by','prep','/baɪ/'), w('the','art','/ðə/'), w('news','noun','/njuːz/')]),
+  w('We','pron','/wi/'), w('were','verb','/wɝ/'), w('surprised','adj','/səˈpraɪzd/',{s:1}), w('by','prep','/baɪ/'), w('the','art','/ðə/'), w('news','noun','/nuz/')]),
 ],
 [
  err('I am very interesting in history.','I am very interested in history.','Человек испытывает интерес — interested; интересным может быть предмет.'),
@@ -560,11 +560,11 @@ card('g015','A2',['наречия','частота'],
 'Наречия частоты стоят перед смысловым глаголом (I often walk) и после глагола be (He is always late).',
 [
  ex('I usually walk to work.',[
-  w('I','pron','/aɪ/'), w('usually','adv','/ˈjuːʒuəli/',{s:0}), w('walk','verb','/wɔːk/',{sl:[3]}), w('to','prep','/tə/'), w('work','noun','/wɜːk/',{sp:[1]})]),
+  w('I','pron','/aɪ/'), w('usually','adv','/ˈjuʒəwəli/',{s:0}), w('walk','verb','/wɔk/',{sl:[3]}), w('to','prep','/tə/'), w('work','noun','/wɝk/',{sp:[1]})]),
  ex('She is always on time.',[
-  w('She','pron','/ʃiː/'), w('is','verb','/ɪz/'), w('always','adv','/ˈɔːlweɪz/',{s:0}), w('on','prep','/ɒn/'), w('time','noun','/taɪm/')]),
+  w('She','pron','/ʃi/'), w('is','verb','/ɪz/'), w('always','adv','/ˈɔlweɪz/',{s:0}), w('on','prep','/ɑn/'), w('time','noun','/taɪm/')]),
  ex('We rarely eat fast food.',[
-  w('We','pron','/wiː/'), w('rarely','adv','/ˈreəli/',{s:0}), w('eat','verb','/iːt/'), w('fast','adj','/fɑːst/'), w('food','noun','/fuːd/')]),
+  w('We','pron','/wi/'), w('rarely','adv','/ˈrɛrli/',{s:0}), w('eat','verb','/it/'), w('fast','adj','/fæst/'), w('food','noun','/fud/')]),
 ],
 [
  err('I go always to the gym.','I always go to the gym.','Частотные наречия — перед смысловым глаголом.'),
@@ -584,11 +584,11 @@ card('g016','A2',['наречия','образ действия','степень
 'Наречия образа действия образуются через -ly (careful → carefully). Наречия степени усиливают или ослабляют значение: very good, too expensive, quite difficult.',
 [
  ex('She speaks English very well.',[
-  w('She','pron','/ʃiː/'), w('speaks','verb','/spiːks/'), w('English','noun','/ˈɪŋɡlɪʃ/',{s:0}), w('very','adv','/ˈveri/',{s:0}), w('well','adv','/wel/')]),
+  w('She','pron','/ʃi/'), w('speaks','verb','/spiks/'), w('English','noun','/ˈɪŋɡlɪʃ/',{s:0}), w('very','adv','/ˈvɛri/',{s:0}), w('well','adv','/wɛl/')]),
  ex('He drives too fast.',[
-  w('He','pron','/hiː/'), w('drives','verb','/draɪvz/'), w('too','adv','/tuː/'), w('fast','adv','/fɑːst/')]),
+  w('He','pron','/hi/'), w('drives','verb','/draɪvz/'), w('too','adv','/tu/'), w('fast','adv','/fæst/')]),
  ex('Please, listen carefully.',[
-  w('Please','adv','/pliːz/'), w('listen','verb','/ˈlɪsən/',{s:0,sl:[3]}), w('carefully','adv','/ˈkeəfəli/',{s:0})],
+  w('Please','adv','/pliz/'), w('listen','verb','/ˈlɪsən/',{s:0,sl:[3]}), w('carefully','adv','/ˈkɛrfəli/',{s:0})],
   'listen — t немая'),
 ],
 [
@@ -609,11 +609,11 @@ card('g017','A2',['предлоги','время'],
 'at — точное время (at 6 pm, at night); on — дни и даты (on Monday, on 5 May); in — месяцы, годы (in May, in 2025). by — к какому сроку; since — с какого момента; for — как долго.',
 [
  ex("The meeting starts at 9 o'clock.",[
-  w('The','art','/ðə/'), w('meeting','noun','/ˈmiːtɪŋ/',{s:0}), w('starts','verb','/stɑːts/'), w('at','prep','/æt/'), w('9','num','/naɪn/'), w("o'clock",'adv','/əˈklɒk/',{s:1})]),
+  w('The','art','/ðə/'), w('meeting','noun','/ˈmitɪŋ/',{s:0}), w('starts','verb','/stɑrts/'), w('at','prep','/æt/'), w('9','num','/naɪn/'), w("o'clock",'adv','/əˈklɑk/',{s:1})]),
  ex('We met on Friday evening.',[
-  w('We','pron','/wiː/'), w('met','verb','/met/'), w('on','prep','/ɒn/'), w('Friday','noun','/ˈfraɪdeɪ/',{s:0}), w('evening','noun','/ˈiːvnɪŋ/',{s:0})]),
+  w('We','pron','/wi/'), w('met','verb','/mɛt/'), w('on','prep','/ɑn/'), w('Friday','noun','/ˈfraɪdeɪ/',{s:0}), w('evening','noun','/ˈivnɪŋ/',{s:0})]),
  ex("I've worked here for five years.",[
-  w("I've",'pron','/aɪv/'), w('worked','verb','/wɜːkt/',{sp:[1]}), w('here','adv','/hɪə/'), w('for','prep','/fə/'), w('five','num','/faɪv/'), w('years','noun','/jɪəz/')],
+  w("I've",'pron','/aɪv/'), w('worked','verb','/wɝkt/',{sp:[1]}), w('here','adv','/hir/'), w('for','prep','/fɚ/'), w('five','num','/faɪv/'), w('years','noun','/jɪrz/')],
   'for → слабая форма /fə/'),
 ],
 [
@@ -634,11 +634,11 @@ card('g018','A2',['предлоги','место'],
 'in — внутри пространства (in the room); on — на поверхности (on the table); at — у точки (at the door, at school). to — направление, into — движение внутрь, across — через.',
 [
  ex('The keys are in the drawer.',[
-  w('The','art','/ðə/'), w('keys','noun','/kiːz/'), w('are','verb','/ɑː/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('drawer','noun','/drɔː/')]),
+  w('The','art','/ðə/'), w('keys','noun','/kiz/'), w('are','verb','/ɑr/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('drawer','noun','/drɔr/')]),
  ex('Your phone is on the table.',[
-  w('Your','pron','/jɔː/'), w('phone','noun','/fəʊn/'), w('is','verb','/ɪz/'), w('on','prep','/ɒn/'), w('the','art','/ðə/'), w('table','noun','/ˈteɪbəl/',{s:0})]),
+  w('Your','pron','/jɔr/'), w('phone','noun','/foʊn/'), w('is','verb','/ɪz/'), w('on','prep','/ɑn/'), w('the','art','/ðə/'), w('table','noun','/ˈteɪbəl/',{s:0})]),
  ex('She walked across the bridge.',[
-  w('She','pron','/ʃiː/'), w('walked','verb','/wɔːkt/'), w('across','prep','/əˈkrɒs/',{s:1}), w('the','art','/ðə/'), w('bridge','noun','/brɪdʒ/')]),
+  w('She','pron','/ʃi/'), w('walked','verb','/wɔkt/'), w('across','prep','/əˈkrɔs/',{s:1}), w('the','art','/ðə/'), w('bridge','noun','/brɪdʒ/')]),
 ],
 [
  err('I arrived to London.','I arrived in London.','arrive in (город/страна), arrive at (конкретное место).'),
@@ -658,12 +658,12 @@ card('g019','A2',['предлоги','зависимые'],
 'Многие глаголы, прилагательные и существительные требуют определённого предлога. Учите их сразу вместе: depend on, believe in, look forward to, afraid of.',
 [
  ex('It depends on the weather.',[
-  w('It','pron','/ɪt/'), w('depends','verb','/dɪˈpendz/',{s:1}), w('on','prep','/ɒn/'), w('the','art','/ðə/'), w('weather','noun','/ˈweðə/',{s:0,sp:[2,3]})],
+  w('It','pron','/ɪt/'), w('depends','verb','/dɪˈpɛndz/',{s:1}), w('on','prep','/ɑn/'), w('the','art','/ðə/'), w('weather','noun','/ˈwɛðɚ/',{s:0,sp:[2,3]})],
   'weather — ea → /e/'),
  ex("I'm interested in astronomy.",[
-  w("I'm",'pron','/aɪm/'), w('interested','adj','/ˈɪntrəstɪd/',{s:0}), w('in','prep','/ɪn/'), w('astronomy','noun','/əˈstrɒnəmi/',{s:1})]),
+  w("I'm",'pron','/aɪm/'), w('interested','adj','/ˈɪntrəstɪd/',{s:0}), w('in','prep','/ɪn/'), w('astronomy','noun','/əˈstrɑnəmi/',{s:1})]),
  ex('She is good at solving problems.',[
-  w('She','pron','/ʃiː/'), w('is','verb','/ɪz/'), w('good','adj','/ɡʊd/'), w('at','prep','/æt/'), w('solving','verb','/ˈsɒlvɪŋ/',{s:0}), w('problems','noun','/ˈprɒbləmz/',{s:0})]),
+  w('She','pron','/ʃi/'), w('is','verb','/ɪz/'), w('good','adj','/ɡʊd/'), w('at','prep','/æt/'), w('solving','verb','/ˈsɑlvɪŋ/',{s:0}), w('problems','noun','/ˈprɑbləmz/',{s:0})]),
 ],
 [
  err("I'm waiting of the bus.","I'm waiting for the bus.",'wait FOR.'),
@@ -683,12 +683,12 @@ card('g020','A2',['союзы'],
 'Союзы соединяют слова или части предложения. and/or/but — сочинительные; because, although, while, if, when — подчинительные, вводят придаточные.',
 [
  ex('I wanted to come, but I was ill.',[
-  w('I','pron','/aɪ/'), w('wanted','verb','/ˈwɒntɪd/',{s:0}), w('to','part','/tə/'), w('come','verb','/kʌm/'), w('but','conj','/bʌt/'), w('I','pron','/aɪ/'), w('was','verb','/wɒz/'), w('ill','adj','/ɪl/')],
+  w('I','pron','/aɪ/'), w('wanted','verb','/ˈwɔntɪd/',{s:0}), w('to','part','/tə/'), w('come','verb','/kʌm/'), w('but','conj','/bʌt/'), w('I','pron','/aɪ/'), w('was','verb','/wɑz/'), w('ill','adj','/ɪl/')],
   'to → слабая форма /tə/'),
  ex('She stayed at home because it was raining.',[
-  w('She','pron','/ʃiː/'), w('stayed','verb','/steɪd/'), w('at','prep','/æt/'), w('home','noun','/həʊm/'), w('because','conj','/bɪˈkɒz/',{s:1}), w('it','pron','/ɪt/'), w('was','verb','/wɒz/'), w('raining','verb','/ˈreɪnɪŋ/',{s:0})]),
+  w('She','pron','/ʃi/'), w('stayed','verb','/steɪd/'), w('at','prep','/æt/'), w('home','noun','/hoʊm/'), w('because','conj','/bɪˈkɑz/',{s:1}), w('it','pron','/ɪt/'), w('was','verb','/wɑz/'), w('raining','verb','/ˈreɪnɪŋ/',{s:0})]),
  ex("When I finish work, I'll call you.",[
-  w('When','conj','/wen/'), w('I','pron','/aɪ/'), w('finish','verb','/ˈfɪnɪʃ/',{s:0}), w('work','noun','/wɜːk/',{sp:[1]}), w("I'll",'pron','/aɪl/'), w('call','verb','/kɔːl/'), w('you','pron','/juː/')]),
+  w('When','conj','/wɛn/'), w('I','pron','/aɪ/'), w('finish','verb','/ˈfɪnɪʃ/',{s:0}), w('work','noun','/wɝk/',{sp:[1]}), w("I'll",'pron','/aɪl/'), w('call','verb','/kɔl/'), w('you','pron','/ju/')]),
 ],
 [
  err('Although it was cold, but we went out.','Although it was cold, we went out.','Нельзя использовать although и but вместе.'),
@@ -708,11 +708,11 @@ card('g021','A2',['числа','даты','время'],
 'Порядковые: first, second, third, затем -th (fourth, fifth — особые). Время: half past six (6:30), a quarter to nine (8:45).',
 [
  ex('My birthday is on the third of June.',[
-  w('My','pron','/maɪ/'), w('birthday','noun','/ˈbɜːθdeɪ/',{s:0}), w('is','verb','/ɪz/'), w('on','prep','/ɒn/'), w('the','art','/ðə/'), w('third','num','/θɜːd/'), w('of','prep','/əv/'), w('June','noun','/dʒuːn/')]),
+  w('My','pron','/maɪ/'), w('birthday','noun','/ˈbɝθdeɪ/',{s:0}), w('is','verb','/ɪz/'), w('on','prep','/ɑn/'), w('the','art','/ðə/'), w('third','num','/θɝd/'), w('of','prep','/əv/'), w('June','noun','/dʒun/')]),
  ex('The film starts at a quarter past eight.',[
-  w('The','art','/ðə/'), w('film','noun','/fɪlm/'), w('starts','verb','/stɑːts/'), w('at','prep','/æt/'), w('a','art','/ə/'), w('quarter','noun','/ˈkwɔːtə/',{s:0}), w('past','prep','/pɑːst/'), w('eight','num','/eɪt/')]),
+  w('The','art','/ðə/'), w('film','noun','/fɪlm/'), w('starts','verb','/stɑrts/'), w('at','prep','/æt/'), w('a','art','/ə/'), w('quarter','noun','/ˈkwɔrtɚ/',{s:0}), w('past','prep','/pæst/'), w('eight','num','/eɪt/')]),
  ex('It costs twenty euros.',[
-  w('It','pron','/ɪt/'), w('costs','verb','/kɒsts/'), w('twenty','num','/ˈtwenti/',{s:0}), w('euros','noun','/ˈjʊərəʊz/',{s:0})]),
+  w('It','pron','/ɪt/'), w('costs','verb','/kɑsts/'), w('twenty','num','/ˈtwɛnti/',{s:0}), w('euros','noun','/ˈjuroʊz/',{s:0})]),
 ],
 [
  err('I have twenty one years.','I am twenty-one years old.','Возраст: to be + число + years old.'),
@@ -734,11 +734,11 @@ card('g022','A2',['времена','настоящее'],
 'Регулярные действия, факты, привычки, расписания. В 3-м лице ед. ч. (he/she/it) к глаголу добавляется -s/-es. Вопросы и отрицания — через do/does.',
 [
  ex('I work every day.',[
-  w('I','pron','/aɪ/'), w('work','verb','/wɜːk/',{sp:[1]}), w('every','det','/ˈevri/',{s:0}), w('day','noun','/deɪ/')]),
+  w('I','pron','/aɪ/'), w('work','verb','/wɝk/',{sp:[1]}), w('every','det','/ˈɛvri/',{s:0}), w('day','noun','/deɪ/')]),
  ex('She reads books in the evening.',[
-  w('She','pron','/ʃiː/'), w('reads','verb','/riːdz/'), w('books','noun','/bʊks/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('evening','noun','/ˈiːvnɪŋ/',{s:0})]),
+  w('She','pron','/ʃi/'), w('reads','verb','/ridz/'), w('books','noun','/bʊks/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('evening','noun','/ˈivnɪŋ/',{s:0})]),
  ex('Water boils at 100 degrees.',[
-  w('Water','noun','/ˈwɔːtər/',{s:0}), w('boils','verb','/bɔɪlz/'), w('at','prep','/æt/'), w('100','num','/ˈhʌndrəd/',{s:0}), w('degrees','noun','/dɪˈɡriːz/',{s:1})]),
+  w('Water','noun','/ˈwɔtɚ/',{s:0}), w('boils','verb','/bɔɪlz/'), w('at','prep','/æt/'), w('100','num','/ˈhʌndrəd/',{s:0}), w('degrees','noun','/dɪˈɡriz/',{s:1})]),
 ],
 [
  err('I works every day.','I work every day.','Не добавляем -s после I/you/we/they.'),
@@ -758,9 +758,9 @@ card('g023','A2',['времена','настоящее'],
 'Действие происходит сейчас или в текущий период. Также запланированное будущее: I\'m meeting Anna tomorrow. Глаголы состояния (know, like, want) в Continuous не используются.',
 [
  ex("I'm reading a book now.",[
-  w("I'm",'pron','/aɪm/'), w('reading','verb','/ˈriːdɪŋ/',{s:0}), w('a','art','/ə/'), w('book','noun','/bʊk/'), w('now','adv','/naʊ/')]),
+  w("I'm",'pron','/aɪm/'), w('reading','verb','/ˈridɪŋ/',{s:0}), w('a','art','/ə/'), w('book','noun','/bʊk/'), w('now','adv','/naʊ/')]),
  ex("She isn't working today.",[
-  w('She','pron','/ʃiː/'), w("isn't",'verb','/ˈɪznt/'), w('working','verb','/ˈwɜːkɪŋ/',{s:0,sp:[1]}), w('today','adv','/təˈdeɪ/',{s:1})],
+  w('She','pron','/ʃi/'), w("isn't",'verb','/ˈɪznt/'), w('working','verb','/ˈwɝkɪŋ/',{s:0,sp:[1]}), w('today','adv','/təˈdeɪ/',{s:1})],
   "isn't → /ˈɪznt/"),
  ex("Look! It's raining.",[
   w('Look','verb','/lʊk/'), w("It's",'pron','/ɪts/'), w('raining','verb','/ˈreɪnɪŋ/',{s:0})]),
@@ -783,11 +783,11 @@ card('g024','A2',['времена','прошедшее'],
 'Завершённые действия в прошлом с указанием времени. Правильные глаголы: +ed; неправильные — вторая форма (go → went). Вопросы и отрицания — через did.',
 [
  ex('We visited Rome last year.',[
-  w('We','pron','/wiː/'), w('visited','verb','/ˈvɪzɪtɪd/',{s:0}), w('Rome','noun','/rəʊm/'), w('last','adj','/lɑːst/'), w('year','noun','/jɪə/')]),
+  w('We','pron','/wi/'), w('visited','verb','/ˈvɪzɪtɪd/',{s:0}), w('Rome','noun','/roʊm/'), w('last','adj','/læst/'), w('year','noun','/jɪr/')]),
  ex("She didn't sleep well.",[
-  w('She','pron','/ʃiː/'), w("didn't",'aux','/ˈdɪdnt/'), w('sleep','verb','/sliːp/'), w('well','adv','/wel/')]),
+  w('She','pron','/ʃi/'), w("didn't",'aux','/ˈdɪdnt/'), w('sleep','verb','/slip/'), w('well','adv','/wɛl/')]),
  ex('Did you see the news?',[
-  w('Did','aux','/dɪd/'), w('you','pron','/juː/'), w('see','verb','/siː/'), w('the','art','/ðə/'), w('news','noun','/njuːz/')]),
+  w('Did','aux','/dɪd/'), w('you','pron','/ju/'), w('see','verb','/si/'), w('the','art','/ðə/'), w('news','noun','/nuz/')]),
 ],
 [
  err("I didn't went to school.","I didn't go to school.","После didn't — первая форма глагола."),
@@ -807,11 +807,11 @@ card('g025','A2',['времена','прошедшее'],
 'Длительное действие в определённый момент прошлого. Часто фон для другого действия: I was sleeping when you called.',
 [
  ex('I was cooking dinner at 6 pm.',[
-  w('I','pron','/aɪ/'), w('was','verb','/wɒz/'), w('cooking','verb','/ˈkʊkɪŋ/',{s:0}), w('dinner','noun','/ˈdɪnə/',{s:0}), w('at','prep','/æt/'), w('6','num','/siːks/'), w('pm','noun','/piː ˈem/')]),
+  w('I','pron','/aɪ/'), w('was','verb','/wɑz/'), w('cooking','verb','/ˈkʊkɪŋ/',{s:0}), w('dinner','noun','/ˈdɪnɚ/',{s:0}), w('at','prep','/æt/'), w('6','num','/sɪks/'), w('pm','noun','/ˈpiɛm/')]),
  ex('They were playing football when it started to rain.',[
-  w('They','pron','/ðeɪ/'), w('were','verb','/wɜː/'), w('playing','verb','/ˈpleɪɪŋ/',{s:0}), w('football','noun','/ˈfʊtbɔːl/',{s:0}), w('when','conj','/wen/'), w('it','pron','/ɪt/'), w('started','verb','/ˈstɑːtɪd/',{s:0}), w('to','part','/tə/'), w('rain','verb','/reɪn/')]),
+  w('They','pron','/ðeɪ/'), w('were','verb','/wɝ/'), w('playing','verb','/ˈpleɪɪŋ/',{s:0}), w('football','noun','/ˈfʊtbɔl/',{s:0}), w('when','conj','/wɛn/'), w('it','pron','/ɪt/'), w('started','verb','/ˈstɑrtɪd/',{s:0}), w('to','part','/tə/'), w('rain','verb','/reɪn/')]),
  ex('What were you doing at midnight?',[
-  w('What','pron','/wɒt/',{sl:[1]}), w('were','verb','/wɜː/'), w('you','pron','/juː/'), w('doing','verb','/ˈduːɪŋ/',{s:0}), w('at','prep','/æt/'), w('midnight','noun','/ˈmɪdnaɪt/',{s:0})],
+  w('What','pron','/wʌt/',{sl:[1]}), w('were','verb','/wɝ/'), w('you','pron','/ju/'), w('doing','verb','/ˈduɪŋ/',{s:0}), w('at','prep','/æt/'), w('midnight','noun','/ˈmɪdnaɪt/',{s:0})],
   'What were you → /wɒwəju/'),
 ],
 [
@@ -832,11 +832,11 @@ card('g026','B1',['времена','настоящее','perfect'],
 'Результат или опыт к настоящему моменту; время не указано или не закончилось. since — начальная точка, for — длительность. С точным временем в прошлом (yesterday) — Past Simple.',
 [
  ex('I have just finished my project.',[
-  w('I','pron','/aɪ/'), w('have','aux','/hæv/'), w('just','adv','/dʒʌst/'), w('finished','verb','/ˈfɪnɪʃt/',{s:0}), w('my','pron','/maɪ/'), w('project','noun','/ˈprɒdʒekt/',{s:0})]),
+  w('I','pron','/aɪ/'), w('have','aux','/hæv/'), w('just','adv','/dʒʌst/'), w('finished','verb','/ˈfɪnɪʃt/',{s:0}), w('my','pron','/maɪ/'), w('project','noun','/ˈprɑdʒɛkt/',{s:0})]),
  ex('She has never been to Asia.',[
-  w('She','pron','/ʃiː/'), w('has','aux','/hæz/'), w('never','adv','/ˈnevə/',{s:0}), w('been','verb','/biːn/'), w('to','prep','/tə/'), w('Asia','noun','/ˈeɪʒə/',{s:0})]),
+  w('She','pron','/ʃi/'), w('has','aux','/hæz/'), w('never','adv','/ˈnɛvɚ/',{s:0}), w('been','verb','/bɪn/'), w('to','prep','/tə/'), w('Asia','noun','/ˈeɪʒə/',{s:0})]),
  ex("We've known each other for ten years.",[
-  w("We've",'pron','/wiːv/'), w('known','verb','/nəʊn/',{sl:[0]}), w('each','det','/iːtʃ/'), w('other','pron','/ˈʌðə/',{s:0}), w('for','prep','/fə/'), w('ten','num','/ten/'), w('years','noun','/jɪəz/')],
+  w("We've",'pron','/wiv/'), w('known','verb','/noʊn/',{sl:[0]}), w('each','det','/itʃ/'), w('other','pron','/ˈʌðɚ/',{s:0}), w('for','prep','/fɚ/'), w('ten','num','/tɛn/'), w('years','noun','/jɪrz/')],
   "We've known → слитно /wiːv nəʊn/"),
 ],
 [
@@ -857,12 +857,12 @@ card('g027','B1',['времена','настоящее','perfect continuous'],
 'Действие началось в прошлом и продолжается (или только что закончилось) с акцентом на длительность или процесс: I\'ve been waiting for an hour.',
 [
  ex("I've been waiting for an hour.",[
-  w("I've",'pron','/aɪv/'), w('been','verb','/biːn/'), w('waiting','verb','/ˈweɪtɪŋ/',{s:0}), w('for','prep','/fə/'), w('an','art','/ən/'), w('hour','noun','/ˈaʊə/',{s:0,sl:[0]})],
+  w("I've",'pron','/aɪv/'), w('been','verb','/bɪn/'), w('waiting','verb','/ˈweɪtɪŋ/',{s:0}), w('for','prep','/fɚ/'), w('an','art','/ən/'), w('hour','noun','/aʊr/',{s:0,sl:[0]})],
   "I've been → /aɪv bɪn/"),
  ex('She has been studying all day.',[
-  w('She','pron','/ʃiː/'), w('has','aux','/hæz/'), w('been','verb','/biːn/'), w('studying','verb','/ˈstʌdiɪŋ/',{s:0}), w('all','det','/ɔːl/'), w('day','noun','/deɪ/')]),
+  w('She','pron','/ʃi/'), w('has','aux','/hæz/'), w('been','verb','/bɪn/'), w('studying','verb','/ˈstʌdiɪŋ/',{s:0}), w('all','det','/ɔl/'), w('day','noun','/deɪ/')]),
  ex('How long have you been learning English?',[
-  w('How','adv','/haʊ/'), w('long','adv','/lɒŋ/'), w('have','aux','/həv/'), w('you','pron','/juː/'), w('been','verb','/biːn/'), w('learning','verb','/ˈlɜːnɪŋ/',{s:0,sp:[2,3]}), w('English','noun','/ˈɪŋɡlɪʃ/',{s:0})],
+  w('How','adv','/haʊ/'), w('long','adv','/lɔŋ/'), w('have','aux','/həv/'), w('you','pron','/ju/'), w('been','verb','/bɪn/'), w('learning','verb','/ˈlɝnɪŋ/',{s:0,sp:[2,3]}), w('English','noun','/ˈɪŋɡlɪʃ/',{s:0})],
   'learning — ea → /ɜː/'),
 ],
 [
@@ -883,11 +883,11 @@ card('g028','B1',['времена','прошедшее','perfect'],
 'Действие, завершённое до другого момента в прошлом: When I arrived, the train had already left.',
 [
  ex('The film had started when we arrived.',[
-  w('The','art','/ðə/'), w('film','noun','/fɪlm/'), w('had','aux','/hæd/'), w('started','verb','/ˈstɑːtɪd/',{s:0}), w('when','conj','/wen/'), w('we','pron','/wiː/'), w('arrived','verb','/əˈraɪvd/',{s:1})]),
+  w('The','art','/ðə/'), w('film','noun','/fɪlm/'), w('had','aux','/hæd/'), w('started','verb','/ˈstɑrtɪd/',{s:0}), w('when','conj','/wɛn/'), w('we','pron','/wi/'), w('arrived','verb','/əˈraɪvd/',{s:1})]),
  ex('She had finished work before I called.',[
-  w('She','pron','/ʃiː/'), w('had','aux','/hæd/'), w('finished','verb','/ˈfɪnɪʃt/',{s:0}), w('work','noun','/wɜːk/',{sp:[1]}), w('before','conj','/bɪˈfɔː/',{s:1}), w('I','pron','/aɪ/'), w('called','verb','/kɔːld/')]),
+  w('She','pron','/ʃi/'), w('had','aux','/hæd/'), w('finished','verb','/ˈfɪnɪʃt/',{s:0}), w('work','noun','/wɝk/',{sp:[1]}), w('before','conj','/bɪˈfɔr/',{s:1}), w('I','pron','/aɪ/'), w('called','verb','/kɔld/')]),
  ex("I couldn't enter because I had lost my key.",[
-  w('I','pron','/aɪ/'), w("couldn't",'aux','/ˈkʊdnt/'), w('enter','verb','/ˈentə/',{s:0}), w('because','conj','/bɪˈkɒz/',{s:1}), w('I','pron','/aɪ/'), w('had','aux','/hæd/'), w('lost','verb','/lɒst/'), w('my','pron','/maɪ/'), w('key','noun','/kiː/')]),
+  w('I','pron','/aɪ/'), w("couldn't",'aux','/ˈkʊdnt/'), w('enter','verb','/ˈɛntɚ/',{s:0}), w('because','conj','/bɪˈkɑz/',{s:1}), w('I','pron','/aɪ/'), w('had','aux','/hæd/'), w('lost','verb','/lɔst/'), w('my','pron','/maɪ/'), w('key','noun','/ki/')]),
 ],
 [
  err('When she came, I already cooked dinner.','When she came, I had already cooked dinner.','Более раннее действие — Past Perfect.'),
@@ -907,11 +907,11 @@ card('g029','B1',['времена','прошедшее','perfect continuous'],
 'Длительное действие, которое продолжалось до определённого момента в прошлом: She had been working there for ten years before she quit.',
 [
  ex('He had been driving for hours when he stopped.',[
-  w('He','pron','/hiː/'), w('had','aux','/hæd/'), w('been','verb','/biːn/'), w('driving','verb','/ˈdraɪvɪŋ/',{s:0}), w('for','prep','/fə/'), w('hours','noun','/ˈaʊəz/'), w('when','conj','/wen/'), w('he','pron','/hiː/'), w('stopped','verb','/stɒpt/')]),
+  w('He','pron','/hi/'), w('had','aux','/hæd/'), w('been','verb','/bɪn/'), w('driving','verb','/ˈdraɪvɪŋ/',{s:0}), w('for','prep','/fɚ/'), w('hours','noun','/aʊrz/'), w('when','conj','/wɛn/'), w('he','pron','/hi/'), w('stopped','verb','/stɑpt/')]),
  ex('They had been living in Spain before they moved.',[
-  w('They','pron','/ðeɪ/'), w('had','aux','/hæd/'), w('been','verb','/biːn/'), w('living','verb','/ˈlɪvɪŋ/',{s:0}), w('in','prep','/ɪn/'), w('Spain','noun','/speɪn/'), w('before','conj','/bɪˈfɔː/',{s:1}), w('they','pron','/ðeɪ/'), w('moved','verb','/muːvd/')]),
+  w('They','pron','/ðeɪ/'), w('had','aux','/hæd/'), w('been','verb','/bɪn/'), w('living','verb','/ˈlɪvɪŋ/',{s:0}), w('in','prep','/ɪn/'), w('Spain','noun','/speɪn/'), w('before','conj','/bɪˈfɔr/',{s:1}), w('they','pron','/ðeɪ/'), w('moved','verb','/muvd/')]),
  ex('I had been waiting for 20 minutes when the bus came.',[
-  w('I','pron','/aɪ/'), w('had','aux','/hæd/'), w('been','verb','/biːn/'), w('waiting','verb','/ˈweɪtɪŋ/',{s:0}), w('for','prep','/fə/'), w('20','num','/ˈtwenti/',{s:0}), w('minutes','noun','/ˈmɪnɪts/',{s:0}), w('when','conj','/wen/'), w('the','art','/ðə/'), w('bus','noun','/bʌs/'), w('came','verb','/keɪm/')]),
+  w('I','pron','/aɪ/'), w('had','aux','/hæd/'), w('been','verb','/bɪn/'), w('waiting','verb','/ˈweɪtɪŋ/',{s:0}), w('for','prep','/fɚ/'), w('20','num','/ˈtwɛnti/',{s:0}), w('minutes','noun','/ˈmɪnɪts/',{s:0}), w('when','conj','/wɛn/'), w('the','art','/ðə/'), w('bus','noun','/bʌs/'), w('came','verb','/keɪm/')]),
 ],
 [
  err('She was working there for years before she retired.','She had been working there for years before she retired.','До-прошлое длительное — had been + -ing.'),
@@ -931,12 +931,12 @@ card('g030','A2',['времена','будущее'],
 'Спонтанные решения, обещания, предсказания и прогнозы: I\'ll help you. Отрицание: won\'t (will not).',
 [
  ex("I'll call you later.",[
-  w("I'll",'pron','/aɪl/'), w('call','verb','/kɔːl/'), w('you','pron','/juː/'), w('later','adv','/ˈleɪtə/',{s:0})],
+  w("I'll",'pron','/aɪl/'), w('call','verb','/kɔl/'), w('you','pron','/ju/'), w('later','adv','/ˈleɪtɚ/',{s:0})],
   "I'll call → /aɪl kɔːl/"),
  ex("It won't be easy.",[
-  w('It','pron','/ɪt/'), w("won't",'aux','/wəʊnt/'), w('be','verb','/biː/'), w('easy','adj','/ˈiːzi/',{s:0})]),
+  w('It','pron','/ɪt/'), w("won't",'aux','/woʊnt/'), w('be','verb','/bi/'), w('easy','adj','/ˈizi/',{s:0})]),
  ex('I think she will pass the exam.',[
-  w('I','pron','/aɪ/'), w('think','verb','/θɪŋk/'), w('she','pron','/ʃiː/'), w('will','aux','/wɪl/'), w('pass','verb','/pɑːs/'), w('the','art','/ðə/'), w('exam','noun','/ɪɡˈzæm/',{s:1})]),
+  w('I','pron','/aɪ/'), w('think','verb','/θɪŋk/'), w('she','pron','/ʃi/'), w('will','aux','/wɪl/'), w('pass','verb','/pæs/'), w('the','art','/ðə/'), w('exam','noun','/ɪɡˈzæm/',{s:1})]),
 ],
 [
  err('I will to help you.','I will help you.','После will — инфинитив без to.'),
@@ -956,12 +956,12 @@ card('g031','A2',['времена','будущее'],
 'Запланированные намерения (I\'m going to study medicine) и предсказания на основе очевидных признаков (Look at the clouds — it\'s going to rain).',
 [
  ex("I'm going to start a new course.",[
-  w("I'm",'pron','/aɪm/'), w('going','verb','/ˈɡəʊɪŋ/',{s:0}), w('to','part','/tə/'), w('start','verb','/stɑːt/'), w('a','art','/ə/'), w('new','adj','/njuː/'), w('course','noun','/kɔːs/')],
+  w("I'm",'pron','/aɪm/'), w('going','verb','/ˈɡoʊɪŋ/',{s:0}), w('to','part','/tə/'), w('start','verb','/stɑrt/'), w('a','art','/ə/'), w('new','adj','/nu/'), w('course','noun','/kɔrs/')],
   "going to → gonna /ˈɡəʊnə/ в быстрой речи"),
  ex("It's going to rain — look at the clouds.",[
-  w("It's",'pron','/ɪts/'), w('going','verb','/ˈɡəʊɪŋ/',{s:0}), w('to','part','/tə/'), w('rain','verb','/reɪn/'), w('look','verb','/lʊk/'), w('at','prep','/æt/'), w('the','art','/ðə/'), w('clouds','noun','/klaʊdz/')]),
+  w("It's",'pron','/ɪts/'), w('going','verb','/ˈɡoʊɪŋ/',{s:0}), w('to','part','/tə/'), w('rain','verb','/reɪn/'), w('look','verb','/lʊk/'), w('at','prep','/æt/'), w('the','art','/ðə/'), w('clouds','noun','/klaʊdz/')]),
  ex('They are going to move house in May.',[
-  w('They','pron','/ðeɪ/'), w('are','verb','/ɑː/'), w('going','verb','/ˈɡəʊɪŋ/',{s:0}), w('to','part','/tə/'), w('move','verb','/muːv/'), w('house','noun','/haʊs/'), w('in','prep','/ɪn/'), w('May','noun','/meɪ/')]),
+  w('They','pron','/ðeɪ/'), w('are','verb','/ɑr/'), w('going','verb','/ˈɡoʊɪŋ/',{s:0}), w('to','part','/tə/'), w('move','verb','/muv/'), w('house','noun','/haʊs/'), w('in','prep','/ɪn/'), w('May','noun','/meɪ/')]),
 ],
 [
  err('I going to travel.','I am going to travel.','Нужен am/is/are перед going to.'),
@@ -981,11 +981,11 @@ card('g032','B1',['времена','будущее'],
 'Действие, которое будет в процессе в определённый момент будущего: This time tomorrow I\'ll be flying to Rome.',
 [
  ex("This time tomorrow I'll be flying to Rome.",[
-  w('This','pron','/ðɪs/'), w('time','noun','/taɪm/'), w('tomorrow','adv','/təˈmɒrəʊ/',{s:1}), w("I'll",'pron','/aɪl/'), w('be','verb','/biː/'), w('flying','verb','/ˈflaɪɪŋ/',{s:0}), w('to','prep','/tə/'), w('Rome','noun','/rəʊm/')]),
+  w('This','pron','/ðɪs/'), w('time','noun','/taɪm/'), w('tomorrow','adv','/təˈmɑroʊ/',{s:1}), w("I'll",'pron','/aɪl/'), w('be','verb','/bi/'), w('flying','verb','/ˈflaɪɪŋ/',{s:0}), w('to','prep','/tə/'), w('Rome','noun','/roʊm/')]),
  ex('At 8 pm we will be having dinner.',[
-  w('At','prep','/æt/'), w('8','num','/eɪt/'), w('pm','noun','/piː ˈem/'), w('we','pron','/wiː/'), w('will','aux','/wɪl/'), w('be','verb','/biː/'), w('having','verb','/ˈhævɪŋ/',{s:0}), w('dinner','noun','/ˈdɪnə/',{s:0})]),
+  w('At','prep','/æt/'), w('8','num','/eɪt/'), w('pm','noun','/ˈpiɛm/'), w('we','pron','/wi/'), w('will','aux','/wɪl/'), w('be','verb','/bi/'), w('having','verb','/ˈhævɪŋ/',{s:0}), w('dinner','noun','/ˈdɪnɚ/',{s:0})]),
  ex("Don't call at noon — she'll be working.",[
-  w("Don't",'aux','/dəʊnt/'), w('call','verb','/kɔːl/'), w('at','prep','/æt/'), w('noon','noun','/nuːn/'), w("she'll",'pron','/ʃiːl/'), w('be','verb','/biː/'), w('working','verb','/ˈwɜːkɪŋ/',{s:0,sp:[1]})]),
+  w("Don't",'aux','/doʊnt/'), w('call','verb','/kɔl/'), w('at','prep','/æt/'), w('noon','noun','/nun/'), w("she'll",'pron','/ʃil/'), w('be','verb','/bi/'), w('working','verb','/ˈwɝkɪŋ/',{s:0,sp:[1]})]),
 ],
 [
  err('Tomorrow at 5 I will work.','Tomorrow at 5 I will be working.','Процесс в момент будущего — will be + -ing.'),
@@ -1005,11 +1005,11 @@ card('g033','B1',['времена','будущее','perfect'],
 'Действие завершится к определённому моменту в будущем: By 2030 I will have finished my degree.',
 [
  ex('By 2030 I will have finished my degree.',[
-  w('By','prep','/baɪ/'), w('2030','num','/ˈtwenti ˈθɜːti/'), w('I','pron','/aɪ/'), w('will','aux','/wɪl/'), w('have','aux','/həv/'), w('finished','verb','/ˈfɪnɪʃt/',{s:0}), w('my','pron','/maɪ/'), w('degree','noun','/dɪˈɡriː/',{s:1})]),
+  w('By','prep','/baɪ/'), w('2030','num','/ˈtwɛnti ˈθɝti/'), w('I','pron','/aɪ/'), w('will','aux','/wɪl/'), w('have','aux','/həv/'), w('finished','verb','/ˈfɪnɪʃt/',{s:0}), w('my','pron','/maɪ/'), w('degree','noun','/dɪˈɡri/',{s:1})]),
  ex('She will have arrived by noon.',[
-  w('She','pron','/ʃiː/'), w('will','aux','/wɪl/'), w('have','aux','/həv/'), w('arrived','verb','/əˈraɪvd/',{s:1}), w('by','prep','/baɪ/'), w('noon','noun','/nuːn/')]),
+  w('She','pron','/ʃi/'), w('will','aux','/wɪl/'), w('have','aux','/həv/'), w('arrived','verb','/əˈraɪvd/',{s:1}), w('by','prep','/baɪ/'), w('noon','noun','/nun/')]),
  ex("By the time you come, we'll have cooked dinner.",[
-  w('By','prep','/baɪ/'), w('the','art','/ðə/'), w('time','noun','/taɪm/'), w('you','pron','/juː/'), w('come','verb','/kʌm/'), w("we'll",'pron','/wiːl/'), w('have','aux','/həv/'), w('cooked','verb','/kʊkt/'), w('dinner','noun','/ˈdɪnə/',{s:0})]),
+  w('By','prep','/baɪ/'), w('the','art','/ðə/'), w('time','noun','/taɪm/'), w('you','pron','/ju/'), w('come','verb','/kʌm/'), w("we'll",'pron','/wil/'), w('have','aux','/həv/'), w('cooked','verb','/kʊkt/'), w('dinner','noun','/ˈdɪnɚ/',{s:0})]),
 ],
 [
  err('By June I will finish the course.','By June I will have finished the course.','Завершение к сроку — Future Perfect.'),
@@ -1031,12 +1031,12 @@ card('g034','B1',['модальные глаголы'],
 'Модальные глаголы выражают отношение к действию. После них — инфинитив без to. Must — от самого говорящего, have to — внешняя необходимость. Could/might/may — вероятность.',
 [
  ex('You should see a doctor.',[
-  w('You','pron','/juː/'), w('should','modal','/ʃʊd/'), w('see','verb','/siː/'), w('a','art','/ə/'), w('doctor','noun','/ˈdɒktə/',{s:0})]),
+  w('You','pron','/ju/'), w('should','modal','/ʃʊd/'), w('see','verb','/si/'), w('a','art','/ə/'), w('doctor','noun','/ˈdɑktɚ/',{s:0})]),
  ex("I can't come to the party.",[
-  w('I','pron','/aɪ/'), w("can't",'modal','/kɑːnt/'), w('come','verb','/kʌm/'), w('to','prep','/tə/'), w('the','art','/ðə/'), w('party','noun','/ˈpɑːti/',{s:0})],
+  w('I','pron','/aɪ/'), w("can't",'modal','/kænt/'), w('come','verb','/kʌm/'), w('to','prep','/tə/'), w('the','art','/ðə/'), w('party','noun','/ˈpɑrti/',{s:0})],
   "can't — t почти не слышен перед согласной"),
  ex('You must wear a helmet.',[
-  w('You','pron','/juː/'), w('must','modal','/mʌst/'), w('wear','verb','/weə/'), w('a','art','/ə/'), w('helmet','noun','/ˈhelmɪt/',{s:0})]),
+  w('You','pron','/ju/'), w('must','modal','/mʌst/'), w('wear','verb','/wɛr/'), w('a','art','/ə/'), w('helmet','noun','/ˈhɛlmɪt/',{s:0})]),
 ],
 [
  err('He musts study.','He must study.','Модальные глаголы не принимают -s.'),
@@ -1056,11 +1056,11 @@ card('g035','B1',['условные предложения'],
 'Zero conditional — общие истины: If you heat ice, it melts. First conditional — реальные будущие ситуации: If it rains, we will stay home. После if — не will.',
 [
  ex('If you heat water to 100 degrees, it boils.',[
-  w('If','conj','/ɪf/'), w('you','pron','/juː/'), w('heat','verb','/hiːt/'), w('water','noun','/ˈwɔːtər/',{s:0}), w('to','prep','/tə/'), w('100','num','/ˈhʌndrəd/',{s:0}), w('degrees','noun','/dɪˈɡriːz/',{s:1}), w('it','pron','/ɪt/'), w('boils','verb','/bɔɪlz/')]),
+  w('If','conj','/ɪf/'), w('you','pron','/ju/'), w('heat','verb','/hit/'), w('water','noun','/ˈwɔtɚ/',{s:0}), w('to','prep','/tə/'), w('100','num','/ˈhʌndrəd/',{s:0}), w('degrees','noun','/dɪˈɡriz/',{s:1}), w('it','pron','/ɪt/'), w('boils','verb','/bɔɪlz/')]),
  ex("If it rains tomorrow, we'll stay at home.",[
-  w('If','conj','/ɪf/'), w('it','pron','/ɪt/'), w('rains','verb','/reɪnz/'), w('tomorrow','adv','/təˈmɒrəʊ/',{s:1}), w("we'll",'pron','/wiːl/'), w('stay','verb','/steɪ/'), w('at','prep','/æt/'), w('home','noun','/həʊm/')]),
+  w('If','conj','/ɪf/'), w('it','pron','/ɪt/'), w('rains','verb','/reɪnz/'), w('tomorrow','adv','/təˈmɑroʊ/',{s:1}), w("we'll",'pron','/wil/'), w('stay','verb','/steɪ/'), w('at','prep','/æt/'), w('home','noun','/hoʊm/')]),
  ex("If you don't hurry, you'll miss the bus.",[
-  w('If','conj','/ɪf/'), w('you','pron','/juː/'), w("don't",'aux','/dəʊnt/'), w('hurry','verb','/ˈhʌri/',{s:0}), w("you'll",'pron','/jʊəl/'), w('miss','verb','/mɪs/'), w('the','art','/ðə/'), w('bus','noun','/bʌs/')]),
+  w('If','conj','/ɪf/'), w('you','pron','/ju/'), w("don't",'aux','/doʊnt/'), w('hurry','verb','/ˈhʌri/',{s:0}), w("you'll",'pron','/jul/'), w('miss','verb','/mɪs/'), w('the','art','/ðə/'), w('bus','noun','/bʌs/')]),
 ],
 [
  err("If it will rain, I'll stay home.","If it rains, I'll stay home.",'После if — Present Simple, не will.'),
@@ -1080,11 +1080,11 @@ card('g036','B1',['условные предложения'],
 'Second conditional — нереальное или маловероятное настоящее/будущее: If I were rich, I would travel. Third — нереальное прошлое: If I had known, I would have told you.',
 [
  ex('If I had more time, I would learn the guitar.',[
-  w('If','conj','/ɪf/'), w('I','pron','/aɪ/'), w('had','verb','/hæd/'), w('more','adv','/mɔː/'), w('time','noun','/taɪm/'), w('I','pron','/aɪ/'), w('would','modal','/wʊd/'), w('learn','verb','/lɜːn/',{sp:[2,3]}), w('the','art','/ðə/'), w('guitar','noun','/ɡɪˈtɑː/',{s:1})]),
+  w('If','conj','/ɪf/'), w('I','pron','/aɪ/'), w('had','verb','/hæd/'), w('more','adv','/mɔr/'), w('time','noun','/taɪm/'), w('I','pron','/aɪ/'), w('would','modal','/wʊd/'), w('learn','verb','/lɝn/',{sp:[2,3]}), w('the','art','/ðə/'), w('guitar','noun','/ɡɪˈtɑr/',{s:1})]),
  ex('If she had studied, she would have passed.',[
-  w('If','conj','/ɪf/'), w('she','pron','/ʃiː/'), w('had','aux','/hæd/'), w('studied','verb','/ˈstʌdid/',{s:0}), w('she','pron','/ʃiː/'), w('would','modal','/wʊd/'), w('have','aux','/həv/'), w('passed','verb','/pɑːst/')]),
+  w('If','conj','/ɪf/'), w('she','pron','/ʃi/'), w('had','aux','/hæd/'), w('studied','verb','/ˈstʌdid/',{s:0}), w('she','pron','/ʃi/'), w('would','modal','/wʊd/'), w('have','aux','/həv/'), w('passed','verb','/pæst/')]),
  ex('If I were you, I would apologise.',[
-  w('If','conj','/ɪf/'), w('I','pron','/aɪ/'), w('were','verb','/wɜː/'), w('you','pron','/juː/'), w('I','pron','/aɪ/'), w('would','modal','/wʊd/'), w('apologise','verb','/əˈpɒlədʒaɪz/',{s:1})],
+  w('If','conj','/ɪf/'), w('I','pron','/aɪ/'), w('were','verb','/wɝ/'), w('you','pron','/ju/'), w('I','pron','/aɪ/'), w('would','modal','/wʊd/'), w('apologise','verb','/əˈpɑlədʒaɪz/',{s:1})],
   "I would → I'd /aɪd/"),
 ],
 [
@@ -1105,11 +1105,11 @@ card('g037','B1',['залог','пассив'],
 'Страдательный залог ставит объект действия на первое место, когда важен результат, а не исполнитель: The bridge was built in 1900. Исполнитель добавляется через by.',
 [
  ex('This bridge was built in 1900.',[
-  w('This','pron','/ðɪs/'), w('bridge','noun','/brɪdʒ/'), w('was','aux','/wɒz/'), w('built','verb','/bɪlt/'), w('in','prep','/ɪn/'), w('1900','num','/ˈnaɪnˈtiːn ˈhʌndrəd/')]),
+  w('This','pron','/ðɪs/'), w('bridge','noun','/brɪdʒ/'), w('was','aux','/wɑz/'), w('built','verb','/bɪlt/'), w('in','prep','/ɪn/'), w('1900','num','/naɪnˈtin ˈhʌndrəd/')]),
  ex('English is spoken all over the world.',[
-  w('English','noun','/ˈɪŋɡlɪʃ/',{s:0}), w('is','aux','/ɪz/'), w('spoken','verb','/ˈspəʊkən/',{s:0}), w('all','det','/ɔːl/'), w('over','prep','/ˈəʊvə/',{s:0}), w('the','art','/ðə/'), w('world','noun','/wɜːld/',{sp:[1]})]),
+  w('English','noun','/ˈɪŋɡlɪʃ/',{s:0}), w('is','aux','/ɪz/'), w('spoken','verb','/ˈspoʊkən/',{s:0}), w('all','det','/ɔl/'), w('over','prep','/ˈoʊvɚ/',{s:0}), w('the','art','/ðə/'), w('world','noun','/wɝld/',{sp:[1]})]),
  ex('The results will be announced tomorrow.',[
-  w('The','art','/ðə/'), w('results','noun','/rɪˈzʌlts/',{s:1}), w('will','aux','/wɪl/'), w('be','aux','/biː/'), w('announced','verb','/əˈnaʊnst/',{s:1}), w('tomorrow','adv','/təˈmɒrəʊ/',{s:1})]),
+  w('The','art','/ðə/'), w('results','noun','/rɪˈzʌlts/',{s:1}), w('will','aux','/wɪl/'), w('be','aux','/bi/'), w('announced','verb','/əˈnaʊnst/',{s:1}), w('tomorrow','adv','/təˈmɑroʊ/',{s:1})]),
 ],
 [
  err('The house built in 2001.','The house was built in 2001.','Пассив требует be: was built.'),
@@ -1129,11 +1129,11 @@ card('g038','B1',['герундий','инфинитив'],
 'Некоторые глаголы требуют -ing (enjoy doing), другие — to-инфинитив (decide to do). После предлогов всегда -ing: good at swimming. Учите глагол сразу с нужной формой.',
 [
  ex('I enjoy reading in the evening.',[
-  w('I','pron','/aɪ/'), w('enjoy','verb','/ɪnˈdʒɔɪ/',{s:1}), w('reading','verb','/ˈriːdɪŋ/',{s:0}), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('evening','noun','/ˈiːvnɪŋ/',{s:0})]),
+  w('I','pron','/aɪ/'), w('enjoy','verb','/ɪnˈdʒɔɪ/',{s:1}), w('reading','verb','/ˈridɪŋ/',{s:0}), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('evening','noun','/ˈivnɪŋ/',{s:0})]),
  ex('She decided to change jobs.',[
-  w('She','pron','/ʃiː/'), w('decided','verb','/dɪˈsaɪdɪd/',{s:1}), w('to','part','/tə/'), w('change','verb','/tʃeɪndʒ/'), w('jobs','noun','/dʒɒbz/')]),
+  w('She','pron','/ʃi/'), w('decided','verb','/dɪˈsaɪdɪd/',{s:1}), w('to','part','/tə/'), w('change','verb','/tʃeɪndʒ/'), w('jobs','noun','/dʒɑbz/')]),
  ex('He is good at cooking.',[
-  w('He','pron','/hiː/'), w('is','verb','/ɪz/'), w('good','adj','/ɡʊd/'), w('at','prep','/æt/'), w('cooking','noun','/ˈkʊkɪŋ/',{s:0})]),
+  w('He','pron','/hi/'), w('is','verb','/ɪz/'), w('good','adj','/ɡʊd/'), w('at','prep','/æt/'), w('cooking','noun','/ˈkʊkɪŋ/',{s:0})]),
 ],
 [
  err('I want going home.','I want to go home.','want требует to-инфинитив.'),
@@ -1153,12 +1153,12 @@ card('g039','B1',['конструкции','used to'],
 'used to do — делал раньше, теперь нет: I used to smoke. be used to doing — имею привычку: I\'m used to getting up early. get used to doing — привыкаю: I\'m getting used to the climate.',
 [
  ex('I used to play chess every weekend.',[
-  w('I','pron','/aɪ/'), w('used','verb','/juːst/'), w('to','part','/tə/'), w('play','verb','/pleɪ/'), w('chess','noun','/tʃes/'), w('every','det','/ˈevri/',{s:0}), w('weekend','noun','/ˈwiːkend/',{s:0})],
+  w('I','pron','/aɪ/'), w('used','verb','/just/'), w('to','part','/tə/'), w('play','verb','/pleɪ/'), w('chess','noun','/tʃɛs/'), w('every','det','/ˈɛvri/',{s:0}), w('weekend','noun','/ˈwikɛnd/',{s:0})],
   "used to → /ˈjuːstə/"),
  ex('She is used to working nights.',[
-  w('She','pron','/ʃiː/'), w('is','verb','/ɪz/'), w('used','adj','/juːst/'), w('to','prep','/tə/'), w('working','verb','/ˈwɜːkɪŋ/',{s:0,sp:[1]}), w('nights','noun','/naɪts/')]),
+  w('She','pron','/ʃi/'), w('is','verb','/ɪz/'), w('used','adj','/just/'), w('to','prep','/tə/'), w('working','verb','/ˈwɝkɪŋ/',{s:0,sp:[1]}), w('nights','noun','/naɪts/')]),
  ex('He is getting used to the new city.',[
-  w('He','pron','/hiː/'), w('is','verb','/ɪz/'), w('getting','verb','/ˈɡetɪŋ/',{s:0}), w('used','adj','/juːst/'), w('to','prep','/tə/'), w('the','art','/ðə/'), w('new','adj','/njuː/'), w('city','noun','/ˈsɪti/',{s:0})],
+  w('He','pron','/hi/'), w('is','verb','/ɪz/'), w('getting','verb','/ˈɡɛtɪŋ/',{s:0}), w('used','adj','/just/'), w('to','prep','/tə/'), w('the','art','/ðə/'), w('new','adj','/nu/'), w('city','noun','/ˈsɪti/',{s:0})],
   "getting used to → /ˈɡetɪŋ juːstə/"),
 ],
 [
@@ -1179,12 +1179,12 @@ card('g040','B1',['косвенная речь'],
 'В косвенной речи время сдвигается на шаг назад: Present → Past, Past → Past Perfect, will → would. Косвенный вопрос — прямой порядок слов: He asked where I lived.',
 [
  ex('She said she was busy.',[
-  w('She','pron','/ʃiː/'), w('said','verb','/sed/'), w('she','pron','/ʃiː/'), w('was','verb','/wɒz/'), w('busy','adj','/ˈbɪzi/',{s:0})]),
+  w('She','pron','/ʃi/'), w('said','verb','/sɛd/'), w('she','pron','/ʃi/'), w('was','verb','/wɑz/'), w('busy','adj','/ˈbɪzi/',{s:0})]),
  ex('He told me he would call later.',[
-  w('He','pron','/hiː/'), w('told','verb','/təʊld/'), w('me','pron','/miː/'), w('he','pron','/hiː/'), w('would','modal','/wʊd/'), w('call','verb','/kɔːl/'), w('later','adv','/ˈleɪtə/',{s:0})],
+  w('He','pron','/hi/'), w('told','verb','/toʊld/'), w('me','pron','/mi/'), w('he','pron','/hi/'), w('would','modal','/wʊd/'), w('call','verb','/kɔl/'), w('later','adv','/ˈleɪtɚ/',{s:0})],
   'would → слабо /wəd/'),
  ex('They asked where I lived.',[
-  w('They','pron','/ðeɪ/'), w('asked','verb','/ɑːskt/'), w('where','adv','/weə/'), w('I','pron','/aɪ/'), w('lived','verb','/lɪvd/')]),
+  w('They','pron','/ðeɪ/'), w('asked','verb','/æskt/'), w('where','adv','/wɛr/'), w('I','pron','/aɪ/'), w('lived','verb','/lɪvd/')]),
 ],
 [
  err('He said me he was tired.','He told me he was tired.','say (to smb) / tell smb: said to me или told me.'),
@@ -1204,11 +1204,11 @@ card('g041','B1',['каузатив'],
 'Каузатив: кто-то делает что-то для нас. I had my car repaired — машину чинил не я сам. Образование: have + объект + V3.',
 [
  ex('I had my hair cut yesterday.',[
-  w('I','pron','/aɪ/'), w('had','verb','/hæd/'), w('my','pron','/maɪ/'), w('hair','noun','/heə/'), w('cut','verb','/kʌt/'), w('yesterday','adv','/ˈjestədeɪ/',{s:0})]),
+  w('I','pron','/aɪ/'), w('had','verb','/hæd/'), w('my','pron','/maɪ/'), w('hair','noun','/hɛr/'), w('cut','verb','/kʌt/'), w('yesterday','adv','/ˈjɛstɚdeɪ/',{s:0})]),
  ex('She is having her flat renovated.',[
-  w('She','pron','/ʃiː/'), w('is','aux','/ɪz/'), w('having','verb','/ˈhævɪŋ/',{s:0}), w('her','pron','/hɜː/'), w('flat','noun','/flæt/'), w('renovated','verb','/ˈrenəveɪtɪd/',{s:0})]),
+  w('She','pron','/ʃi/'), w('is','aux','/ɪz/'), w('having','verb','/ˈhævɪŋ/',{s:0}), w('her','pron','/hɝ/'), w('flat','noun','/flæt/'), w('renovated','verb','/ˈrɛnəveɪtɪd/',{s:0})]),
  ex('We must have the roof repaired.',[
-  w('We','pron','/wiː/'), w('must','modal','/mʌst/'), w('have','verb','/hæv/'), w('the','art','/ðə/'), w('roof','noun','/ruːf/'), w('repaired','verb','/rɪˈpeəd/',{s:1})]),
+  w('We','pron','/wi/'), w('must','modal','/mʌst/'), w('have','verb','/hæv/'), w('the','art','/ðə/'), w('roof','noun','/ruf/'), w('repaired','verb','/rɪˈpɛrd/',{s:1})]),
 ],
 [
  err("I cut my hair at the barber's.","I had my hair cut at the barber's.",'Услуга выполнена другим человеком — have + object + V3.'),
@@ -1228,12 +1228,12 @@ card('g042','B1',['вопросы','tag questions'],
 'Разделительный вопрос подтверждает сказанное: хвост противоположен по знаку основной части и повторяет подлежащее и вспомогательный глагол. You like coffee, don\'t you?',
 [
  ex("You're coming, aren't you?",[
-  w("You're",'pron','/jɔː/'), w('coming','verb','/ˈkʌmɪŋ/',{s:0}), w("aren't",'aux','/ɑːnt/'), w('you','pron','/juː/')],
+  w("You're",'pron','/jʊr/'), w('coming','verb','/ˈkʌmɪŋ/',{s:0}), w("aren't",'aux','/ɑrnt/'), w('you','pron','/ju/')],
   "You're → /jɔː/"),
  ex("She works here, doesn't she?",[
-  w('She','pron','/ʃiː/'), w('works','verb','/wɜːks/',{sp:[1]}), w('here','adv','/hɪə/'), w("doesn't",'aux','/ˈdʌznt/'), w('she','pron','/ʃiː/')]),
+  w('She','pron','/ʃi/'), w('works','verb','/wɝks/',{sp:[1]}), w('here','adv','/hir/'), w("doesn't",'aux','/ˈdʌznt/'), w('she','pron','/ʃi/')]),
  ex("They didn't leave, did they?",[
-  w('They','pron','/ðeɪ/'), w("didn't",'aux','/ˈdɪdnt/'), w('leave','verb','/liːv/'), w('did','aux','/dɪd/'), w('they','pron','/ðeɪ/')]),
+  w('They','pron','/ðeɪ/'), w("didn't",'aux','/ˈdɪdnt/'), w('leave','verb','/liv/'), w('did','aux','/dɪd/'), w('they','pron','/ðeɪ/')]),
 ],
 [
  err("He is a doctor, isn't it?","He is a doctor, isn't he?",'Тэг повторяет подлежащее: he → he.'),
@@ -1253,13 +1253,13 @@ card('g043','B1',['вопросы'],
 'Общие вопросы требуют yes/no и начинаются со вспомогательного глагола. Специальные — с Wh-слова. Косвенные вопросы имеют прямой порядок слов: I don\'t know where he is (не where is he).',
 [
  ex('Where do you work?',[
-  w('Where','adv','/weə/'), w('do','aux','/də/'), w('you','pron','/juː/'), w('work','verb','/wɜːk/',{sp:[1]})],
+  w('Where','adv','/wɛr/'), w('do','aux','/də/'), w('you','pron','/ju/'), w('work','verb','/wɝk/',{sp:[1]})],
   "do you → /dʒə/"),
  ex('What are you waiting for?',[
-  w('What','pron','/wɒt/',{sl:[1]}), w('are','aux','/ɑː/'), w('you','pron','/juː/'), w('waiting','verb','/ˈweɪtɪŋ/',{s:0}), w('for','prep','/fə/')],
+  w('What','pron','/wʌt/',{sl:[1]}), w('are','aux','/ɑr/'), w('you','pron','/ju/'), w('waiting','verb','/ˈweɪtɪŋ/',{s:0}), w('for','prep','/fɚ/')],
   'What are you → whatcha /ˈwɒtʃə/'),
  ex('Could you tell me where the station is?',[
-  w('Could','modal','/kʊd/'), w('you','pron','/juː/'), w('tell','verb','/tel/'), w('me','pron','/miː/'), w('where','adv','/weə/'), w('the','art','/ðə/'), w('station','noun','/ˈsteɪʃən/',{s:0,sp:[3,4]}), w('is','verb','/ɪz/')],
+  w('Could','modal','/kʊd/'), w('you','pron','/ju/'), w('tell','verb','/tɛl/'), w('me','pron','/mi/'), w('where','adv','/wɛr/'), w('the','art','/ðə/'), w('station','noun','/ˈsteɪʃən/',{s:0,sp:[3,4]}), w('is','verb','/ɪz/')],
   'Could you → /kʊdʒə/'),
 ],
 [
@@ -1280,12 +1280,12 @@ card('g044','B1',['отрицания'],
 'Отрицание смыслового глагола — через do/does/did + not. no ставится перед существительным: I have no time = I don\'t have any time. Двойное отрицание недопустимо.',
 [
  ex("I don't understand this rule.",[
-  w('I','pron','/aɪ/'), w("don't",'aux','/dəʊnt/'), w('understand','verb','/ˌʌndəˈstænd/',{s:2}), w('this','det','/ðɪs/'), w('rule','noun','/ruːl/')]),
+  w('I','pron','/aɪ/'), w("don't",'aux','/doʊnt/'), w('understand','verb','/ʌndɚˈstænd/',{s:2}), w('this','det','/ðɪs/'), w('rule','noun','/rul/')]),
  ex('She has no brothers or sisters.',[
-  w('She','pron','/ʃiː/'), w('has','verb','/hæz/'), w('no','det','/nəʊ/',{sl:[0]}), w('brothers','noun','/ˈbrʌðəz/',{s:0}), w('or','conj','/ɔː/'), w('sisters','noun','/ˈsɪstəz/',{s:0})],
+  w('She','pron','/ʃi/'), w('has','verb','/hæz/'), w('no','det','/noʊ/',{sl:[0]}), w('brothers','noun','/ˈbrʌðəz/',{s:0}), w('or','conj','/ɔr/'), w('sisters','noun','/ˈsɪstɚz/',{s:0})],
   'or → слабо /ə/'),
  ex('They didn\'t come to the meeting.',[
-  w('They','pron','/ðeɪ/'), w("didn't",'aux','/ˈdɪdnt/'), w('come','verb','/kʌm/'), w('to','prep','/tə/'), w('the','art','/ðə/'), w('meeting','noun','/ˈmiːtɪŋ/',{s:0})]),
+  w('They','pron','/ðeɪ/'), w("didn't",'aux','/ˈdɪdnt/'), w('come','verb','/kʌm/'), w('to','prep','/tə/'), w('the','art','/ðə/'), w('meeting','noun','/ˈmitɪŋ/',{s:0})]),
 ],
 [
  err("I don't know nothing.","I don't know anything.",'В английском одно отрицание: not … anything.'),
@@ -1305,12 +1305,12 @@ card('g045','A2',['конструкции'],
 'Конструкция сообщает о наличии чего-то: There is a café near here. Is/are согласуется со следующим существительным. В вопросе is/are выходит вперёд.',
 [
  ex('There is a pharmacy around the corner.',[
-  w('There','adv','/ðeə/'), w('is','verb','/ɪz/'), w('a','art','/ə/'), w('pharmacy','noun','/ˈfɑːməsi/',{s:0}), w('around','prep','/əˈraʊnd/',{s:1}), w('the','art','/ðə/'), w('corner','noun','/ˈkɔːnə/',{s:0})],
+  w('There','adv','/ðɛr/'), w('is','verb','/ɪz/'), w('a','art','/ə/'), w('pharmacy','noun','/ˈfɑrməsi/',{s:0}), w('around','prep','/əˈraʊnd/',{s:1}), w('the','art','/ðə/'), w('corner','noun','/ˈkɔrnɚ/',{s:0})],
   "There is → there's /ðeəz/"),
  ex('There are two parks in our district.',[
-  w('There','adv','/ðeə/'), w('are','verb','/ɑː/'), w('two','num','/tuː/',{sl:[0]}), w('parks','noun','/pɑːks/'), w('in','prep','/ɪn/'), w('our','pron','/ˈaʊə/',{s:0}), w('district','noun','/ˈdɪstrɪkt/',{s:0})]),
+  w('There','adv','/ðɛr/'), w('are','verb','/ɑr/'), w('two','num','/tu/',{sl:[0]}), w('parks','noun','/pɑrks/'), w('in','prep','/ɪn/'), w('our','pron','/aʊr/',{s:0}), w('district','noun','/ˈdɪstrɪkt/',{s:0})]),
  ex('Is there any milk left?',[
-  w('Is','verb','/ɪz/'), w('there','adv','/ðeə/'), w('any','det','/ˈeni/',{sp:[0]}), w('milk','noun','/mɪlk/'), w('left','adv','/left/')]),
+  w('Is','verb','/ɪz/'), w('there','adv','/ðɛr/'), w('any','det','/ˈɛni/',{sp:[0]}), w('milk','noun','/mɪlk/'), w('left','adv','/lɛft/')]),
 ],
 [
  err('There is many people here.','There are many people here.','people — мн. ч. → are.'),
@@ -1330,12 +1330,12 @@ card('g046','B1',['реакции','согласие'],
 'So do I — я тоже (после утверждения). Neither do I — я тоже не (после отрицания). Вспомогательный глагол повторяется из первой реплики: I can swim — So can I.',
 [
  ex('I like jazz. — So do I.',[
-  w('I','pron','/aɪ/'), w('like','verb','/laɪk/'), w('jazz','noun','/dʒæz/'), w('So','adv','/səʊ/'), w('do','aux','/də/'), w('I','pron','/aɪ/')]),
+  w('I','pron','/aɪ/'), w('like','verb','/laɪk/'), w('jazz','noun','/dʒæz/'), w('So','adv','/soʊ/'), w('do','aux','/də/'), w('I','pron','/aɪ/')]),
  ex("I've never been to Japan. — Neither have I.",[
-  w("I've",'pron','/aɪv/'), w('never','adv','/ˈnevə/',{s:0}), w('been','verb','/biːn/'), w('to','prep','/tə/'), w('Japan','noun','/dʒəˈpæn/',{s:1}), w('Neither','adv','/ˈnaɪðə/',{s:0,sp:[1,2]}), w('have','aux','/həv/'), w('I','pron','/aɪ/')],
+  w("I've",'pron','/aɪv/'), w('never','adv','/ˈnɛvɚ/',{s:0}), w('been','verb','/bɪn/'), w('to','prep','/tə/'), w('Japan','noun','/dʒəˈpæn/',{s:1}), w('Neither','adv','/ˈnaɪðɚ/',{s:0,sp:[1,2]}), w('have','aux','/həv/'), w('I','pron','/aɪ/')],
   "Neither → /ˈnaɪðə/"),
  ex('She can drive. — So can her brother.',[
-  w('She','pron','/ʃiː/'), w('can','modal','/kæn/'), w('drive','verb','/draɪv/'), w('So','adv','/səʊ/'), w('can','modal','/kæn/'), w('her','pron','/hɜː/'), w('brother','noun','/ˈbrʌðə/',{s:0})]),
+  w('She','pron','/ʃi/'), w('can','modal','/kæn/'), w('drive','verb','/draɪv/'), w('So','adv','/soʊ/'), w('can','modal','/kæn/'), w('her','pron','/hɝ/'), w('brother','noun','/ˈbrʌðə/',{s:0})]),
 ],
 [
  err("I don't like coffee. — Me too.","I don't like coffee. — Me neither.",'После отрицания — me neither / Neither do I.'),
@@ -1355,12 +1355,12 @@ card('g047','B1',['предложения','предпочтения'],
 'Конструкции для предложений и предпочтений: I\'d rather stay home (лучше бы остался), It\'s worth trying (стоит попробовать), How about watching a film?, Let\'s go (давай).',
 [
  ex("I'd rather stay at home tonight.",[
-  w("I'd",'pron','/aɪd/'), w('rather','adv','/ˈrɑːðə/',{s:0}), w('stay','verb','/steɪ/'), w('at','prep','/æt/'), w('home','noun','/həʊm/'), w('tonight','adv','/təˈnaɪt/',{s:1})],
+  w("I'd",'pron','/aɪd/'), w('rather','adv','/ˈræðɚ/',{s:0}), w('stay','verb','/steɪ/'), w('at','prep','/æt/'), w('home','noun','/hoʊm/'), w('tonight','adv','/təˈnaɪt/',{s:1})],
   "I'd rather → /aɪd ˈrɑːðə/"),
  ex('This museum is worth visiting.',[
-  w('This','pron','/ðɪs/'), w('museum','noun','/mjuːˈziːəm/',{s:1}), w('is','verb','/ɪz/'), w('worth','adj','/wɜːθ/',{sp:[1]}), w('visiting','verb','/ˈvɪzɪtɪŋ/',{s:0})]),
+  w('This','pron','/ðɪs/'), w('museum','noun','/mjuˈziəm/',{s:1}), w('is','verb','/ɪz/'), w('worth','adj','/wɝθ/',{sp:[1]}), w('visiting','verb','/ˈvɪzɪtɪŋ/',{s:0})]),
  ex('How about ordering pizza?',[
-  w('How','adv','/haʊ/'), w('about','prep','/əˈbaʊt/',{s:1}), w('ordering','verb','/ˈɔːdərɪŋ/',{s:0}), w('pizza','noun','/ˈpiːtsə/',{s:0})]),
+  w('How','adv','/haʊ/'), w('about','prep','/əˈbaʊt/',{s:1}), w('ordering','verb','/ˈɔrdɚɪŋ/',{s:0}), w('pizza','noun','/ˈpitsə/',{s:0})]),
 ],
 [
  err("Let's to go.","Let's go.","После Let's — инфинитив без to."),
@@ -1380,12 +1380,12 @@ card('g048','B1',['разговорные конструкции'],
 'Разговорные конструкции: I was wondering if you could help — сверхвежливая просьба. The thing is — вводит главное препятствие. By the way — сменить тему; I mean — уточнить мысль.',
 [
  ex('I was wondering if you could help me.',[
-  w('I','pron','/aɪ/'), w('was','verb','/wɒz/'), w('wondering','verb','/ˈwʌndərɪŋ/',{s:0}), w('if','conj','/ɪf/'), w('you','pron','/juː/'), w('could','modal','/kʊd/'), w('help','verb','/help/'), w('me','pron','/miː/')],
+  w('I','pron','/aɪ/'), w('was','verb','/wɑz/'), w('wondering','verb','/ˈwʌndərɪŋ/',{s:0}), w('if','conj','/ɪf/'), w('you','pron','/ju/'), w('could','modal','/kʊd/'), w('help','verb','/hɛlp/'), w('me','pron','/mi/')],
   'was wondering — was слабо /wəz/'),
  ex("The thing is, I don't have time today.",[
-  w('The','art','/ðə/'), w('thing','noun','/θɪŋ/'), w('is','verb','/ɪz/'), w('I','pron','/aɪ/'), w("don't",'aux','/dəʊnt/'), w('have','verb','/hæv/'), w('time','noun','/taɪm/'), w('today','adv','/təˈdeɪ/',{s:1})]),
+  w('The','art','/ðə/'), w('thing','noun','/θɪŋ/'), w('is','verb','/ɪz/'), w('I','pron','/aɪ/'), w("don't",'aux','/doʊnt/'), w('have','verb','/hæv/'), w('time','noun','/taɪm/'), w('today','adv','/təˈdeɪ/',{s:1})]),
  ex('By the way, I saw your brother yesterday.',[
-  w('By','prep','/baɪ/'), w('the','art','/ðə/'), w('way','noun','/weɪ/'), w('I','pron','/aɪ/'), w('saw','verb','/sɔː/'), w('your','pron','/jɔː/'), w('brother','noun','/ˈbrʌðə/',{s:0}), w('yesterday','adv','/ˈjestədeɪ/',{s:0})]),
+  w('By','prep','/baɪ/'), w('the','art','/ðə/'), w('way','noun','/weɪ/'), w('I','pron','/aɪ/'), w('saw','verb','/sɔ/'), w('your','pron','/jɔr/'), w('brother','noun','/ˈbrʌðə/',{s:0}), w('yesterday','adv','/ˈjɛstɚdeɪ/',{s:0})]),
 ],
 [
  err('I was wondering could you help me.','I was wondering if you could help me.','После wondering нужен союз if/whether.'),
