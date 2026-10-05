@@ -18,6 +18,8 @@ const SCENE_CAST = {
   jess: { name: 'Джесс', en: 'Jess', role: 'бариста', color: '#8B5CF6', initial: 'J' },
   priya: { name: 'Прия', en: 'Priya', role: 'руководитель команды', color: '#10B981', initial: 'P' },
   garcia: { name: 'Мисс Гарсия', en: 'Ms. Garcia', role: 'сотрудница банка', color: '#0EA5E9', initial: 'G' },
+  luis: { name: 'Луис', en: 'Luis', role: 'кассир в магазине', color: '#EF4444', initial: 'L' },
+  kim: { name: 'Медсестра Ким', en: 'Nurse Kim', role: 'клиника без записи', color: '#14B8A6', initial: 'K' },
 };
 
 const SCENE_EPISODES = [
@@ -619,6 +621,160 @@ const SCENE_EPISODES = [
           fallbackNext: 'n5' },
       },
       n5: { who: 'maggie', say: "You handled that like a pro. Pizza's on me tonight!", ru: 'Справились как профи. Пицца сегодня за мой счёт!', end: true },
+    },
+  },
+
+  /* ---------------- 9. Магазин у дома ---------------- */
+  {
+    id: 'ep9-store', title: 'Магазин у дома', place: 'Магазин и аптека на углу',
+    intro: 'Молоко закончилось, телефон опять садится. Магазин на углу работает до полуночи, на кассе — Луис.',
+    phrases: ["I'm just browsing", 'Where can I find the milk?', 'Do you sell phone chargers?', 'Next in line', 'Cash or card?', 'My card was declined', 'Do you accept Apple Pay?', "I'm all set", 'Have a nice day'],
+    start: 'n1',
+    nodes: {
+      n1: {
+        who: 'luis', say: 'Hey there! Can I help you find anything?', ru: 'Привет! Помочь что-нибудь найти?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "I'm good, thanks — I'm just browsing.",
+            react: { say: 'Sure thing! Let me know if you need anything.', mood: 'smile' },
+            coach: '«I\'m just browsing» — «я просто смотрю». Вежливо и без лишних слов.', next: 'n2' },
+          { tone: 'formal', text: 'No, thank you. I am merely examining the merchandise.',
+            react: { say: 'Ha, "examining the merchandise." Got it!', mood: 'laugh' },
+            coach: '«Merchandise» и «merely» — для каталогов. В магазине: «Just looking, thanks».', next: 'n2' },
+          { tone: 'rude', text: 'No. Leave me alone.',
+            react: { say: "Okay... I'll be at the register.", mood: 'frown' },
+            coach: 'Продавец просто вежлив. «No, thanks, I\'m good» отказывает так же, но без обиды.', next: 'n1b' },
+        ] },
+      },
+      n1b: { who: 'luis', say: 'Just holler if you need me.', ru: 'Если что — зови.', next: 'n2' },
+      n2: {
+        who: 'luis', say: 'Our store is kind of a maze, by the way. Just ask!', ru: 'Кстати, у нас тут лабиринт. Спрашивай!',
+        reply: { type: 'open', prompt: 'Спроси, где найти молоко, или есть ли зарядки для телефона.',
+          meanings: [
+            { id: 'find', label: 'вопрос, где найти', keys: ['where can i find', 'where is', 'where are', 'do you sell', 'do you have'],
+              react: { say: 'Aisle five, on the left!', mood: 'smile' }, next: 'n3' },
+          ],
+          samples: ['Where can I find the milk?', 'Do you sell phone chargers?', 'Where are the eggs?', 'Do you have oat milk?'],
+          fallbackNext: 'n3' },
+      },
+      n3: {
+        who: 'luis', say: 'Next in line! Cash or card?', ru: 'Следующий! Наличные или карта?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'Card, please.',
+            react: { say: 'Go ahead and tap.', mood: 'smile' },
+            coach: 'На «Cash or card?» хватает одного слова и «please».', next: 'n4' },
+          { tone: 'formal', text: 'I will be remitting payment by debit card.',
+            react: { say: 'Remitting... okay! Tap whenever you\'re ready.', mood: 'confused' },
+            coach: '«Remit payment» пишут в счетах. На кассе: «Card, please».', next: 'n4' },
+          { tone: 'rude', text: 'Card, obviously. Who even uses cash?',
+            react: { say: 'Lots of people, actually. Go ahead.', mood: 'neutral' },
+            coach: '«Obviously» звучит свысока. Кассир спрашивает это у всех — отвечай просто.', next: 'n4' },
+        ] },
+      },
+      n4: {
+        who: 'luis', say: 'Hmm, it says your card was declined. Wanna try again?', ru: 'Хм, карта отклонена. Попробуешь ещё раз?',
+        reply: { type: 'open', prompt: 'Не паникуй: попроси попробовать ещё раз, предложи другой способ оплаты или скажи, что проверишь баланс.',
+          meanings: [
+            { id: 'retry', label: 'попробовать ещё раз', keys: ['try again', 'one more time', 'let me try'],
+              react: { say: 'Sure. ...Okay, it went through!', mood: 'smile' }, next: 'n5' },
+            { id: 'other', label: 'другой способ оплаты', keys: ['another card', 'different card', 'apple pay', 'cash', 'my phone'],
+              react: { say: 'Yep, we take that. ...All good!', mood: 'smile' }, next: 'n5' },
+            { id: 'check', label: 'проверить баланс', keys: ['let me check', 'my balance', 'call my bank', 'my bank'],
+              react: { say: 'Take your time. Oh — it went through on the second try!', mood: 'smile' }, next: 'n5' },
+          ],
+          samples: ['My card was declined? Can I try again?', 'Let me use another card.', 'Do you accept Apple Pay?', 'Weird. Let me check my balance.'],
+          fallbackNext: 'n5' },
+      },
+      n5: {
+        who: 'luis', say: 'Do you need a bag?', ru: 'Пакет нужен?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "No, I'm all set. Thanks!",
+            react: { say: 'Awesome.', mood: 'smile' },
+            coach: '«I\'m all set» — «мне больше ничего не нужно». Очень американское.', next: 'n6' },
+          { tone: 'formal', text: 'That will not be necessary, thank you kindly.',
+            react: { say: 'Okay! Very polite.', mood: 'laugh' },
+            coach: 'Вежливо, но как у дворецкого. Проще: «No, I\'m good, thanks».', next: 'n6' },
+          { tone: 'rude', text: 'Do I look like I need a bag?',
+            react: { say: "Just asking! It's my job.", mood: 'frown' },
+            coach: 'Риторический вопрос звучит как упрёк. Хватит «No, thanks».', next: 'n6' },
+        ] },
+      },
+      n6: { who: 'luis', say: "Here's your receipt. Have a nice day!", ru: 'Вот чек. Хорошего дня!', end: true },
+    },
+  },
+
+  /* ---------------- 10. Простуда ---------------- */
+  {
+    id: 'ep10-clinic', title: 'Простуда', place: 'Клиника без записи (urgent care) на соседней улице',
+    intro: 'Утро. Голова тяжёлая, горло болит. Мэгги замечает это первой — и отправляет к врачу.',
+    phrases: ["I don't feel well", "I think I'm coming down with something", 'I have a sore throat', 'Walk-in clinic', 'What seems to be the problem?', 'How long have you had these symptoms?', 'For about a week', 'Are you taking any medication?', "I'm allergic to penicillin", 'Does your insurance cover it?', "It's nothing serious", 'Get some rest', 'Drink plenty of fluids', 'Feel better soon'],
+    start: 'n1',
+    nodes: {
+      n1: {
+        who: 'maggie', say: "Whoa, you don't look so good. Are you okay?", ru: 'Ого, выглядишь неважно. Ты в порядке?',
+        reply: { type: 'open', prompt: 'Расскажи Мэгги, как себя чувствуешь.',
+          meanings: [
+            { id: 'sick', label: 'плохое самочувствие', keys: ['i do not feel well', 'coming down with something', 'under the weather', 'sore throat', 'headache', 'fever', 'sick', 'i feel terrible'],
+              react: { say: "Oh no! There's a walk-in clinic around the corner. Go get checked out.", mood: 'warm' }, next: 'n2' },
+            { id: 'fine', label: '«всё нормально»', keys: ['i am fine', 'i am okay', 'just tired', 'i am good'],
+              react: { say: "Hmm, you sound sick. There's a walk-in clinic around the corner — humor me and go.", mood: 'confused' }, next: 'n2' },
+          ],
+          samples: ["I don't feel well. I think I'm coming down with something.", 'I have a sore throat and a headache.', "I'm feeling under the weather.", "I'm fine, just tired."],
+          fallbackNext: 'n2' },
+      },
+      n2: {
+        who: 'kim', say: "Hi, I'm Nurse Kim. What seems to be the problem?", ru: 'Здравствуйте, я медсестра Ким. Что вас беспокоит?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'I have a fever and I have a sore throat.',
+            react: { say: "Okay, let's take a look.", mood: 'smile' },
+            coach: 'Симптомы списком через «I have…» — так и говорят у врача.', next: 'n3' },
+          { tone: 'formal', text: 'I am experiencing elevated body temperature and throat discomfort.',
+            react: { say: 'Okay... so, a fever and a sore throat?', mood: 'confused' },
+            coach: 'Так пишут в медкарте. Пациент говорит проще: «I have a fever».', next: 'n3' },
+          { tone: 'rude', text: "Isn't it your job to figure that out?",
+            react: { say: 'I need your symptoms to help you.', mood: 'frown' },
+            coach: 'Болеть неприятно, но медсестра на твоей стороне. Опиши, что болит.', next: 'n2b' },
+        ] },
+      },
+      n2b: { who: 'kim', say: "Let's start over. Fever? Sore throat? Cough?", ru: 'Давайте сначала. Температура? Горло? Кашель?', next: 'n3' },
+      n3: {
+        who: 'kim', say: 'How long have you had these symptoms?', ru: 'Как давно у вас эти симптомы?',
+        reply: { type: 'open', prompt: 'Скажи, сколько дней ты болеешь.',
+          meanings: [
+            { id: 'time', label: 'срок', keys: ['for about', 'since', 'days', 'a week', 'yesterday', 'last night', 'this morning'],
+              react: { say: 'Got it, thanks.', mood: 'neutral' }, next: 'n4' },
+          ],
+          samples: ['For about a week.', 'Since yesterday.', 'About three days.', 'It started last night.'],
+          fallbackNext: 'n4' },
+      },
+      n4: {
+        who: 'kim', say: 'Are you taking any medication? Any allergies?', ru: 'Принимаете какие-то лекарства? Есть аллергия?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "No medication, but I'm allergic to penicillin.",
+            react: { say: "Good to know. I'll make a note.", mood: 'smile' },
+            coach: 'Аллергию на лекарства называй всегда — это важнее всех остальных ответов.', next: 'n5' },
+          { tone: 'formal', text: 'I do not consume pharmaceuticals. However, penicillin is contraindicated for me.',
+            react: { say: '"Contraindicated" — you sound like a doctor! Noted.', mood: 'laugh' },
+            coach: 'Медицинский термин понятен, но звучит книжно. Проще: «I\'m allergic to penicillin».', next: 'n5' },
+          { tone: 'rude', text: 'No. Can we skip the questions?',
+            react: { say: "These questions keep you safe. We're almost done.", mood: 'frown' },
+            coach: 'Вопросы про лекарства и аллергию — про твою безопасность. Ответь, это займёт секунду.', next: 'n5' },
+        ] },
+      },
+      n5: {
+        who: 'kim', say: 'One more thing — does your insurance cover it? I need your card.', ru: 'И ещё — страховка это покрывает? Нужна ваша карточка.',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "I think so. Here's my insurance card.",
+            react: { say: "Perfect, you're covered.", mood: 'smile' },
+            coach: 'В США спросят про страховку почти всегда. «Here\'s my insurance card» — главная фраза.', next: 'n6' },
+          { tone: 'formal', text: 'My employer provides comprehensive medical coverage.',
+            react: { say: "Great! Can I see the card?", mood: 'neutral' },
+            coach: 'Верно, но длинно. Достаточно протянуть карточку: «Here\'s my insurance card».', next: 'n6' },
+          { tone: 'rude', text: 'Ugh, money first, huh?',
+            react: { say: "It's just how it works here, sorry.", mood: 'frown' },
+            coach: 'Так устроена американская медицина, медсестра тут ни при чём.', next: 'n6' },
+        ] },
+      },
+      n6: { who: 'kim', say: "It's just a cold. It's nothing serious. Get some rest, drink plenty of fluids, and feel better soon!", ru: 'Это просто простуда, ничего серьёзного. Отдыхайте, пейте больше жидкости — и поправляйтесь!', end: true },
     },
   },
 ];
