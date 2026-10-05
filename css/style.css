@@ -3160,3 +3160,36 @@ button:not([class]):hover { background: var(--fill-strong); }
 .sp-note { font-size: 12px; color: var(--text-muted); }
 .speech-voice-status { flex-basis: 100%; }
 @media (max-width: 640px) { .speech-result.is-shown { flex-direction: column; } }
+
+/* ---------- Этап 6: фразы вслух и лига темпов ---------- */
+.ring-spoken { margin: 4px 0 0; font-size: 13px; line-height: 1.35; color: var(--text-muted); }
+.ring-spoken b { color: var(--text); font-size: 15px; font-variant-numeric: tabular-nums; }
+
+.spoken-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.spoken-section .today-coach { margin: 4px 0 14px; }
+.spoken-chart { position: relative; display: flex; align-items: flex-end; gap: 8px; height: 150px; padding: 18px 0 22px; margin-bottom: 16px; }
+.spoken-col { position: relative; flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+.spoken-bar { position: relative; flex: none; display: block; width: 100%; max-width: 44px; min-height: 2px; border-radius: 6px 6px 2px 2px; background: var(--accent-soft); transition: height .4s ease; }
+.spoken-col.is-goal .spoken-bar { background: var(--accent); }
+.spoken-col.is-today .spoken-bar { box-shadow: inset 0 0 0 2px var(--accent); }
+.spoken-val { position: absolute; left: 0; right: 0; top: -18px; text-align: center; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+.spoken-day { position: absolute; bottom: -20px; font-size: 12px; color: var(--text-muted); }
+.spoken-col.is-today .spoken-day { color: var(--text); font-weight: 700; }
+.spoken-goal { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed var(--border-strong); pointer-events: none; z-index: 1; }
+.spoken-goal span { position: absolute; left: 0; top: -17px; font-size: 11px; color: var(--text-muted); background: var(--bg-card); padding: 0 4px; }
+.pacer-league { margin-bottom: 0; }
+.pacer-league .league-name { font-size: 1.1rem; }
+.pacer-league .league-xp { font-family: var(--font-main); font-weight: 500; font-size: 13px; color: var(--text-muted); }
+.league-row.is-bot .name { color: var(--text-muted); }
+.league-row .name small { margin-left: 6px; font-size: 12px; opacity: .8; }
+.bot-tag { display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-muted); }
+.pacer-line { margin: 12px 0 4px; font-weight: 600; }
+@media (max-width: 600px) {
+  .spoken-section { padding: 14px; }
+  .pacer-league { padding: 12px; }
+  .pacer-league .league-header { flex-wrap: wrap; gap: 2px 12px; }
+  .pacer-league .league-xp { margin-left: 0; }
+  .spoken-chart { gap: 4px; }
+  .league-row .bot-tag { display: block; width: max-content; margin-bottom: 2px; }
+  .league-row .name small { display: block; margin-left: 0; }
+}

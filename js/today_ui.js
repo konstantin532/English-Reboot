@@ -15,13 +15,7 @@ const TodayUI = (() => {
   const IMPROV_SPINS = 2; // спинов импровизации в конце урока
 
   // Реплики тренера. TODO(этап 6): перенести в общий файл реплик тренера.
-  const COACH = {
-    fresh: 'Пятнадцать минут — и сегодня ты скажешь по-английски больше, чем вчера.',
-    resume: 'Урок на паузе — продолжим с того же места.',
-    done: 'Урок дня пройден. Хочешь — ещё один, хочешь — загляни в библиотеку.',
-    empty: 'Всё повторено и все фразы в работе. FSRS вернёт их, когда придёт время.',
-    summary: 'Вот это работа. Завтра — следующий шаг.',
-  };
+  const COACH = Coach.LINES.today; // реплики коуча — в coach.js (этап 6)
 
   function init(er) { ER = er; }
   const esc = (s) => (ER ? ER.escapeHtml(String(s == null ? '' : s)) : String(s));
@@ -196,8 +190,17 @@ const TodayUI = (() => {
 
   /* ---------- Итог дня ---------- */
 
+  // Реплика коуча по фактам «Сказано вслух» (сравнение только с собой) + темп «90 дней»
+  async function coachTalk() {
+    const today = SRS.todayStr();
+    const r = await DB.getStudyLogRange('0000-00-00', today);
+    const logs = (r.success && r.data) || [];
+    return { day: Coach.dayLine(Pacers.facts(logs, today)).text, pace: Coach.paceLine(Pacers.table(logs, today).goal) };
+  }
+
   async function showSummary(lesson) {
     const s = await dayStats();
+    const talk = await coachTalk();
     const scene = lesson && lesson.sceneDone && window.ScenesUI ? ScenesUI.titleOf(lesson.scene) : '';
     if (ER && ER.claimContent) ER.claimContent();
     document.getElementById('content').innerHTML = `
@@ -210,7 +213,8 @@ const TodayUI = (() => {
           ${lesson && lesson.improvDone ? `<p class="today-sub" id="today-improv-done">🎲 Импровизаций: ${lesson.improvDone}</p>` : ''}
           <p class="today-sub">${s.minutes === '<1' ? 'меньше минуты' : `${s.minutes} ${plural(s.minutes, 'минута', 'минуты', 'минут')}`} занятий сегодня ·
             серия ${s.streak} ${plural(s.streak, 'день', 'дня', 'дней')}</p>
-          <p class="today-coach">${COACH.summary}</p>
+          <p class="today-coach" id="today-day-line">${esc(talk.day)}</p>
+          ${talk.pace ? `<p class="today-sub" id="today-pace-line">${esc(talk.pace)}</p>` : ''}
           <button class="btn-primary" id="today-home" type="button">На главную</button>
         </div>
       </div>`;

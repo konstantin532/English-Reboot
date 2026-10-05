@@ -1,6 +1,6 @@
 /* ==========================================================================
    English Reboot — PRO: гамификация и интеграция
-   Файл: gamify.js — XP, комбо, челленджи, лига с ботами, магазин,
+   Файл: gamify.js — XP, комбо, челленджи, лига темпов (pacers.js), магазин,
    прогноз, heatmap, Weekly Review, Текст дня, Spaced Dictation,
    AI-разбор ошибок, Anki-импорт, share-колода.
    Подключается к приложению через window.ER и обёртку SRS.saveProgress —
@@ -30,21 +30,6 @@ const Gamify = (() => {
     { min: 3000, title: 'Мастер', icon: '⚡' },
     { min: 5000, title: 'Эксперт', icon: '🌟' },
     { min: 10000, title: 'Полиглот', icon: '👑' },
-  ];
-
-  const LEAGUES = [
-    { id: 0, name: 'Bronze', icon: '🥉', minXP: 0 },
-    { id: 1, name: 'Silver', icon: '🥈', minXP: 50 },
-    { id: 2, name: 'Gold', icon: '🥇', minXP: 100 },
-    { id: 3, name: 'Platinum', icon: '💎', minXP: 200 },
-  ];
-
-  const LEAGUE_BOTS = [
-    { name: 'Alex', baseXP: 80, variance: 40 },
-    { name: 'Maria', baseXP: 120, variance: 30 },
-    { name: 'Tom', baseXP: 60, variance: 20 },
-    { name: 'Anna', baseXP: 100, variance: 25 },
-    { name: 'Kate', baseXP: 70, variance: 15 },
   ];
 
   const CHALLENGE_TEMPLATES = [
@@ -83,7 +68,6 @@ const Gamify = (() => {
     await setSetting('totalXP', xp);
     const el = document.getElementById('xp-display');
     if (el) el.textContent = xp;
-    await updateLeagueXP(amount);
     if (!silent) checkRankUp(xp);
   }
 
@@ -324,80 +308,14 @@ const Gamify = (() => {
     }
   }
 
-  /* ---------- Лига ---------- */
-  async function getLeague() {
-    let l = await getSetting('league', null);
+  /* ---------- Лига темпов (этап 6) ----------
+     Раньше: боты с человеческими именами и случайным XP. Теперь — пейсеры
+     по фразам вслух с открытым правилом (pacers.js), реплики — в coach.js. */
+  async function spokenSectionHtml() {
+    if (!window.Pacers) return '';
     const today = SRS.todayStr();
-    const weekStart = SRS.addDays(today, -new Date().getDay()); // воскресенье = старт
-    if (!l || l.weekStart !== weekStart) {
-      l = {
-        weekStart,
-        myXP: 0,
-        level: 0,
-        lastUpdate: today,
-        bots: LEAGUE_BOTS.map((b) => ({
-          name: b.name,
-          xp: Math.max(0, b.baseXP + Math.round((Math.random() * 2 - 1) * b.variance)),
-        })),
-      };
-      await setSetting('league', l);
-    }
-    return l;
-  }
-
-  async function updateLeagueXP(amount) {
-    const l = await getLeague();
-    l.myXP += amount;
-    const next = LEAGUES[l.level + 1];
-    if (next && l.myXP >= next.minXP) {
-      l.level++;
-      if (ER) {
-        ER.toast(`${next.icon} Повышение! Лига ${next.name}!`, 'success');
-        Effects.playLevelUp();
-      }
-    }
-    l.lastUpdate = SRS.todayStr();
-    await setSetting('league', l);
-    renderLeagueInto(l);
-  }
-
-  async function tickBots() {
-    const l = await getLeague();
-    const today = SRS.todayStr();
-    if (l.lastUpdate === today) return l;
-    l.bots.forEach((b) => { b.xp += 5 + ((Math.random() * 11) | 0); });
-    l.lastUpdate = today;
-    await setSetting('league', l);
-    return l;
-  }
-
-  // Обновить таблицу лиги, если открыта вкладка «Прогресс» (функции раньше не было)
-  function renderLeagueInto(l) {
-    const sec = document.querySelector('.league-section');
-    if (sec) sec.outerHTML = leagueHtml(l);
-  }
-
-  function leagueHtml(l) {
-    const lg = LEAGUES[l.level];
-    const rows = [{ name: 'Вы', xp: l.myXP, me: true }, ...l.bots.map((b) => ({ name: b.name, xp: b.xp }))]
-      .sort((a, b) => b.xp - a.xp);
-    return `
-      <div class="league-section">
-        <div class="league-header">
-          <span class="league-icon" aria-hidden="true">${lg.icon}</span>
-          <span class="league-name">${lg.name} лига</span>
-          <span class="league-xp">${l.myXP} XP за неделю</span>
-        </div>
-        <div class="league-table">
-          ${rows.map((r, i) => `
-            <div class="league-row ${r.me ? 'me' : ''}">
-              <span class="rank">${i + 1}</span>
-              <span class="name">${r.name}</span>
-              <span class="xp">${r.xp} XP</span>
-            </div>`).join('')}
-        </div>
-        <p class="setting-hint">Соло-лига с ботами. Топ-3 в конце недели — повышение дивизиона.</p>
-      </div>`;
+    const r = await DB.getStudyLogRange('0000-00-00', today);
+    return Pacers.sectionHtml((r.success && r.data) || [], today);
   }
 
   /* ---------- Инъекции во вкладку «Прогресс» ---------- */
@@ -422,8 +340,7 @@ const Gamify = (() => {
       </div>`;
     overview.insertAdjacentHTML('beforebegin', rankHtml);
 
-    const l = await getLeague();
-    overview.insertAdjacentHTML('afterend', leagueHtml(l));
+    overview.insertAdjacentHTML('afterend', await spokenSectionHtml());
 
     // Магазин: заморозка streak
     const freeze = Number(await getSetting('streak_freeze', 0));
@@ -741,7 +658,6 @@ const Gamify = (() => {
       const xp = await getTotalXP();
       const el = document.getElementById('xp-display');
       if (el) el.textContent = xp;
-      await tickBots();
       await seedPro();
       maybeWeeklyReview();
     })();
@@ -776,5 +692,5 @@ const Gamify = (() => {
     },
   };
 
-  return { addXP, getChallenges, checkChallenge, rankOf, getLeague };
+  return { addXP, getChallenges, checkChallenge, rankOf };
 })();

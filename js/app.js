@@ -320,6 +320,13 @@
     const mig = await SRS.migrateProgress();
     if (mig.migrated) toast('Прогресс обновлён до новой схемы: ' + mig.migrated + ' записей');
     await refreshHeaderStats();
+    // Счётчик «🗣 вслух сегодня» обновляется сразу после каждой фразы вслух — откуда бы она ни пришла
+    const addSpoken = DB.addSpoken;
+    DB.addSpoken = async (date, count) => {
+      const res = await addSpoken(date, count);
+      refreshHeaderStats();
+      return res;
+    };
     markReady();
 
     switchTab('today');
@@ -443,6 +450,7 @@
     const goal = Number(settings.daily_goal) || 20;
     const logRes = await DB.getStudyLog(today);
     const doneToday = (logRes.success && logRes.data) ? (logRes.data.cardsStudied || 0) : 0;
+    const spokenToday = (logRes.success && logRes.data) ? (logRes.data.spoken || 0) : 0;
     const complete = doneToday >= goal;
     // Новый день — снова можно поздравить с целью (раньше — только раз за запуск)
     if (goalDay !== today) { goalDay = today; goalCelebrated = false; }
@@ -453,6 +461,8 @@
     set('stat-total', recs.length);
     set('stat-level', settings.currentLevel || '—');
     set('review-count', toReview);
+    set('spoken-today', spokenToday); // главная метрика — фразы вслух (этап 6)
+    set('spoken-today-word', plural(spokenToday, 'фраза', 'фразы', 'фраз'));
 
     const streak = await currentStreak();
     set('streak-num', streak);
