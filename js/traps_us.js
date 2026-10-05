@@ -204,7 +204,85 @@ const AccentTraps = (() => {
     };
   }
 
-  return { TRAPS: ACCENT_TRAPS, byId, findTrapsInPhrase, trapIdsOf, makeLookup, STRESS_WORDS, _rules: WORD_RULES, _nuclei: nuclei };
+  /* ---------- Мини-тренажёр пар ---------- */
+
+  function shuffle(arr, rng) {
+    const r = rng || Math.random;
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  // Раунды тренажёра одной ловушки: [{ play, options: [x, y], correct, pair }]
+  // choose/contrast — «какое слово прозвучало: bad или bed?»;
+  // same (редукция, flap) — пары звучат почти одинаково, угадывать между ними нечестно,
+  //   поэтому: редукция — звучит «gonna», выбери полную форму (going to / want to);
+  //            flap — звучит слово с flap, выбери его среди слова из другой пары.
+  function buildDrill(trapId, opts) {
+    const o = opts || {};
+    const rng = o.rng || Math.random;
+    const t = byId.get(trapId);
+    if (!t) return [];
+    const n = Math.min(o.rounds || 5, t.pairs.length);
+    const pairs = shuffle(t.pairs, rng).slice(0, n);
+    return pairs.map((pair) => {
+      const [a, b] = pair;
+      const others = t.pairs.filter((p) => p !== pair);
+      if (t.drill === 'same' && t.id === 'reduction') {
+        const other = others[Math.floor(rng() * others.length)][0];
+        const options = shuffle([a, other], rng);
+        return { play: b, options, correct: options.indexOf(a), pair, prompt: 'Что это в полной форме?' };
+      }
+      if (t.drill === 'same') {
+        const target = rng() < 0.5 ? a : b;
+        const otherPair = others[Math.floor(rng() * others.length)];
+        const other = otherPair[target === a ? 0 : 1];
+        const options = shuffle([target, other], rng);
+        return { play: target, options, correct: options.indexOf(target), pair, prompt: 'Какое слово прозвучало?' };
+      }
+      const target = rng() < 0.5 ? a : b;
+      const options = shuffle([a, b], rng);
+      return { play: target, options, correct: options.indexOf(target), pair, prompt: 'Какое слово прозвучало?' };
+    });
+  }
+
+  /* ---------- Паспорт акцента: какие ловушки уже побеждены ---------- */
+
+  // «Побеждена» — ≥80% верных из последних 10 попыток, не меньше 5 попыток
+  const PASSPORT = { window: 10, minAttempts: 5, pass: 0.8 };
+
+  function normalizePassport(p) {
+    const out = {};
+    const src = p && typeof p === 'object' ? p : {};
+    for (const t of ACCENT_TRAPS) {
+      const e = src[t.id];
+      const hist = e && Array.isArray(e.hist) ? e.hist.slice(-PASSPORT.window).map(Boolean) : [];
+      out[t.id] = { hist, total: Math.max(hist.length, Number(e && e.total) || 0), updated: (e && e.updated) || null };
+    }
+    return out;
+  }
+
+  // source: 'drill' | 'ladder-1' | 'ladder-6' — откуда результат (для статистики)
+  function recordResult(passport, trapId, ok, today) {
+    const p = normalizePassport(passport);
+    if (!p[trapId]) return p;
+    const e = p[trapId];
+    p[trapId] = { hist: e.hist.concat(!!ok).slice(-PASSPORT.window), total: e.total + 1, updated: today || e.updated };
+    return p;
+  }
+
+  function statusOf(entry) {
+    const h = (entry && entry.hist) || [];
+    if (!h.length) return 'new';
+    if (h.length >= PASSPORT.minAttempts && h.filter(Boolean).length / h.length >= PASSPORT.pass) return 'won';
+    return 'progress';
+  }
+
+  return {
+    TRAPS: ACCENT_TRAPS, byId, findTrapsInPhrase, trapIdsOf, makeLookup, STRESS_WORDS,
+    buildDrill, PASSPORT, normalizePassport, recordResult, statusOf,
+    _rules: WORD_RULES, _nuclei: nuclei,
+  };
 })();
 
 if (typeof window !== 'undefined') { window.ACCENT_TRAPS = ACCENT_TRAPS; window.AccentTraps = AccentTraps; }

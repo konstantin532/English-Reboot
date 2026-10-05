@@ -138,3 +138,69 @@ describe('Разметка: весь корпус американских фр�
     });
   });
 });
+
+function rngFrom(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+
+describe('Мини-тренажёр пар', () => {
+  it('5 раундов, пары не повторяются, верный ответ среди двух разных вариантов', () => {
+    T.TRAPS.forEach((t, k) => {
+      const rounds = T.buildDrill(t.id, { rng: rngFrom(k + 1) });
+      expect(rounds.length).toBe(5);
+      expect(new Set(rounds.map((r) => r.pair.join('|'))).size).toBe(5);
+      rounds.forEach((r) => {
+        expect(r.options.length).toBe(2);
+        expect(r.options[0]).not.toBe(r.options[1]);
+        expect(r.correct === 0 || r.correct === 1).toBe(true);
+      });
+    });
+  });
+  it('«какое слово прозвучало»: звучит одно слово пары, верный вариант — оно же', () => {
+    for (let k = 0; k < 20; k++) {
+      T.buildDrill('ae', { rng: rngFrom(k) }).forEach((r) => {
+        expect(r.pair).toContain(r.play);
+        expect(r.options.slice().sort()).toEqual(r.pair.slice().sort());
+        expect(r.options[r.correct]).toBe(r.play);
+      });
+    }
+  });
+  it('редукция: звучит «gonna», выбираешь полную форму; почти-омофоны flap не ставятся друг против друга', () => {
+    for (let k = 0; k < 20; k++) {
+      T.buildDrill('reduction', { rng: rngFrom(k) }).forEach((r) => {
+        expect(r.play).toBe(r.pair[1]);
+        expect(r.options[r.correct]).toBe(r.pair[0]);
+      });
+      T.buildDrill('flap', { rng: rngFrom(k) }).forEach((r) => {
+        expect(r.options[r.correct]).toBe(r.play);
+        const other = r.options[1 - r.correct];
+        expect(r.pair).not.toContain(other); // writer против rider — нечестно, их не различить
+      });
+    }
+  });
+  it('неизвестная ловушка — пустой тренажёр', () => {
+    expect(T.buildDrill('nope')).toEqual([]);
+  });
+});
+
+describe('Паспорт акцента', () => {
+  const run = (answers, trap = 'th') => answers.reduce((p, ok) => T.recordResult(p, trap, ok, '2026-10-05'), null);
+  it('новая ловушка — «ещё не встречалась»', () => {
+    expect(T.statusOf(T.normalizePassport(null).th)).toBe('new');
+  });
+  it('«побеждена»: минимум 5 попыток и ≥80% из последних 10', () => {
+    expect(T.statusOf(run([true, true, true, true]).th)).toBe('progress'); // мало попыток
+    expect(T.statusOf(run([true, true, true, true, true]).th)).toBe('won');
+    expect(T.statusOf(run([true, false, true, false, true]).th)).toBe('progress'); // 60%
+    expect(T.statusOf(run([false, false, false, true, true, true, true, true, true, true, true, true]).th)).toBe('won'); // в окне 10: 9/10
+  });
+  it('хранит только последние 10 попыток, общий счёт растёт; JSON-безопасен', () => {
+    const p = run(Array(15).fill(true));
+    expect(p.th.hist.length).toBe(10);
+    expect(p.th.total).toBe(15);
+    expect(T.normalizePassport(JSON.parse(JSON.stringify(p)))).toEqual(p);
+  });
+  it('у каждой ловушки есть запись; мусор и неизвестные id отбрасываются', () => {
+    const p = T.recordResult({ th: { hist: 'bad' }, zzz: { hist: [true] } }, 'zzz', true);
+    expect(Object.keys(p)).toEqual(T.TRAPS.map((t) => t.id));
+    expect(p.th.hist).toEqual([]);
+  });
+});
