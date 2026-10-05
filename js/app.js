@@ -71,6 +71,7 @@
   let goalCelebrated = false;
   let deferredPrompt = null;
   let goalDay = null;      // дата, к которой относится goalCelebrated
+  let moduleScreen = false; // экран занят модулем (claimContent) до следующего switchTab
   let renderToken = 0;     // защита от гонки при быстром переключении вкладок
 
   const state = {
@@ -114,7 +115,8 @@
   function reloadContent() {
     grammarCache = null;
     Object.keys(vocabCache).forEach((k) => delete vocabCache[k]);
-    const onList = !state.inSession && !state.currentCardId && !state.practiceMode;
+    // Экран модуля (урок, сцена, лестница) не перерисовываем — ученик посреди задания
+    const onList = !state.inSession && !state.currentCardId && !state.practiceMode && !moduleScreen;
     if (onList && currentTab !== 'settings') switchTab(currentTab);
   }
 
@@ -137,7 +139,7 @@
     startSrsSession: () => startSessionUI(),
     // Модуль сам рисует экран в #content (лестница, сцена, импровизация, итог дня):
     // запоздавший асинхронный рендер вкладки не должен его затереть
-    claimContent: () => { renderToken++; },
+    claimContent: () => { renderToken++; moduleScreen = true; },
     // Открыть режим тренажёра (лестница, сцены…) — для модулей вне app.js
     openPractice: (mode) => { state.practiceMode = mode || null; return switchTab('practice'); },
     plural,
@@ -491,6 +493,7 @@
     const tab = TABS.find((t) => t.id === tabId);
     if (!tab) return;
     currentTab = tabId;
+    moduleScreen = false;
     if (tabId !== 'practice') state.practiceMode = null;
     state.inSession = false;
     currentSession = null;
