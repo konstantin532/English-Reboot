@@ -204,3 +204,32 @@ describe('Паспорт акцента', () => {
     expect(p.th.hist).toEqual([]);
   });
 });
+
+describe('Приоритет фраз со слабыми ловушками', () => {
+  const weakTh = ['', '', ''].reduce((p) => T.recordResult(p, 'th', false), null); // th «в работе»
+  const phrases = ['Go to bed', 'I think so', 'Not bad', 'Thank you for the ride'];
+
+  it('без паспорта порядок не меняется', () => {
+    expect(T.orderByWeakTraps(phrases, (x) => x, null, look)).toEqual(phrases);
+  });
+  it('слабая ловушка th: фразы с th идут первыми, остальные — в прежнем порядке', () => {
+    const out = T.orderByWeakTraps(phrases, (x) => x, weakTh, look);
+    expect(out.slice(0, 2)).toEqual(['I think so', 'Thank you for the ride']); // считаются разные слабые ловушки, не слова
+    expect(out.slice(2)).toEqual(['Go to bed', 'Not bad']);
+  });
+  it('больше разных слабых ловушек — выше', () => {
+    const weak2 = [false, false].reduce((p, ok) => T.recordResult(T.recordResult(p, 'th', ok), 'ae', ok), null);
+    const out = T.orderByWeakTraps(['I think so', 'Thank you, that was bad'], (x) => x, weak2, look);
+    expect(out[0]).toBe('Thank you, that was bad'); // th + [æ]
+  });
+  it('побеждённая ловушка не считается слабой', () => {
+    const won = Array(5).fill(true).reduce((p, ok) => T.recordResult(p, 'th', ok), null);
+    expect([...T.weakTraps(won)]).toEqual([]);
+    expect(T.orderByWeakTraps(phrases, (x) => x, won, look)).toEqual(phrases);
+  });
+  it('группа важнее ловушек: «забытые» по FSRS остаются первыми', () => {
+    const due = [{ t: 'Go to bed', lapsed: true }, { t: 'I think so', lapsed: false }];
+    const out = T.orderByWeakTraps(due, (x) => x.t, weakTh, look, (x) => (x.lapsed ? 0 : 1));
+    expect(out.map((x) => x.t)).toEqual(['Go to bed', 'I think so']);
+  });
+});

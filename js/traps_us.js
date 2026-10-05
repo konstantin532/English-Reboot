@@ -278,9 +278,31 @@ const AccentTraps = (() => {
     return 'progress';
   }
 
+  /* ---------- Приоритет фраз со слабыми ловушками ---------- */
+
+  // Слабые ловушки — «в работе»: ученик уже встречал, но ещё не победил
+  function weakTraps(passport) {
+    const p = normalizePassport(passport);
+    return new Set(ACCENT_TRAPS.map((t) => t.id).filter((id) => statusOf(p[id]) === 'progress'));
+  }
+
+  // Стабильная сортировка: сначала фразы, где больше слабых ловушек ученика.
+  // group(entry) — более важный ключ, который нельзя нарушать (например, «карточка забыта»
+  // по FSRS идёт раньше любой другой). Интервалы FSRS не меняются — меняется только
+  // порядок, в котором лестница берёт фразы из тех, что пора повторить, и из новых.
+  function orderByWeakTraps(entries, textOf, passport, lookup, group) {
+    const weak = weakTraps(passport);
+    if (!weak.size) return entries.slice();
+    const score = (e) => trapIdsOf(textOf(e), lookup).filter((id) => weak.has(id)).length;
+    const g = typeof group === 'function' ? group : () => 0;
+    return entries.map((e, i) => ({ e, i, s: score(e), g: g(e) }))
+      .sort((a, b) => a.g - b.g || b.s - a.s || a.i - b.i)
+      .map((x) => x.e);
+  }
+
   return {
     TRAPS: ACCENT_TRAPS, byId, findTrapsInPhrase, trapIdsOf, makeLookup, STRESS_WORDS,
-    buildDrill, PASSPORT, normalizePassport, recordResult, statusOf,
+    buildDrill, PASSPORT, normalizePassport, recordResult, statusOf, weakTraps, orderByWeakTraps,
     _rules: WORD_RULES, _nuclei: nuclei,
   };
 })();

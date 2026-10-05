@@ -116,16 +116,33 @@ const LadderUI = (() => {
     const prog = await DB.getAllProgress();
     const progress = new Map(((prog.success && prog.data) || []).map((r) => [r.cardId, r]));
     const inTheme = (x) => !theme || x.theme === theme;
-    // 1) FSRS: что пора повторить
-    const due = (await SRS.getDueCards()).filter((c) => st.byId.has(c.cardId) && inTheme(st.byId.get(c.cardId)));
+    // Паспорт акцента: среди равных по FSRS вперёд идут фразы со слабыми ловушками ученика
+    const weakFirst = await weakTrapsOrder();
+    // 1) FSRS: что пора повторить (забытые карточки — всегда первыми)
+    const dueAll = (await SRS.getDueCards()).filter((c) => st.byId.has(c.cardId) && inTheme(st.byId.get(c.cardId)));
+    const due = weakFirst(dueAll, (c) => st.byId.get(c.cardId).front,
+      (c) => (c.status === 'lapsed' || c.status === 'relearning' ? 0 : 1));
     const ids = due.slice(0, count).map((c) => c.cardId);
     // 2) Новые — из одной темы, чтобы урок был связным
     if (ids.length < count) {
       const fresh = items.filter((x) => !progress.has(x.id) && !ids.includes(x.id));
       const topic = theme || (fresh[0] && fresh[0].theme);
-      fresh.filter((x) => x.theme === topic).slice(0, count - ids.length).forEach((x) => ids.push(x.id));
+      weakFirst(fresh.filter((x) => x.theme === topic), (x) => x.front)
+        .slice(0, count - ids.length).forEach((x) => ids.push(x.id));
     }
     return { ids, progress };
+  }
+
+  // Функция упорядочивания по слабым ловушкам; без паспорта/модуля — порядок не меняется
+  async function weakTrapsOrder() {
+    if (!window.AccentTraps || !window.TrapsUI) return (list) => list.slice();
+    try {
+      const [r, lookup] = await Promise.all([DB.getSetting('accent_passport'), TrapsUI.ensureLookup()]);
+      const passport = r.success ? r.data : null;
+      return (list, textOf, group) => AccentTraps.orderByWeakTraps(list, textOf, passport, lookup, group);
+    } catch (e) {
+      return (list) => list.slice();
+    }
   }
 
   async function startSession(theme) {
