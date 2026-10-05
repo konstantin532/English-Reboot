@@ -20,15 +20,8 @@ const LadderUI = (() => {
   const MAX_RECORD_MS = 30000;
 
   // Реплики тренера. TODO(этап 6): вынести в общий файл реплик тренера с его именем.
-  const COACH = {
-    ok: ['Точно!', 'Есть!', 'Вот это по-американски.', 'Чисто.', 'Да, именно так.'],
-    typo: ['Засчитано — только глянь на опечатку.', 'Почти идеально, одна буква сбежала.'],
-    miss: ['Не беда — запоминаем и едем дальше.', 'Мимо, но это и есть тренировка.', 'Ошибка — это нормально. Вот как говорят:'],
-    up: ['Новая ступень открыта!', 'Шаг вверх!'],
-    down: ['Шаг назад, чтобы закрепить.', 'Вернёмся на ступеньку — так надёжнее.'],
-    top: ['Фраза пройдена целиком. Она твоя!'],
-  };
-  const say = (k) => COACH[k][Math.floor(Math.random() * COACH[k].length)];
+  // Реплики коуча — в coach.js (этап 6)
+  const say = (k) => Coach.line('ladder', k);
 
   let ER = null;
   const st = {
@@ -299,7 +292,7 @@ const LadderUI = (() => {
     if (r.verdict === 'pass') {
       const self = document.getElementById('ladder-self');
       if (self) self.remove();
-      settle(true, { self: true, extra: '<p class="ladder-fact is-ok">✓ Засчитано по распознаванию речи.</p>' });
+      settle(true, { self: true, checked: true, extra: '<p class="ladder-fact is-ok">✓ Засчитано по распознаванию речи.</p>' });
     }
   }
 
@@ -356,7 +349,7 @@ const LadderUI = (() => {
       condition: me.front, samples: ex.samples, autoAccept: true,
     }, (res) => {
       if (res.recorded) { st.spokenThis = true; st.stats.spoken++; }
-      settle(res.condition === true || !!res.selfOk, { self: true });
+      settle(res.condition === true || !!res.selfOk, { self: true, checked: res.condition === true });
     });
   }
 
@@ -588,7 +581,7 @@ const LadderUI = (() => {
       document.getElementById('ladder-feedback').innerHTML = `
         <p class="ladder-fact is-ok">✓ Засчитано: ${esc(m.meaning.label)}${m.key !== m.meaning.keys[0] ? ` (вариант «${esc(m.key)}»)` : ''}.</p>
         <p class="ladder-sub">Как ещё можно сказать:</p>${samplesList}`;
-      settle(true, { self: true });
+      settle(true, { self: true, checked: true });
       return;
     }
     const usedLine = text
@@ -624,7 +617,9 @@ const LadderUI = (() => {
     const r = Ladder.applyAnswer(prev, ok, { hasTone: hasToneFor(st.me), today: SRS.todayStr() });
     st.pending = { ok, prev, result: r, answerTime: Math.round((Date.now() - st.shownAt) / 1000), chosen: opts.chosen };
 
-    const line = ok ? (opts.typo ? say('typo') : say('ok')) : say('miss');
+    // Честно: хвалим только проверенное; после самооценки — нейтральные реплики
+    const selfOnly = opts.self && !opts.checked;
+    const line = ok ? (opts.typo ? say('typo') : selfOnly ? say('self') : say('ok')) : selfOnly ? say('selfMiss') : say('miss');
     const event = r.event === 'up' ? `<p class="ladder-event is-up">${say('up')} Дальше: ступень ${r.to} — ${Ladder.STEPS[r.to - 1].title}.</p>`
       : r.event === 'down' ? `<p class="ladder-event is-down">${say('down')} Ступень ${r.to} — ${Ladder.STEPS[r.to - 1].title}.</p>`
         : r.event === 'top' ? `<p class="ladder-event is-up">${say('top')}</p>` : '';

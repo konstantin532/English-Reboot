@@ -97,7 +97,7 @@ test('сцена: ответ голосом засчитывается во «ф
   await page.locator('#scene-rec-stop').click();
   await expect(page.locator('#scene-rec-status')).toContainText('Записано');
   await page.locator('#scene-check').click();
-  await expect(page.locator('.scene-note.is-unknown')).toContainText('Голосовой ответ пока не проверяется');
+  await expect(page.locator('.scene-note.is-unknown')).toContainText('автоматически не проверить');
   await expect(page.locator('.scene-self')).toHaveCount(2);
   await expect.poll(() => page.evaluate(() => DB.getStudyLog(SRS.todayStr()).then((r) => r.data.spoken))).toBe(1);
 });

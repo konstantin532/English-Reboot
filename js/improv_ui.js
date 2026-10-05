@@ -19,13 +19,7 @@ const ImprovUI = (() => {
   const cfg = { secondMs: 1000, thinkSec: Improv.THINK_SEC };
 
   // Реплики тренера. TODO(этап 6): перенести в общий файл реплик тренера.
-  const COACH = {
-    think: 'Подумай пару секунд — не над грамматикой, а над тем, ЧТО сказать.',
-    talk: 'Говори! Ошибки — нормально, главное не молчать.',
-    condOk: 'Условие выполнено',
-    condMiss: 'Фразы-условия в тексте не нашлось — в следующий раз вверни её.',
-    voiceOnly: 'Ответ голосом пока не проверяется автоматически — сравни с образцами.',
-  };
+  const COACH = Coach.LINES.improv; // реплики коуча — в coach.js (этап 6)
 
   let ER = null;
   const st = { active: false, timer: null, rec: null, audioEl: null };
