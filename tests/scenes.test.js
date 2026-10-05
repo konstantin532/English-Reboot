@@ -51,9 +51,23 @@ describe('Проверка открытой реплики по смыслам',
 });
 
 describe('Эпизоды: схема и данные', () => {
-  it('партия 1 — 4 эпизода, id уникальны', () => {
-    expect(EPS.length).toBe(4);
-    expect(new Set(EPS.map((e) => e.id)).size).toBe(4);
+  it('партии 1–2 — эпизоды по порядку, id уникальны', () => {
+    expect(EPS.length).toBe(6);
+    expect(new Set(EPS.map((e) => e.id)).size).toBe(EPS.length);
+    EPS.forEach((ep, i) => expect(ep.id.startsWith('ep' + (i + 1) + '-')).toBe(true));
+  });
+  it('фразы эпизода действительно звучат в его тексте (реплики, варианты, реакции, образцы)', () => {
+    const norm = (t) => String(t).toLowerCase().replace(/[’]/g, "'").replace(/[^a-z' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    EPS.slice(4).forEach((ep) => {
+      const texts = [];
+      Object.values(ep.nodes).forEach((n) => {
+        texts.push(n.say);
+        if (n.reply && n.reply.type === 'choice') n.reply.options.forEach((o) => texts.push(o.text, o.react.say));
+        if (n.reply && n.reply.type === 'open') { texts.push(...n.reply.samples); n.reply.meanings.forEach((m) => texts.push(m.react.say)); }
+      });
+      const all = ' ' + texts.map(norm).join(' | ') + ' ';
+      ep.phrases.forEach((f) => expect(all.includes(norm(f)), ep.id + ': ' + f).toBe(true));
+    });
   });
   EPS.forEach((ep) => {
     it(`«${ep.title}»: схема без ошибок (переходы, достижимость, образцы, фразы из content_us.js)`, () => {

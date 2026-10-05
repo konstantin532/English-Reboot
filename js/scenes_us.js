@@ -2,6 +2,7 @@
    English Reboot — Этап 3: сквозная история «Переезд в Нью-Йорк»
    Файл: scenes_us.js — персонажи и эпизоды (данные; логика — в scenes.js).
    Партия 1: 4 эпизода — аэропорт, такси, квартира, кофейня.
+   Партия 2: 8 эпизодов — офис, созвон, банк, кран, магазин, врач, вечеринка, итог месяца.
    Тексты написаны вручную на фразах из content_us.js (список phrases у эпизода
    проверяется тестом). Реплики ученика — нейтральные по роду.
    Тон вариантов выбора: natural — как сказал бы американец; formal — правильно,
@@ -15,6 +16,7 @@ const SCENE_CAST = {
   officer: { name: 'Офицер', en: 'Officer', role: 'паспортный контроль', color: '#0F766E', initial: '★' },
   ray: { name: 'Рэй', en: 'Ray', role: 'таксист', color: '#F59E0B', initial: 'R' },
   jess: { name: 'Джесс', en: 'Jess', role: 'бариста', color: '#8B5CF6', initial: 'J' },
+  priya: { name: 'Прия', en: 'Priya', role: 'руководитель команды', color: '#10B981', initial: 'P' },
 };
 
 const SCENE_EPISODES = [
@@ -329,6 +331,165 @@ const SCENE_EPISODES = [
         ] },
       },
       n6: { who: 'jess', say: 'One coffee to go! Have a great first day!', ru: 'Кофе с собой! Удачного первого дня!', end: true },
+    },
+  },
+  /* ---------------- 5. Первый рабочий день ---------------- */
+  {
+    id: 'ep5-office', title: 'Первый рабочий день', place: 'Офис Brightline, Манхэттен',
+    intro: 'Понедельник. Первый день в Brightline: Тони обещал показать офис, а руководитель команды Прия хочет познакомиться.',
+    phrases: ['Tell me about yourself', "What's the deadline?", "It's due Friday", 'Can you walk me through it?', "I'm swamped", 'Can you cover for me?', "I'll take care of it", "Let's call it a day"],
+    start: 'n1',
+    nodes: {
+      n1: {
+        who: 'tony', say: 'Hey, you made it! Welcome to Brightline. How was the commute?', ru: 'Привет, ты на месте! Добро пожаловать в Brightline. Как дорога?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'Not bad! The subway was packed, though.',
+            react: { say: 'Ha, welcome to New York. It\'s always packed.', mood: 'laugh' },
+            coach: '«Not bad» + маленькая деталь — идеальный small talk. «Though» в конце — «правда, зато».', next: 'n2' },
+          { tone: 'formal', text: 'The commute was satisfactory. Thank you for asking.',
+            react: { say: 'Satisfactory... okay! Glad you\'re here.', mood: 'confused' },
+            coach: '«Satisfactory» — слово из отчёта. Коллеге: «Not bad!» или «Pretty easy».', next: 'n2' },
+          { tone: 'rude', text: 'Terrible. I already hate this city.',
+            react: { say: 'Oof. Rough morning, huh?', mood: 'frown' },
+            coach: 'Жаловаться можно, но «hate this city» в первый же день звучит мрачно. Мягче: «Kind of rough, honestly».', next: 'n1b' },
+        ] },
+      },
+      n1b: { who: 'tony', say: 'It gets better, I promise. Coffee helps. Come on, meet the team.', ru: 'Дальше будет лучше, обещаю. Кофе помогает. Пойдём, познакомлю с командой.', next: 'n2' },
+      n2: {
+        who: 'priya', say: "Hi, I'm Priya — I lead the team. So, tell me about yourself!", ru: 'Привет, я Прия, руковожу командой. Расскажи о себе!',
+        reply: { type: 'open', prompt: 'Расскажи о себе в паре фраз: откуда ты, какой у тебя опыт или что любишь.',
+          meanings: [
+            { id: 'background', label: 'рассказ о себе', keys: ['i am from', 'i grew up', 'i worked', 'i have been', 'before this', 'i used to', 'years', 'my background', 'i moved', 'moved here'],
+              react: { say: 'Oh, cool! Nice to have you on the team.', mood: 'warm' }, next: 'n3' },
+            { id: 'hobby', label: 'увлечения', keys: ['i like', 'i love', 'i am into', 'in my free time', 'i enjoy', 'my hobby'],
+              react: { say: 'Nice! We should do a team thing around that sometime.', mood: 'smile' }, next: 'n3' },
+          ],
+          samples: ["I'm from Kazan. I worked in marketing for five years.", 'I just moved here for this job.', "In my free time, I'm into hiking and photography.", 'I used to work at a startup, so I love fast projects.'],
+          fallbackNext: 'n3' },
+      },
+      n3: {
+        who: 'priya', say: "Today's pretty chill. Any questions so far?", ru: 'Сегодня спокойный день. Есть вопросы?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "Yeah — what's the deadline for my first task?",
+            react: { say: "No rush — it's due Friday.", mood: 'smile' },
+            coach: 'Короткий прямой вопрос — то, что нужно. «What\'s the deadline?» спрашивают постоянно.', next: 'n4' },
+          { tone: 'formal', text: 'I would like to inquire about the deadline of my first assignment.',
+            react: { say: "Sure! It's due Friday. And you can relax — we're pretty casual here.", mood: 'laugh' },
+            coach: '«Inquire» и «assignment» — как в официальном письме. Вслух: «What\'s the deadline?»', next: 'n4' },
+          { tone: 'rude', text: "Nope. I'll figure it out myself.",
+            react: { say: 'Okay... but seriously, don\'t be shy to ask.', mood: 'confused' },
+            coach: 'Самостоятельность — хорошо, но «nope» руководителю звучит как «отстань». Мягче: «Not yet, thanks!»', next: 'n3b' },
+        ] },
+      },
+      n3b: { who: 'priya', say: "Your first task is due Friday, by the way. Tony will show you around.", ru: 'Кстати, первая задача — к пятнице. Тони всё покажет.', next: 'n4' },
+      n4: {
+        who: 'tony', say: "Okay, so this is our project board. Kind of confusing, right?", ru: 'Так, вот наша доска проектов. Запутанно, да?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'A little. Can you walk me through it?',
+            react: { say: "Sure! It's easier than it looks.", mood: 'smile' },
+            coach: '«Walk me through it» — «покажи по шагам». Очень американское и очень полезное.', next: 'n5' },
+          { tone: 'formal', text: 'Could you kindly provide a detailed explanation of this system?',
+            react: { say: 'A detailed explanation... okay, professor! Let me walk you through it.', mood: 'laugh' },
+            coach: 'Слишком торжественно для коллеги за соседним столом. Проще: «Can you walk me through it?»', next: 'n5' },
+          { tone: 'rude', text: "Yeah, it's a total mess.",
+            react: { say: "Ha — fair. It kind of is. Here's how it works.", mood: 'confused' },
+            coach: 'Честно, но в первый день лучше не критиковать чужую работу. Нейтрально: «It\'s a lot!»', next: 'n5' },
+        ] },
+      },
+      n5: {
+        who: 'tony', say: "Hey, quick favor. I'm swamped today — can you cover for me at the three o'clock meeting? Just take notes.", ru: 'Слушай, небольшая просьба. Я завален делами — подменишь меня на встрече в три? Просто записать главное.',
+        reply: { type: 'open', prompt: 'Ответь Тони: согласись, уточни или вежливо откажись.',
+          meanings: [
+            { id: 'agree', label: 'согласие', keys: ['sure', 'no problem', 'i will take care of it', 'i got you', 'of course', 'happy to', 'yes', 'i can do that'],
+              react: { say: "You're the best! I owe you one.", mood: 'laugh' }, next: 'n6' },
+            { id: 'unsure', label: 'уточнение', keys: ['let me check', 'not sure', 'what do i need', 'what should i', 'which meeting'],
+              react: { say: "Just write down the action items. That's it, easy!", mood: 'smile' }, next: 'n6' },
+            { id: 'refuse', label: 'вежливый отказ', keys: ['can not', 'i am busy', 'i have a call', 'maybe next time', 'i will pass', 'of course not', 'no way'],
+              react: { say: "No worries! I'll ask someone else.", mood: 'neutral' }, next: 'n6' },
+          ],
+          samples: ["Sure, I'll take care of it.", 'No problem, I got you.', 'Let me check my calendar first.', "Sorry, I can't — I have a call at three."],
+          fallbackNext: 'n6' },
+      },
+      n6: { who: 'priya', say: "Great first day, everyone. Let's call it a day — see you tomorrow!", ru: 'Отличный первый день. На сегодня всё — до завтра!', end: true },
+    },
+  },
+
+  /* ---------------- 6. Первый созвон ---------------- */
+  {
+    id: 'ep6-call', title: 'Первый созвон', place: 'Zoom, еженедельная встреча команды',
+    intro: 'Вторник, утренний созвон команды. Микрофон, связь, новости по задачам — и спорное решение, с которым хочется не согласиться.',
+    phrases: ['Can you hear me?', "You're on mute", 'Sorry, I was on mute', 'Quick update', 'Can I jump in here?', "I see where you're coming from", "That's fair", "Let's put a pin in it", "You're breaking up", 'Could you say that again?', 'Let me rephrase that', "Let's wrap up", "I'll send a recap", 'Thanks for your time'],
+    start: 'n1',
+    nodes: {
+      n1: {
+        who: 'priya', say: 'Hi everyone! Can you hear me?', ru: 'Всем привет! Меня слышно?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'Yep, loud and clear!',
+            react: { say: 'Perfect. Let\'s get started.', mood: 'smile' },
+            coach: '«Loud and clear» — «слышно отлично». Стандартный ответ на созвоне.', next: 'n2' },
+          { tone: 'formal', text: 'Affirmative. The audio quality is acceptable.',
+            react: { say: 'Ha, thanks, mission control. Let\'s get started.', mood: 'laugh' },
+            coach: '«Affirmative» — как по рации у военных. Достаточно: «Yes, I can hear you».', next: 'n2' },
+          { tone: 'rude', text: 'Yeah, obviously.',
+            react: { say: 'Okay... great. Let\'s get started.', mood: 'neutral' },
+            coach: '«Obviously» звучит как «что за глупый вопрос». На созвоне его задают всегда — отвечай легко.', next: 'n2' },
+        ] },
+      },
+      n2: {
+        who: 'tony', say: "Hey, I think you're on mute!", ru: 'Эй, кажется, у тебя выключен микрофон!',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'Sorry, I was on mute! Can you hear me now?',
+            react: { say: 'Yep, we got you now.', mood: 'smile' },
+            coach: 'Так говорят по сто раз в день. «Sorry, I was on mute» — фраза-спасатель любого созвона.', next: 'n3' },
+          { tone: 'formal', text: 'My apologies. My microphone appears to have been disabled.',
+            react: { say: 'All good! We can hear you now.', mood: 'laugh' },
+            coach: 'Длинно и официально. Коротко: «Sorry, I was on mute!»', next: 'n3' },
+          { tone: 'rude', text: "No, I'm not.",
+            react: { say: 'Uh... you kind of were.', mood: 'confused' },
+            coach: 'Спорить, когда тебя правда не слышно, — неловко. Проще извиниться и продолжить.', next: 'n2b' },
+        ] },
+      },
+      n2b: { who: 'tony', say: "Anyway, we can hear you now. No worries!", ru: 'В общем, теперь слышно. Всё нормально!', next: 'n3' },
+      n3: {
+        who: 'priya', say: "Let's do a quick update from everyone. What are you working on?", ru: 'Давайте коротко по кругу. Над чем ты сейчас работаешь?',
+        reply: { type: 'open', prompt: 'Коротко расскажи, над чем работаешь — или попроси помощи.',
+          meanings: [
+            { id: 'progress', label: 'рассказ о задаче', keys: ['i am working on', 'i am looking into', 'i finished', 'i started', 'almost done', 'i am still', 'i am setting up'],
+              react: { say: 'Got it, thanks for the update!', mood: 'smile' }, next: 'n4' },
+            { id: 'help', label: 'просьба о помощи', keys: ['i need a hand', 'i am stuck', 'walk me through', 'could use some help', 'i have a question'],
+              react: { say: 'Totally fine — Tony, can you help after the call?', mood: 'smile' }, next: 'n4' },
+          ],
+          samples: ["I'm working on the onboarding guide. Almost done!", "I'm still setting up my laptop, honestly.", "I'm stuck on the new dashboard. I need a hand with it.", 'I started the first task yesterday.'],
+          fallbackNext: 'n4' },
+      },
+      n4: {
+        who: 'priya', say: "So, to hit the launch date, we'll skip user testing this time.", ru: 'Чтобы успеть к запуску, в этот раз пропустим тестирование с пользователями.',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "Can I jump in here? I see where you're coming from, but testing could save us time later.",
+            react: { say: "That's fair. Let's put a pin in it and talk after the call.", mood: 'warm' },
+            coach: 'Сначала признать чужую логику («I see where you\'re coming from»), потом свой довод — так спорят на работе в США.', next: 'n5' },
+          { tone: 'formal', text: 'I must object. Skipping testing is completely unacceptable.',
+            react: { say: "Wow, okay. Strong opinion! Let's put a pin in it.", mood: 'surprised' },
+            coach: '«I must object» и «unacceptable» звучат как в суде. Мягкое несогласие работает лучше.', next: 'n5' },
+          { tone: 'rude', text: 'That makes no sense.',
+            react: { say: "Hmm. Let's keep it respectful, please.", mood: 'frown' },
+            coach: 'Резкое «makes no sense» на общем созвоне задевает. Лучше: «I\'m not sure about that — can I explain why?»', next: 'n4b' },
+        ] },
+      },
+      n4b: { who: 'priya', say: "But point taken. Let's put a pin in it and talk later.", ru: 'Но мысль поняла. Отложим и обсудим позже.', next: 'n5' },
+      n5: {
+        who: 'tony', say: "Sorry, you're breaking up... Could you say that again?", ru: 'Извини, связь прерывается… Можешь повторить?',
+        reply: { type: 'open', prompt: 'Связь пропала. Повтори мысль другими словами или предложи написать в чат.',
+          meanings: [
+            { id: 'repeat', label: 'повтор мысли', keys: ['let me rephrase', 'what i mean is', 'i said', 'i was saying', 'basically'],
+              react: { say: 'Got it now, thanks!', mood: 'smile' }, next: 'n6' },
+            { id: 'chat', label: 'предложение написать', keys: ['in the chat', 'i will type', 'i will write', 'i will send', 'recap'],
+              react: { say: 'Perfect, the chat works.', mood: 'smile' }, next: 'n6' },
+          ],
+          samples: ['Let me rephrase that. Testing could save us time later.', 'Basically, I think we need user testing.', "I'll type it in the chat.", "My internet is acting up — I'll write it in the chat."],
+          fallbackNext: 'n6' },
+      },
+      n6: { who: 'priya', say: "Okay, let's wrap up. I'll send a recap. Thanks for your time, everyone!", ru: 'Ладно, закругляемся. Пришлю итоги. Всем спасибо за время!', end: true },
     },
   },
 ];
