@@ -319,7 +319,40 @@ const Ladder = (() => {
     return false;
   }
 
+  /* ---------- Хранение (IndexedDB через DB/SRS; вызывается только из интерфейса) ---------- */
+
+  async function loadState(cardId) {
+    const r = await DB.getProgressByCardId(cardId);
+    const rec = r.success ? r.data : null;
+    return { rec, ladder: normalize(rec && rec.ladder) };
+  }
+
+  // Сохранить ступень. FSRS получает оценку только за ПЕРВУЮ попытку фразы за день —
+  // повторные попытки в тот же день двигают ступень, но не искажают интервалы.
+  async function saveResult(cardId, ladderState, fsrsAction, answerTime) {
+    try {
+      const today = SRS.todayStr();
+      const r = await DB.getProgressByCardId(cardId);
+      let rec = r.success ? r.data : null;
+      let fsrsUpdated = false;
+      if (fsrsAction && (!rec || String(rec.lastReview || '').slice(0, 10) !== today)) {
+        const res = await SRS.saveProgress(cardId, 'conversation', fsrsAction, answerTime);
+        if (!res.success) return res;
+        rec = res.data;
+        fsrsUpdated = true;
+      }
+      if (!rec) return { success: false, error: 'Нет записи прогресса для ' + cardId };
+      rec = { ...rec, ladder: normalize({ ...ladderState, updated: today }) };
+      const saved = await DB.saveCard('progress', rec);
+      if (!saved.success) return saved;
+      return { success: true, data: rec, fsrsUpdated };
+    } catch (e) {
+      return { success: false, error: (e && e.message) || String(e) };
+    }
+  }
+
   return {
+    loadState, saveResult,
     STEPS, MAX_STEP, TONE_STEP, RULES, TONE_LABELS,
     normalize, canAdvance, nextStep, prevStep, applyAnswer,
     itemFromCard, isUsCard, toneOf, hasTone,

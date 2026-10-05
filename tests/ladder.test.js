@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';
 import '../js/ladder.js'; // classic-script: публикует globalThis.Ladder
+import '../js/srs.js';
 
 const L = globalThis.Ladder;
 
@@ -115,6 +116,18 @@ describe('Лестница: миграция и хранение', () => {
     expect(l.step).toBe(8);
     expect(l.hist[2].length).toBe(5);
     expect(l.hist[99]).toBeUndefined();
+  });
+  it('миграция progress: старой разговорной записи добавляется ступень 1, FSRS не трогается', () => {
+    const { migrateRecord } = globalThis.SRS;
+    const old = { cardId: 'cv_1005', stability: 4.2, difficulty: 5, ease: 2.3, lapseCount: 0, status: 'learning' };
+    const m = migrateRecord(old);
+    expect(m.ladder.step).toBe(1);
+    expect(m.stability).toBe(4.2);
+    expect(m.storeName).toBe('conversation');
+    expect(migrateRecord(m)).toBe(null);                    // повторная миграция ничего не меняет
+    expect(migrateRecord({ cardId: 'g12', ease: 2.5, lapseCount: 0 })).toBe(null); // грамматике лестница не нужна
+    const kept = migrateRecord({ ...old, ease: undefined, ladder: { step: 4 } });
+    expect(kept.ladder.step).toBe(4);                       // существующая ступень не затирается
   });
   it('состояние переживает JSON (экспорт/импорт, автобэкап)', () => {
     const { l } = run([true, true, true, true, false]);

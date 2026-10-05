@@ -240,11 +240,32 @@ const DB = (() => {
       const store = tx.objectStore('study_log');
       const prev = await reqAsPromise(store.get(date));
       const rec = {
+        ...(prev || {}), // сохраняем дополнительные поля дня (например, spoken — фразы вслух)
         date,
         cardsStudied: ((prev && prev.cardsStudied) || 0) + (cardsStudied || 0),
         correct: ((prev && prev.correct) || 0) + (correct || 0),
         duration: ((prev && prev.duration) || 0) + (duration || 0),
         sessions: ((prev && prev.sessions) || 0) + 1,
+      };
+      store.put(rec);
+      await txDone(tx);
+      return ok(rec);
+    } catch (e) { return fail(e); }
+  }
+
+  // «Фразы вслух»: ученик записал/произнёс фразу (запись ≥1 с). Счётчик дня в study_log,
+  // без интернета; число сессий не трогаем — это не отдельное занятие.
+  async function addSpoken(date, count) {
+    try {
+      await ensureReady();
+      const tx = _db.transaction('study_log', 'readwrite');
+      const store = tx.objectStore('study_log');
+      const prev = await reqAsPromise(store.get(date));
+      const rec = {
+        cardsStudied: 0, correct: 0, duration: 0, sessions: 0,
+        ...(prev || {}),
+        date,
+        spoken: ((prev && prev.spoken) || 0) + (count || 1),
       };
       store.put(rec);
       await txDone(tx);
@@ -366,7 +387,7 @@ const DB = (() => {
     initDB, saveCard, getAll, getByKey, deleteCard, getByIndex, clearStore,
     saveSetting, getSetting, getAllSettings,
     getProgressByCardId, getAllProgress, getErrorsLog, saveError,
-    saveStudyLog, getStudyLog, getStudyLogRange,
+    saveStudyLog, addSpoken, getStudyLog, getStudyLogRange,
     saveAchievement, getAchievement, getAllAchievements, getProgressByStore,
     bulkPut, getStoreSize,
     clearAllData, seedContent, STORES, toDateStr,

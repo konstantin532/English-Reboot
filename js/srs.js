@@ -59,20 +59,34 @@ const SRS = (() => {
   }
 
   /* ---------- Миграция: дозаполнить новые поля старым записям ---------- */
+  // Разговорные фразы получают состояние лестницы упражнений (ladder.js), старые — ступень 1
+  const defaultLadder = () => (typeof Ladder !== 'undefined' ? Ladder.normalize(null)
+    : { step: 1, best: 1, hist: {}, done: false, updated: null });
+  const needsLadder = (rec) => (rec.storeName || storeForCard(rec.cardId)) === 'conversation' && !rec.ladder;
+
+  // Чистая функция: дозаполненная копия записи или null, если менять нечего
+  function migrateRecord(rec) {
+    if (rec.ease !== undefined && rec.lapseCount !== undefined && !needsLadder(rec)) return null;
+    const out = {
+      ...rec,
+      ease: rec.ease !== undefined ? rec.ease : SRS_CONFIG.easeDefault,
+      lapseCount: rec.lapseCount || 0,
+      lapseReviews: rec.lapseReviews || 0,
+      lastAnswerTime: rec.lastAnswerTime || null,
+      storeName: rec.storeName || storeForCard(rec.cardId),
+    };
+    if (needsLadder(rec)) out.ladder = defaultLadder();
+    return out;
+  }
+
   async function migrateProgress() {
     const all = await DB.getAllProgress();
     if (!all.success || !all.data.length) return { migrated: 0 };
     let n = 0;
     for (const rec of all.data) {
-      if (rec.ease !== undefined && rec.lapseCount !== undefined) continue;
-      await DB.saveCard('progress', {
-        ...rec,
-        ease: rec.ease !== undefined ? rec.ease : SRS_CONFIG.easeDefault,
-        lapseCount: rec.lapseCount || 0,
-        lapseReviews: rec.lapseReviews || 0,
-        lastAnswerTime: rec.lastAnswerTime || null,
-        storeName: rec.storeName || storeForCard(rec.cardId),
-      });
+      const next = migrateRecord(rec);
+      if (!next) continue;
+      await DB.saveCard('progress', next);
       n++;
     }
     return { migrated: n };
@@ -391,7 +405,7 @@ const SRS = (() => {
 
   return {
     SRS_CONFIG, todayStr, tomorrowStr, addDays, getNextInterval,
-    storeForCard, migrateProgress, saveProgress, computeNextState, retrievability, FSRS, gradeOf,
+    storeForCard, migrateProgress, migrateRecord, saveProgress, computeNextState, retrievability, FSRS, gradeOf,
     getDueCards, startSession, getSpacedDictationQueue,
     getStats, getErrorCards, getForecast, getHeatmap, updateStreak,
   };
