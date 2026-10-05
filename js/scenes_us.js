@@ -20,6 +20,7 @@ const SCENE_CAST = {
   garcia: { name: 'Мисс Гарсия', en: 'Ms. Garcia', role: 'сотрудница банка', color: '#0EA5E9', initial: 'G' },
   luis: { name: 'Луис', en: 'Luis', role: 'кассир в магазине', color: '#EF4444', initial: 'L' },
   kim: { name: 'Медсестра Ким', en: 'Nurse Kim', role: 'клиника без записи', color: '#14B8A6', initial: 'K' },
+  sam: { name: 'Сэм', en: 'Sam', role: 'друг Мэгги', color: '#A855F7', initial: 'S' },
 };
 
 const SCENE_EPISODES = [
@@ -775,6 +776,154 @@ const SCENE_EPISODES = [
         ] },
       },
       n6: { who: 'kim', say: "It's just a cold. It's nothing serious. Get some rest, drink plenty of fluids, and feel better soon!", ru: 'Это просто простуда, ничего серьёзного. Отдыхайте, пейте больше жидкости — и поправляйтесь!', end: true },
+    },
+  },
+
+  /* ---------------- 11. Вечеринка у Мэгги ---------------- */
+  {
+    id: 'ep11-party', title: 'Вечеринка у Мэгги', place: 'Бруклин, квартира, субботний вечер',
+    intro: 'Мэгги позвала друзей. Половину гостей ты видишь впервые — время для настоящего small talk.',
+    phrases: ['Come on in', 'Make yourself comfortable', 'Pleasure to meet you', 'How do you know each other?', 'Small world!', 'Honestly', 'Wanna hang out?', 'Count me in', 'Rain check?', 'It was a blast', "Let's do this again sometime"],
+    start: 'n1',
+    nodes: {
+      n1: {
+        who: 'maggie', say: 'Hey, come on in! Make yourself comfortable. Did you bring anything?', ru: 'Привет, заходи! Располагайся. Есть что-нибудь с собой?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'Yeah, I brought chips and salsa!',
+            react: { say: "You're the best!", mood: 'laugh' },
+            coach: 'На американскую вечеринку что-то приносят: снеки, напитки. Сказать об этом — просто и тепло.', next: 'n2' },
+          { tone: 'formal', text: 'I have brought refreshments, as is customary.',
+            react: { say: '"As is customary" — ha! Thank you!', mood: 'laugh' },
+            coach: 'Звучит как этикет XIX века. Проще: «I brought snacks!»', next: 'n2' },
+          { tone: 'rude', text: "No. You didn't say I had to.",
+            react: { say: 'Ha, you totally don\'t have to! Just kidding around.', mood: 'confused' },
+            coach: 'Оправдываться не нужно — Мэгги просто болтает. Лёгкий ответ: «Oh no, next time!»', next: 'n2' },
+        ] },
+      },
+      n2: {
+        who: 'sam', say: "Hi! I don't think we've met. I'm Sam.", ru: 'Привет! Кажется, мы не знакомы. Я Сэм.',
+        reply: { type: 'open', prompt: 'Познакомься с Сэмом: поздоровайся и назови своё имя.',
+          meanings: [
+            { id: 'intro', label: 'знакомство', keys: ['nice to meet you', 'pleasure to meet you', 'my name is', 'call me', 'good to meet you'],
+              react: { say: 'Nice to meet you too!', mood: 'smile' }, next: 'n3' },
+          ],
+          samples: ["Nice to meet you, Sam! I'm Alex.", 'Hi Sam, pleasure to meet you.', 'Hey! My name is Dana. I just moved here.', 'Good to meet you! Call me Kat.'],
+          fallbackNext: 'n3' },
+      },
+      n3: {
+        who: 'sam', say: 'So, how do you know each other? You and Maggie?', ru: 'А вы с Мэгги откуда друг друга знаете?',
+        reply: { type: 'open', prompt: 'Объясни, откуда ты знаешь Мэгги.',
+          meanings: [
+            { id: 'roommates', label: 'соседи по квартире', keys: ['roommate', 'roommates', 'live together', 'live with', 'moved in'],
+              react: { say: 'Oh, nice! Lucky you — she makes great pancakes.', mood: 'laugh' }, next: 'n4' },
+            { id: 'new', label: 'недавно знакомы', keys: ['just met', 'we met', 'last month'],
+              react: { say: 'Small world! Welcome to the crew.', mood: 'warm' }, next: 'n4' },
+          ],
+          samples: ["We're roommates! I just moved in.", 'I live with Maggie.', 'We just met last month, actually. Small world!'],
+          fallbackNext: 'n4' },
+      },
+      n4: {
+        who: 'sam', say: 'So, what do you think of New York so far?', ru: 'Ну и как тебе Нью-Йорк?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "Honestly? It's crazy, but I love it.",
+            react: { say: 'Same! It grows on you.', mood: 'laugh' },
+            coach: '«Honestly?» перед ответом — живая американская интонация. И честно, и тепло.', next: 'n5' },
+          { tone: 'formal', text: 'I find the city to be highly stimulating.',
+            react: { say: 'Highly stimulating! I\'m stealing that.', mood: 'laugh' },
+            coach: 'Звучит как рецензия. В разговоре: «I love it» или «It\'s a lot, but it\'s fun».', next: 'n5' },
+          { tone: 'rude', text: "It's dirty and way too expensive.",
+            react: { say: 'Ha — fair.', mood: 'confused' },
+            coach: 'Правда, но на вечеринке с местными лучше начать с хорошего, а минусы — с юмором.', next: 'n4b' },
+        ] },
+      },
+      n4b: { who: 'sam', say: "But the pizza makes up for it, right?", ru: 'Зато пицца всё искупает, да?', next: 'n5' },
+      n5: {
+        who: 'sam', say: 'Hey, wanna hang out next weekend? A bunch of us are going to the beach.', ru: 'Слушай, хочешь потусить в следующие выходные? Мы компанией едем на пляж.',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "I'm in! Count me in.",
+            react: { say: "Sweet! I'll add you to the group chat.", mood: 'laugh' },
+            coach: '«Count me in» — «я в деле». Самый короткий способ согласиться.', next: 'n6' },
+          { tone: 'natural', text: "Rain check? I'm working that weekend.",
+            react: { say: 'No worries, next time!', mood: 'smile' },
+            coach: '«Rain check?» — «давай в другой раз». Отказ, который оставляет дверь открытой.', next: 'n6' },
+          { tone: 'formal', text: 'I would be delighted to join the excursion.',
+            react: { say: '"Excursion" — ha! Love it. You\'re in!', mood: 'laugh' },
+            coach: '«Excursion» — экскурсия для туристов. Друзьям: «I\'m in!»', next: 'n6' },
+          { tone: 'rude', text: 'The beach? No thanks, sounds boring.',
+            react: { say: 'Oh. Okay then.', mood: 'frown' },
+            coach: 'Отказать можно, но «boring» обижает того, кто зовёт. Мягче: «Not really my thing, but thanks!»', next: 'n6' },
+        ] },
+      },
+      n6: { who: 'maggie', say: "It was a blast. Let's do this again sometime!", ru: 'Было супер. Надо повторить!', end: true },
+    },
+  },
+
+  /* ---------------- 12. Месяц в Нью-Йорке ---------------- */
+  {
+    id: 'ep12-month', title: 'Месяц в Нью-Йорке', place: 'Кофейня за углом, воскресное утро',
+    intro: 'Ровно месяц с того дня в аэропорту. Та же кофейня, что и в первое утро, — только теперь тебя здесь знают.',
+    phrases: ['Look who it is!', 'How have you been?', "Can't complain", 'Pretty good', "I've been keeping busy", 'Honestly', 'Home sweet home'],
+    start: 'n1',
+    nodes: {
+      n1: {
+        who: 'jess', say: 'Look who it is! The usual?', ru: 'Смотрите-ка, кто тут! Как обычно?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: 'You know it! A large latte, please.',
+            react: { say: 'Coming right up!', mood: 'laugh' },
+            coach: '«You know it!» — «а то!». Так отвечают, когда тебя уже знают.', next: 'n2' },
+          { tone: 'formal', text: 'Yes, I would like my customary beverage, please.',
+            react: { say: '"Customary beverage" — so fancy today!', mood: 'laugh' },
+            coach: 'Звучит как заказ у дворецкого. «The usual, please!» — и всё.', next: 'n2' },
+          { tone: 'rude', text: "Don't ask. Just make it.",
+            react: { say: 'Ha. Somebody\'s not a morning person.', mood: 'frown' },
+            coach: 'Даже сонным утром «please» решает всё. «The usual, please — I\'m half asleep!»', next: 'n1b' },
+        ] },
+      },
+      n1b: { who: 'jess', say: "Extra shot, on the house. You look like you need it.", ru: 'Двойной эспрессо за счёт заведения. Тебе явно нужно.', next: 'n2' },
+      n2: {
+        who: 'tony', say: "Hey! How have you been? It's been a crazy month, huh?", ru: 'Привет! Как ты? Бешеный месяц вышел, да?',
+        reply: { type: 'open', prompt: 'Ответь Тони, как прошёл этот месяц.',
+          meanings: [
+            { id: 'good', label: 'всё хорошо', keys: ['pretty good', 'can not complain', 'great', 'really good', 'good'],
+              react: { say: 'Love to hear it!', mood: 'laugh' }, next: 'n3' },
+            { id: 'busy', label: 'много дел', keys: ['keeping busy', 'busy', 'crazy', 'swamped'],
+              react: { say: 'Ha, tell me about it.', mood: 'smile' }, next: 'n3' },
+            { id: 'mixed', label: 'по-разному', keys: ['homesick', 'tired', 'miss home', 'up and down'],
+              react: { say: "That's totally normal. It gets easier.", mood: 'warm' }, next: 'n3' },
+          ],
+          samples: ["Pretty good! Can't complain.", "I've been keeping busy, honestly.", 'A little homesick, but okay.', 'Crazy, but good!'],
+          fallbackNext: 'n3' },
+      },
+      n3: {
+        who: 'maggie', say: "Can you believe it's been a month already? What's been the hardest part?", ru: 'Представляешь, уже месяц прошёл! Что было сложнее всего?',
+        reply: { type: 'open', prompt: 'Расскажи честно, что было труднее всего.',
+          meanings: [
+            { id: 'language', label: 'язык', keys: ['english', 'understand', 'accent', 'talk fast', 'speak fast', 'slang'],
+              react: { say: "Honestly, half of New York talks too fast. Even me!", mood: 'laugh' }, next: 'n4' },
+            { id: 'city', label: 'город', keys: ['subway', 'rent', 'expensive', 'the city', 'noise', 'weather'],
+              react: { say: "Yeah, this city doesn't make it easy.", mood: 'warm' }, next: 'n4' },
+            { id: 'people', label: 'близкие', keys: ['miss my family', 'my family', 'my friends', 'homesick', 'alone'],
+              react: { say: "Aw. Well, you've got us now.", mood: 'warm' }, next: 'n4' },
+          ],
+          samples: ['Honestly? Understanding people when they talk fast.', 'The subway, for sure.', 'I miss my family sometimes.', 'Everything is so expensive!'],
+          fallbackNext: 'n4' },
+      },
+      n4: {
+        who: 'tony', say: 'So... does New York feel like home yet?', ru: 'Ну что… Нью-Йорк уже чувствуется домом?',
+        reply: { type: 'choice', options: [
+          { tone: 'natural', text: "Yeah. It's starting to feel like home.",
+            react: { say: "That's what I wanted to hear!", mood: 'laugh' },
+            coach: '«It\'s starting to feel like home» — «начинает ощущаться домом». Простая и тёплая фраза.', next: 'n5' },
+          { tone: 'formal', text: 'I would say I have successfully integrated.',
+            react: { say: '"Successfully integrated" — like a software update!', mood: 'laugh' },
+            coach: 'Звучит как отчёт об интеграции систем. Про чувства говорят проще.', next: 'n5' },
+          { tone: 'rude', text: 'Ask me again when the rent is due.',
+            react: { say: 'Ha! Fair enough.', mood: 'confused' },
+            coach: 'Шутка про аренду поймут все ньюйоркцы — но в такой момент она немного колкая.', next: 'n4b' },
+        ] },
+      },
+      n4b: { who: 'tony', say: "But seriously — we're really glad you're here.", ru: 'А если серьёзно — мы правда рады, что ты здесь.', next: 'n5' },
+      n5: { who: 'maggie', say: 'To your first month! Home sweet home.', ru: 'За твой первый месяц! Дом, милый дом.', end: true },
     },
   },
 ];

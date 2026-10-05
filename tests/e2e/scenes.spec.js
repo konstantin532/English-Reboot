@@ -40,7 +40,7 @@ test('сцена: выбор ветвит сюжет, открытая репл�
   await page.evaluate(() => ER.openPractice('scenes'));
 
   // Эпизоды открываются по порядку
-  await expect(page.locator('.scene-row')).toHaveCount(4);
+  await expect(page.locator('.scene-row')).toHaveCount(12);
   await expect(page.locator('.scene-play').nth(1)).toBeDisabled();
   await page.locator('.scene-play').first().click();
   await expect(page.locator('.scene-title')).toHaveText('Аэропорт JFK');
@@ -158,4 +158,54 @@ test('лестница, ступень 7: ответ с фразой засчи�
   await page.locator('#ladder-done').click();
   await expect(page.locator('.ladder-fact')).toContainText('автоматически не засчитать');
   await expect(page.locator('.ladder-selfbtn')).toHaveCount(2);
+});
+
+test('партия 2: «Первый рабочий день» проходится целиком, после 11-го эпизода открывается финал', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await onboard(page);
+  // Пройдены эпизоды 1–4: открыт 5-й
+  await page.evaluate(async () => {
+    const done = {};
+    ['ep1-airport', 'ep2-taxi', 'ep3-apartment', 'ep4-coffee'].forEach((id) => { done[id] = { done: true, plays: 1 }; });
+    await DB.saveSetting('scenes', done);
+  });
+  await page.evaluate(() => ER.openPractice('scenes'));
+  await expect(page.locator('.scene-play').nth(4)).toBeEnabled();
+  await expect(page.locator('.scene-play').nth(5)).toBeDisabled();
+  await page.locator('.scene-play').nth(4).click();
+  await expect(page.locator('.scene-title')).toHaveText('Первый рабочий день');
+
+  await opt(page, 'The subway was packed').click();
+  await next(page);
+  await page.locator('#scene-answer').fill("I'm from Kazan. I worked in marketing for five years.");
+  await page.locator('#scene-check').click();
+  await expect(page.locator('.scene-note.is-ok')).toContainText('рассказ о себе');
+  await next(page);
+  await opt(page, "what's the deadline").click();
+  await expect(page.locator('.scene-msg.is-them').last()).toContainText("it's due Friday");
+  await next(page);
+  await opt(page, 'Can you walk me through it?').click();
+  await next(page);
+  // «Of course not» — отказ, а не согласие
+  await page.locator('#scene-answer').fill('Of course not, I have a call at three.');
+  await page.locator('#scene-check').click();
+  await expect(page.locator('.scene-note.is-ok').last()).toContainText('вежливый отказ');
+  await next(page);
+  await expect(page.locator('#scene-end')).toContainText('Естественных ответов: 3 из 3');
+  await expect(page.locator('#scene-end')).toContainText('засчитано автоматически: 2 из 2');
+  await page.locator('#scene-list').click();
+  await expect(page.locator('.scene-play').nth(5)).toBeEnabled();
+
+  // Пройдены 1–11: финал открыт
+  await page.evaluate(async () => {
+    const done = {};
+    SCENE_EPISODES.slice(0, 11).forEach((ep) => { done[ep.id] = { done: true, plays: 1 }; });
+    await DB.saveSetting('scenes', done);
+  });
+  await page.evaluate(() => ER.openPractice('scenes'));
+  await expect(page.locator('.scene-play').nth(11)).toBeEnabled();
+  await page.locator('.scene-play').nth(11).click();
+  await expect(page.locator('.scene-title')).toHaveText('Месяц в Нью-Йорке');
+  expect(errors).toEqual([]);
 });
