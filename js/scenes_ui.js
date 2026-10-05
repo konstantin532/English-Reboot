@@ -171,6 +171,7 @@ const ScenesUI = (() => {
   function choose(i) {
     const n = st.ep.nodes[st.nodeId];
     const o = n.reply.options[i];
+    st.sayTarget = n.reply.options.find((x) => x.tone === 'natural').text;
     st.result.tones[o.tone]++;
     addMine(o.text);
     const r = o.react;
@@ -181,6 +182,7 @@ const ScenesUI = (() => {
     input().innerHTML = `
       <p class="scene-prompt">Скажи вслух естественный вариант: «${esc(natural.text)}»</p>
       ${trapsHtml(natural.text)}
+      ${window.SpeechUI ? SpeechUI.checkHtml() : ''}
       ${recorderHtml()}
       <div class="ladder-row"><button class="btn-primary" id="scene-next" type="button" data-next="${o.next}">Дальше →</button></div>`;
   }
@@ -193,7 +195,7 @@ const ScenesUI = (() => {
       <textarea class="ladder-input ladder-textarea" id="scene-answer" rows="2" lang="en" spellcheck="false"
         placeholder="Напиши ответ по-английски — или скажи его вслух"></textarea>
       ${recorderHtml()}
-      <div class="ladder-row"><button class="btn-primary" id="scene-check" type="button">Ответить</button></div>`;
+      <div class="ladder-row">${window.SpeechUI ? SpeechUI.voiceBtnHtml() : ''}<button class="btn-primary" id="scene-check" type="button">Ответить</button></div>`;
     setTimeout(() => { const t = document.getElementById('scene-answer'); if (t) t.focus(); }, 50);
   }
 
@@ -245,6 +247,28 @@ const ScenesUI = (() => {
     try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { ok = false; }
     if (ok) { ER.toast('Промпт скопирован — вставь его в любой чат с ИИ', 'success'); return; }
     addNote(`Скопируй промпт вручную:<textarea class="ladder-input scene-ai-text" rows="5" readonly>${esc(text)}</textarea>`, 'is-coach');
+  }
+
+  /* ---------- Проверка голоса (speech_ui.js) ---------- */
+
+  async function countSpoken() {
+    if (st.spokenThis) return;
+    st.spokenThis = true;
+    st.result.spoken++;
+    await DB.addSpoken(SRS.todayStr(), 1);
+  }
+  const recHooks = { onStart: () => (recordingSupported() ? startRecording() : null), onEnd: () => stopRecording() };
+
+  async function speechCheck(box) {
+    if (!box || !st.sayTarget) return;
+    const r = await SpeechUI.runCheck(box, st.sayTarget, recHooks);
+    if (r) await countSpoken();
+  }
+
+  // Голосовой ответ → текст в поле → та же честная проверка по смыслам («Ответить»)
+  async function speechVoice(btn, textarea) {
+    const text = await SpeechUI.voiceToText(btn, textarea, recHooks);
+    if (text) await countSpoken();
   }
 
   /* ---------- Запись голоса ---------- */
@@ -380,6 +404,10 @@ const ScenesUI = (() => {
     const next = e.target.closest('#scene-next');
     if (next) { if (st.rec.active) stopRecording(); step(next.dataset.next); return; }
     if (e.target.closest('#scene-check')) { checkOpen(); return; }
+    const sc = e.target.closest('.speech-btn');
+    if (sc) { speechCheck(sc.closest('.speech-check')); return; }
+    const sv = e.target.closest('.speech-voice');
+    if (sv) { const ta = document.getElementById('scene-answer'); if (ta) speechVoice(sv, ta); return; }
     const self = e.target.closest('.scene-self');
     if (self) { if (self.dataset.ok === '1') st.result.opensSelf++; step(self.dataset.next); return; }
     if (e.target.closest('#scene-ai')) { copyAiPrompt(); return; }

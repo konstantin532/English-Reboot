@@ -157,6 +157,7 @@ const ImprovUI = (() => {
     // 2) говорить: таймер + запись
     let timer = null;
     let talking = false;
+    let bg = null; // фоновое распознавание речи (speech_ui.js)
     async function startTalk() {
       if (talking) return;
       talking = true;
@@ -173,6 +174,9 @@ const ImprovUI = (() => {
           <button class="btn-primary" id="imp-stop" type="button">Готово</button>
         </div>`;
       await rec.start();
+      // с согласием на проверку голоса — распознаём ответ фоном, чтобы проверить условие и голосом
+      bg = window.SpeechUI ? SpeechUI.background() : null;
+      st.bg = bg;
       st.timer = setInterval(() => {
         ticks++;
         const left = Improv.remaining(timer, ticks * 1000);
@@ -189,8 +193,21 @@ const ImprovUI = (() => {
       clearTimer();
       rec.stop();
       setPhase('review');
+      if (bg) {
+        const session = bg;
+        bg = null;
+        session.stop();
+        session.promise.then((res) => {
+          const box = stage.querySelector('#imp-text');
+          if (!box || box.value.trim() || !res.alternatives.length) return;
+          box.value = res.alternatives[0];
+          const note = stage.querySelector('#imp-heard');
+          if (note) note.textContent = 'Распознано автоматически — поправь, если нужно, и нажми «Показать образцы».';
+          if (!rec.spoken) { rec.spoken = true; DB.addSpoken(SRS.todayStr(), 1); }
+        });
+      }
       stage.innerHTML = `
-        <p class="ladder-sub">Можно записать свой ответ текстом — тогда проверим условие. Или сразу к образцам.</p>
+        <p class="ladder-sub" id="imp-heard">Можно записать свой ответ текстом — тогда проверим условие. Или сразу к образцам.</p>
         <textarea class="ladder-input ladder-textarea" id="imp-text" rows="2" lang="en" spellcheck="false" placeholder="Что получилось сказать (по-английски)"></textarea>
         <div class="ladder-row">
           ${recordingSupported() ? '<button class="btn btn-ghost" id="imp-play" type="button">▶ Послушать себя</button>' : ''}
@@ -228,6 +245,7 @@ const ImprovUI = (() => {
 
     function finish(selfOk) {
       clearTimer();
+      if (bg) { bg.stop(); bg = null; }
       rec.dispose();
       st.active = false;
       const secs = Math.round((Date.now() - startedAt) / 1000);
@@ -453,6 +471,7 @@ const ImprovUI = (() => {
   // Переключение раздела: освобождаем микрофон и таймеры
   function stop() {
     clearTimer();
+    if (st.bg) { st.bg.stop(); st.bg = null; }
     if (st.rec) { st.rec.dispose(); st.rec = null; }
     st.active = false;
     if (window.TTS) TTS.stopSpeaking();
