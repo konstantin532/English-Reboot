@@ -513,6 +513,8 @@ const LadderUI = (() => {
       st.fsrsDone.add(id);
       st.ladders[id] = res.data.ladder;
       st.stats.total++;
+      // Паспорт акцента: «на слух» (1) и «вслух» (6) засчитываются всем ловушкам фразы
+      if (window.TrapsUI && (st.ex.step === 1 || st.ex.step === 6)) TrapsUI.recordPhrase(st.ex.step === 6 ? st.ex.text : st.me.front, p.ok);
       if (p.ok) st.stats.correct++;
       if (p.result.event === 'up' || p.result.event === 'top') st.stats.ups++;
       if (p.result.event === 'down') st.stats.downs++;

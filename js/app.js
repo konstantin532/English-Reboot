@@ -1543,6 +1543,7 @@
           ${calendarBlock}
           ${historyBlock}
         </div>
+        ${window.TrapsUI ? await TrapsUI.passportHtml() : ''}
         <div class="card error-log" style="margin-top:16px">
           <h3 class="card-title">Мои слабые места</h3>
           ${errItems.length ? errItems.join('') : '<p class="setting-hint">Ошибок пока нет. Так держать!</p>'}

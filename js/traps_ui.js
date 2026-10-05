@@ -110,6 +110,8 @@ const TrapsUI = (() => {
   }
 
   function onClick(e) {
+    const train = e.target.closest('.passport-train');
+    if (train) { startDrill(train.dataset.trap); return; }
     const block = e.target.closest('.traps-block');
     if (!block) return;
     const word = e.target.closest('.trap-word');
@@ -146,12 +148,69 @@ const TrapsUI = (() => {
   const pickLine = (k) => COACH[k][Math.floor(Math.random() * COACH[k].length)];
   const drill = { trap: null, rounds: [], i: 0, correct: 0, answered: false };
 
-  async function savePassport(trapId, ok) {
+  // Записать результат по одной или нескольким ловушкам одним сохранением
+  async function savePassport(trapIds, ok) {
+    const ids = [].concat(trapIds).filter(Boolean);
+    if (!ids.length) return;
     try {
       const r = await DB.getSetting('accent_passport');
-      const next = AccentTraps.recordResult(r.success ? r.data : null, trapId, ok, window.SRS ? SRS.todayStr() : null);
+      let next = r.success ? r.data : null;
+      const today = window.SRS ? SRS.todayStr() : null;
+      ids.forEach((id) => { next = AccentTraps.recordResult(next, id, ok, today); });
       await DB.saveSetting('accent_passport', next);
+      refreshPassport();
     } catch (e) { /* паспорт — не критично для урока */ }
+  }
+
+  // Ступени 1 («на слух») и 6 («вслух») лестницы: результат идёт во все ловушки фразы
+  async function recordPhrase(text, ok) {
+    await ensureLookup();
+    return savePassport(AccentTraps.trapIdsOf(text, lookup), ok);
+  }
+
+  /* ---------- Паспорт акцента (вкладка «Прогресс») ---------- */
+
+  const STATUS = {
+    won: { icon: '✅', label: 'Побеждена' },
+    progress: { icon: '🔥', label: 'В работе' },
+    new: { icon: '○', label: 'Ещё не встречалась' },
+  };
+
+  function passportInner(raw) {
+    const p = AccentTraps.normalizePassport(raw);
+    const rows = AccentTraps.TRAPS.map((t) => {
+      const e = p[t.id];
+      const st = AccentTraps.statusOf(e);
+      const right = e.hist.filter(Boolean).length;
+      const pct = e.hist.length ? Math.round((right / e.hist.length) * 100) : 0;
+      return `
+        <li class="passport-row is-${st}">
+          <span class="passport-status" title="${STATUS[st].label}">${STATUS[st].icon}</span>
+          <span class="passport-name"><b>${esc(t.title)}</b><span class="passport-short">${esc(t.short)}</span></span>
+          <span class="passport-score">${e.hist.length ? `${right} из ${e.hist.length}` : '—'}
+            <span class="passport-bar"><span style="width:${pct}%"></span></span></span>
+          <button class="btn btn-ghost passport-train" type="button" data-trap="${t.id}">Тренировать</button>
+        </li>`;
+    }).join('');
+    const won = AccentTraps.TRAPS.filter((t) => AccentTraps.statusOf(p[t.id]) === 'won').length;
+    return `
+      <h3 class="card-title">Паспорт акцента</h3>
+      <p class="passport-summary">Побеждено ловушек: <b>${won}</b> из ${AccentTraps.TRAPS.length}</p>
+      <ul class="passport-list">${rows}</ul>
+      <p class="setting-hint">Считаются тренажёр пар и ступени лестницы «Узнай на слух» и «Скажи вслух» во фразах с этой ловушкой.
+        «Побеждена» — от 80% верных из последних 10 попыток (минимум 5).</p>`;
+  }
+
+  async function passportHtml() {
+    const r = await DB.getSetting('accent_passport');
+    return `<div class="card accent-passport" id="accent-passport" style="margin-top:16px">${passportInner(r.success ? r.data : null)}</div>`;
+  }
+
+  async function refreshPassport() {
+    const el = document.getElementById('accent-passport');
+    if (!el) return;
+    const r = await DB.getSetting('accent_passport');
+    el.innerHTML = passportInner(r.success ? r.data : null);
   }
 
   function startDrill(trapId) {
@@ -234,7 +293,7 @@ const TrapsUI = (() => {
     hydrate(content);
   }
 
-  return { init, placeholder, hydrate, ensureLookup, startDrill };
+  return { init, placeholder, hydrate, ensureLookup, startDrill, recordPhrase, passportHtml, refreshPassport };
 })();
 
 if (typeof window !== 'undefined') window.TrapsUI = TrapsUI;
