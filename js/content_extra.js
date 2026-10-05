@@ -739,6 +739,12 @@ R("В магазине","dialog","A1","— Hello! Can I help you?\n— Yes, plea
   check("MINIMAL", MINIMAL_ALL, ["front", "word1", "ipa1", "articulation", "examples", "audio_test"]);
   check("READINGS", READING_CARDS, ["title", "reading_type", "text", "parts", "lines", "questions"]);
 
+  // Этап 7: дубли одной фразы в одном разделе — лишняя копия убирается ПОСЛЕ сборки,
+  // чтобы номера остальных карточек не сдвинулись (прогресс переносит js/content_migrate.js)
+  const MERGED_AWAY = new Set(["cv_029", "cv_054", "cv_058", "cv_065", "sl_071"]);
+  [CONVERSATION_CARDS, SLANG_CARDS].forEach((arr) => {
+    for (let i = arr.length - 1; i >= 0; i--) if (MERGED_AWAY.has(arr[i].id)) arr.splice(i, 1);
+  });
   window.SLANG_CARDS = SLANG_CARDS;
   window.CONVERSATION_CARDS = CONVERSATION_CARDS;
   window.MINIMAL_PAIR_CARDS = MINIMAL_ALL; // 40 пар + 7 звуков = 47

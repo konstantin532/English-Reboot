@@ -8,9 +8,9 @@
 (() => {
   'use strict';
 
-  const CONTENT_VERSION = 3; // 3: американская IPA из lex_us.js
-  const VOCAB_VERSION = '1.2.0'; // 1.2.0: IPA для всех слов (lex_us.js)
-  const EXTRA_VERSION = '1.6.0'; // 1.6.0: +1003 фразы американской разговорной речи (content_us.js)
+  const CONTENT_VERSION = 4; // 4: американская IPA и написание по аудиту (этап 7)
+  const VOCAB_VERSION = '1.3.0'; // 1.3.0: американская IPA, написание и слова (этап 7)
+  const EXTRA_VERSION = '1.7.0'; // 1.7.0: аудит — IPA, сленг, пары звуков, дубли (этап 7)
   const APP_VERSION = '1.1.0';
 
   // Каждый раздел — «линия метро»: цвет и буква значка (цвета линий нью-йоркского метро).
@@ -316,6 +316,7 @@
     await checkAndSeedContent();
     await checkAndSeedVocab();
     await checkAndSeedExtra();
+    await migrateContentAudit();
 
     const mig = await SRS.migrateProgress();
     if (mig.migrated) toast('Прогресс обновлён до новой схемы: ' + mig.migrated + ' записей');
@@ -401,6 +402,22 @@
       ['Чтение', window.READING_CARDS, 'readings'],
     ], 'extra_version', EXTRA_VERSION);
     if (okAll) Object.keys(vocabCache).forEach((k) => delete vocabCache[k]);
+  }
+
+  // Этап 7: прогресс после правок контента — дубли объединяются (прогресс переносится),
+  // у карточек, ставших другой фразой, прогресс сбрасывается. Один раз (content_migrate.js).
+  async function migrateContentAudit() {
+    if (!window.ContentMigrate) return;
+    const done = await DB.getByKey('content_meta', ContentMigrate.KEY);
+    if (done.success && done.data) return;
+    const all = await DB.getAllProgress();
+    const map = {};
+    ((all.success && all.data) || []).forEach((p) => { map[p.cardId] = p; });
+    const pl = ContentMigrate.plan(map);
+    for (const rec of pl.put) await DB.saveCard('progress', rec);
+    for (const id of pl.del) { await DB.deleteCard('progress', id); await DB.deleteCard('errors_log', id); }
+    for (const [store, id] of pl.cards) await DB.deleteCard(store, id);
+    await DB.saveCard('content_meta', { key: ContentMigrate.KEY, value: true, at: new Date().toISOString() });
   }
 
   function showSeedProgress() { document.getElementById('seed-progress').classList.remove('hidden'); }

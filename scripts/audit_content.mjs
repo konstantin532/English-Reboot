@@ -114,7 +114,7 @@ function britishMarks(word, ipa) {
   const m = [];
   if (/ɒ/.test(ipa)) m.push('ɒ (в США — ɑ/ɔ)');
   if (/əʊ/.test(ipa)) m.push('əʊ (в США — oʊ)');
-  if (/eə|(?<!a)ɪə|(?<!a)ʊə/.test(ipa)) m.push('eə/ɪə/ʊə (в США — ɛr/ɪr/ʊr)'); // aɪə/aʊə (quiet, towel) — это два слога, не британское
+  if (/eə|(?<![aɔeo])ɪə|(?<![aɔeo])ʊə/.test(ipa)) m.push('eə/ɪə/ʊə (в США — ɛr/ɪr/ʊr)'); // после дифтонга (quiet, towel, loyalty) — два слога, не британское
   if (/[aeiouy]r/i.test(word) && !/[rɚɝ]/.test(ipa)) m.push('нет r (в США r слышен)');
   else if (/ː/.test(ipa)) m.push('ː (долготу в американских словарях не пишут)');
   return m;
