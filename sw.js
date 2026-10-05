@@ -1,7 +1,7 @@
 /* English Reboot — Service Worker v3
    Лежит в КОРНЕ проекта: scope SW = его папка, иначе он не перехватит index.html.
    При изменении любого файла приложения увеличьте CACHE_VERSION. */
-const CACHE_VERSION = 'er-v27';
+const CACHE_VERSION = 'er-v28';
 const CACHE_NAME = 'english-reboot-' + CACHE_VERSION;
 const ASSETS = [
   './', './index.html', './manifest.json', './fonts/Inter-var.woff', './icon-192.png', './icon-512.png', './css/style.css',
