@@ -253,9 +253,9 @@ const DB = (() => {
     } catch (e) { return fail(e); }
   }
 
-  // «Фразы вслух»: ученик записал/произнёс фразу (запись ≥1 с). Счётчик дня в study_log,
-  // без интернета; число сессий не трогаем — это не отдельное занятие.
-  async function addSpoken(date, count) {
+  // Счётчик дня в study_log (без интернета): spoken — фразы вслух (запись ≥1 с),
+  // stepsUp — открытые ступени лестницы. Число сессий не трогаем — это не отдельное занятие.
+  async function addDayCounter(date, field, count) {
     try {
       await ensureReady();
       const tx = _db.transaction('study_log', 'readwrite');
@@ -265,13 +265,14 @@ const DB = (() => {
         cardsStudied: 0, correct: 0, duration: 0, sessions: 0,
         ...(prev || {}),
         date,
-        spoken: ((prev && prev.spoken) || 0) + (count || 1),
+        [field]: ((prev && prev[field]) || 0) + (count === undefined ? 1 : count),
       };
       store.put(rec);
       await txDone(tx);
       return ok(rec);
     } catch (e) { return fail(e); }
   }
+  const addSpoken = (date, count) => addDayCounter(date, 'spoken', count || 1);
 
   async function getStudyLog(date) {
     return getByKey('study_log', date);
@@ -387,7 +388,7 @@ const DB = (() => {
     initDB, saveCard, getAll, getByKey, deleteCard, getByIndex, clearStore,
     saveSetting, getSetting, getAllSettings,
     getProgressByCardId, getAllProgress, getErrorsLog, saveError,
-    saveStudyLog, addSpoken, getStudyLog, getStudyLogRange,
+    saveStudyLog, addSpoken, addDayCounter, getStudyLog, getStudyLogRange,
     saveAchievement, getAchievement, getAllAchievements, getProgressByStore,
     bulkPut, getStoreSize,
     clearAllData, seedContent, STORES, toDateStr,

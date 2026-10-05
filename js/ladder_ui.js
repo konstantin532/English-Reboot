@@ -39,6 +39,8 @@ const LadderUI = (() => {
     stats: { total: 0, correct: 0, ups: 0, downs: 0, spoken: 0, started: 0 },
     rec: { recorder: null, stream: null, chunks: [], startedAt: 0, url: null, timer: null, active: false },
     audioEl: null, afterFinish: null,
+    // Режим очереди (урок «Сегодня»): готовый список заданий и колбэки
+    mode: 'ladder', onProgress: null, onQuit: null, onFinish: null, touched: new Set(),
   };
 
   function init(er) { ER = er; }
@@ -166,8 +168,16 @@ const LadderUI = (() => {
     st.active = true;
     st.phraseIds = ids;
     st.queue = [];
-    for (let r = 0; r < ROUNDS; r++) ids.forEach((id) => st.queue.push(id));
-    st.idx = 0;
+    for (let r = 0; r < ROUNDS; r++) ids.forEach((id) => st.queue.push({ type: 'ex', id }));
+    st.mode = 'ladder';
+    st.onProgress = st.onQuit = st.onFinish = null;
+    prepare(ids, progress, 0);
+    st.afterFinish = afterFinish;
+    renderExercise();
+  }
+
+  function prepare(ids, progress, startIdx) {
+    st.idx = startIdx || 0;
     st.ladders = {};
     ids.forEach((id) => { st.ladders[id] = Ladder.normalize(progress.get(id) && progress.get(id).ladder); });
     const today = SRS.todayStr();
@@ -176,7 +186,30 @@ const LadderUI = (() => {
       return p && String(p.lastReview || '').slice(0, 10) === today;
     }));
     st.stats = { total: 0, correct: 0, ups: 0, downs: 0, spoken: 0, started: Date.now() };
-    st.afterFinish = afterFinish;
+    st.touched = new Set();
+  }
+
+  /* ---------- Режим очереди: урок «Сегодня» (today_ui.js) ----------
+     tasks: [{ type: 'ex' | 'intro', id, label }]. onProgress(idx) — после каждого
+     задания (сохранить урок), onQuit(idx) — «Закончить» (урок на паузе),
+     onFinish() — очередь пройдена. */
+  async function runQueue(tasks, opts) {
+    const o = opts || {};
+    await loadItems();
+    await loadDisputes();
+    const list = (tasks || []).filter((t) => t && st.byId.has(t.id));
+    const ids = [...new Set(list.map((t) => t.id))];
+    const prog = await DB.getAllProgress();
+    const progress = new Map(((prog.success && prog.data) || []).filter((r) => ids.includes(r.cardId)).map((r) => [r.cardId, r]));
+    st.active = true;
+    st.phraseIds = ids;
+    st.queue = list;
+    st.mode = 'queue';
+    st.onProgress = o.onProgress || null;
+    st.onQuit = o.onQuit || null;
+    st.onFinish = o.onFinish || null;
+    st.afterFinish = null;
+    prepare(ids, progress, Math.min(Number(o.startIdx) || 0, list.length));
     renderExercise();
   }
 
@@ -240,8 +273,10 @@ const LadderUI = (() => {
 
   function renderExercise() {
     if (st.idx >= st.queue.length) { finish(); return; }
-    const id = st.queue[st.idx];
+    const task = st.queue[st.idx];
+    const id = task.id;
     const me = st.byId.get(id);
+    if (task.type === 'intro') { renderIntro(task, me); return; }
     let ladder = st.ladders[id];
     if (ladder.step === Ladder.TONE_STEP && !hasToneFor(me)) ladder = st.ladders[id] = { ...ladder, step: Ladder.TONE_STEP + 1 };
     const ex = Ladder.buildExercise(ladder.step, me, st.items, { exclude: st.exclude });
@@ -255,7 +290,7 @@ const LadderUI = (() => {
         <div class="card ladder-card" id="ladder-root" data-step="${ex.step}" data-kind="${ex.kind}">
           <div class="session-progress"><div class="session-progress-fill" style="width:${pct}%"></div></div>
           <div class="ladder-head">
-            <p class="session-counter">Упражнение ${st.idx + 1} из ${st.queue.length} · ${esc(me.theme)}</p>
+            <p class="session-counter">${esc(task.label || 'Упражнение')} ${st.idx + 1} из ${st.queue.length} · ${esc(me.theme)}</p>
             ${dotsHtml(ladder, me)}
           </div>
           <h2 class="ladder-step-title"><span class="ladder-step-n">Ступень ${ex.step}</span> ${step.title}</h2>
@@ -269,6 +304,44 @@ const LadderUI = (() => {
       </div>`;
     bindExercise(ex);
     if (ex.step === 1) setTimeout(() => speak(ex.audio), 250);
+  }
+
+  // Знакомство с новой фразой: послушай, посмотри разбор, повтори вслух. Без оценки:
+  // ступени и FSRS не меняются, запись от 1 с идёт в счётчик «фраз вслух».
+  function renderIntro(task, me) {
+    st.ex = { kind: 'intro', step: 0 }; st.me = me; st.pending = null; st.spokenThis = false; st.shownAt = Date.now();
+    resetRecording();
+    const pct = Math.round((st.idx / st.queue.length) * 100);
+    document.getElementById('content').innerHTML = `
+      <div class="section-wrap">
+        <div class="card ladder-card ladder-intro" id="ladder-root" data-kind="intro">
+          <div class="session-progress"><div class="session-progress-fill" style="width:${pct}%"></div></div>
+          <div class="ladder-head">
+            <p class="session-counter">${esc(task.label || 'Новая фраза')} ${st.idx + 1} из ${st.queue.length} · ${esc(me.theme)}</p>
+          </div>
+          <h2 class="ladder-step-title"><span class="ladder-step-n">Новая фраза</span> Послушай и повтори вслух</h2>
+          ${phraseHtml(me.front)}
+          <p class="ladder-sub">«${esc(me.ru)}»</p>
+          ${me.a ? `<div class="conversation-dialog"><p>${esc(me.a)}</p><p>${esc(me.b)}</p></div>` : ''}
+          ${trapsHtml(me.front)}
+          <p class="ladder-prompt">Скажи вслух 2–3 раза, как в образце, — и запиши себя хотя бы раз.</p>
+          ${recorderHtml()}
+          <div class="ladder-actions" id="ladder-actions">
+            <button class="btn btn-ghost" id="ladder-quit" type="button">Закончить</button>
+            <button class="btn-primary" id="ladder-intro-next" type="button">Дальше →</button>
+          </div>
+        </div>
+      </div>`;
+    bindExercise(st.ex);
+    setTimeout(() => speak(me.front), 250);
+  }
+
+  async function introNext() {
+    if (st.rec.active) stopRecording();
+    st.touched.add(st.me.id);
+    st.idx++;
+    if (st.onProgress) await st.onProgress(st.idx);
+    renderExercise();
   }
 
   function bodyHtml(ex, me) {
@@ -353,7 +426,8 @@ const LadderUI = (() => {
       if (e.target.closest('#ladder-done') && !st.pending) { revealOwn(); return; }
       if (e.target.closest('#ladder-next')) { next(); return; }
       if (e.target.closest('#ladder-dispute')) { dispute(); return; }
-      if (e.target.closest('#ladder-quit')) { finish(); return; }
+      if (e.target.closest('#ladder-intro-next')) { introNext(); return; }
+      if (e.target.closest('#ladder-quit')) { quit(); return; }
       if (e.target.closest('#ladder-rec')) { startRecording(); return; }
       if (e.target.closest('#ladder-rec-stop')) { stopRecording(); return; }
       if (e.target.closest('#ladder-rec-play')) { playRecording(); return; }
@@ -529,7 +603,10 @@ const LadderUI = (() => {
       }
       st.fsrsDone.add(id);
       st.ladders[id] = res.data.ladder;
+      st.touched.add(id);
       st.stats.total++;
+      // Итог дня: «открыл M ступеней»
+      if (p.result.event === 'up' || p.result.event === 'top') DB.addDayCounter(SRS.todayStr(), 'stepsUp', 1);
       // Паспорт акцента: «на слух» (1) и «вслух» (6) засчитываются всем ловушкам фразы
       if (window.TrapsUI && (st.ex.step === 1 || st.ex.step === 6)) TrapsUI.recordPhrase(st.ex.step === 6 ? st.ex.text : st.me.front, p.ok);
       if (p.ok) st.stats.correct++;
@@ -537,6 +614,7 @@ const LadderUI = (() => {
       if (p.result.event === 'down') st.stats.downs++;
     }
     st.idx++;
+    if (st.onProgress) await st.onProgress(st.idx);
     renderExercise();
   }
 
@@ -615,17 +693,44 @@ const LadderUI = (() => {
 
   /* ---------- Завершение ---------- */
 
+  // Записать сделанное с начала этой «сидки» в статистику дня и обнулить счётчики сидки
+  async function flushStats() {
+    const s = st.stats;
+    const touched = st.touched.size;
+    const seconds = Math.round((Date.now() - s.started) / 1000);
+    const correct = s.correct;
+    st.stats = { ...s, total: 0, correct: 0, started: Date.now() };
+    st.touched = new Set();
+    if (!touched) return;
+    await ER.addStudyLog(touched, correct, seconds);
+    await SRS.updateStreak();
+    ER.refreshHeaderStats();
+  }
+
+  // «Закончить»: в уроке «Сегодня» — пауза (урок можно продолжить), в лестнице — итог
+  async function quit() {
+    if (st.mode === 'queue' && st.onQuit) {
+      const idx = st.idx;
+      const cb = st.onQuit;
+      await stopAndFlush();
+      cb(idx);
+      return;
+    }
+    finish();
+  }
+
   async function finish() {
     if (!st.active) return;
     st.active = false;
     resetRecording();
     if (window.TTS) TTS.stopSpeaking();
-    const s = st.stats;
-    const minutes = Math.max(1, Math.round((Date.now() - s.started) / 60000));
-    if (s.total) {
-      await ER.addStudyLog(st.phraseIds.length, s.correct, minutes * 60);
-      await SRS.updateStreak();
-      ER.refreshHeaderStats();
+    const s = { ...st.stats };
+    await flushStats();
+    if (st.mode === 'queue') {
+      const cb = st.onFinish;
+      st.onProgress = st.onQuit = st.onFinish = null;
+      if (cb) cb();
+      return;
     }
     const after = st.afterFinish;
     ER.showModal(`
@@ -647,15 +752,20 @@ const LadderUI = (() => {
   // Переключение раздела: освобождаем микрофон и глушим озвучку
   function stop() {
     if (!st.active) return;
+    stopAndFlush();
+  }
+
+  async function stopAndFlush() {
     st.active = false;
     resetRecording();
     if (window.TTS) TTS.stopSpeaking();
+    await flushStats();
   }
 
   // Ступень фразы для бейджа на карточке
   const stepOf = (rec) => Ladder.normalize(rec && rec.ladder).step;
 
-  return { init, renderSetup, bindSetup, startSession, startSingle, stop, stepOf, isActive: () => st.active };
+  return { init, renderSetup, bindSetup, startSession, startSingle, runQueue, stop, stepOf, isActive: () => st.active };
 })();
 
 if (typeof window !== 'undefined') window.LadderUI = LadderUI;
