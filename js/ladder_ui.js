@@ -276,6 +276,38 @@ const LadderUI = (() => {
     ? `Задание ${st.idx + 1} из ${st.queue.length} · ${esc(task.label)} · ${esc(me.theme)}`
     : `Упражнение ${st.idx + 1} из ${st.queue.length} · ${esc(me.theme)}`);
 
+  /* ---------- Проверка голоса (speech_ui.js) ---------- */
+
+  const countSpoken = async () => {
+    if (st.spokenThis) return;
+    st.spokenThis = true;
+    st.stats.spoken++;
+    await DB.addSpoken(SRS.todayStr(), 1);
+  };
+  // параллельная запись — чтобы «послушать себя» после проверки
+  const recHooks = { onStart: () => (recordingSupported() ? startRecording() : null), onEnd: () => stopRecording() };
+
+  async function speechCheck(box) {
+    if (!box || st.pending) return;
+    const expected = st.ex.kind === 'intro' ? st.me.front : st.ex.text;
+    const r = await SpeechUI.runCheck(box, expected, recHooks);
+    if (!r) return;
+    await countSpoken();
+    if (st.ex.kind !== 'say') return; // «Повтори вслух» — только подсказка, без оценки
+    const lookup = window.TrapsUI ? await TrapsUI.ensureLookup() : null;
+    st.speechTraps = Speech.trapResults(r, expected, lookup);
+    if (r.verdict === 'pass') {
+      const self = document.getElementById('ladder-self');
+      if (self) self.remove();
+      settle(true, { self: true, extra: '<p class="ladder-fact is-ok">✓ Засчитано по распознаванию речи.</p>' });
+    }
+  }
+
+  async function speechVoice(btn, textarea) {
+    const text = await SpeechUI.voiceToText(btn, textarea, recHooks);
+    if (text) await countSpoken();
+  }
+
   function renderExercise() {
     if (st.idx >= st.queue.length) { finish(); return; }
     const task = st.queue[st.idx];
@@ -285,7 +317,7 @@ const LadderUI = (() => {
     let ladder = st.ladders[id];
     if (ladder.step === Ladder.TONE_STEP && !hasToneFor(me)) ladder = st.ladders[id] = { ...ladder, step: Ladder.TONE_STEP + 1 };
     const ex = Ladder.buildExercise(ladder.step, me, st.items, { exclude: st.exclude });
-    st.ex = ex; st.me = me; st.pending = null; st.spokenThis = false; st.shownAt = Date.now();
+    st.ex = ex; st.me = me; st.pending = null; st.spokenThis = false; st.shownAt = Date.now(); st.speechTraps = null;
     resetRecording();
 
     const step = Ladder.STEPS[ex.step - 1];
@@ -348,6 +380,7 @@ const LadderUI = (() => {
           ${me.a ? `<div class="conversation-dialog"><p>${esc(me.a)}</p><p>${esc(me.b)}</p></div>` : ''}
           ${trapsHtml(me.front)}
           <p class="ladder-prompt">Скажи вслух 2–3 раза, как в образце, — и запиши себя хотя бы раз.</p>
+          ${window.SpeechUI ? SpeechUI.checkHtml('Сказать и проверить себя') : ''}
           ${recorderHtml()}
           <div class="ladder-actions" id="ladder-actions">
             <button class="btn btn-ghost" id="ladder-quit" type="button">Закончить</button>
@@ -395,6 +428,7 @@ const LadderUI = (() => {
           ${phraseHtml(ex.text)}
           <p class="ladder-sub">«${esc(me.ru)}»</p>
           ${trapsHtml(ex.text)}
+          ${window.SpeechUI ? SpeechUI.checkHtml() : ''}
           ${recorderHtml()}
           <div class="ladder-self" id="ladder-self">
             <p class="ladder-sub">Сравни с образцом: похоже звучит?</p>
@@ -403,7 +437,9 @@ const LadderUI = (() => {
               <button class="btn btn-ghost ladder-selfbtn" type="button" data-ok="0">Ещё потренирую</button>
             </div>
           </div>
-          <p class="setting-hint">Временная версия: автоматической проверки произношения пока нет — оценка за тобой.</p>`;
+          <p class="setting-hint">${window.SpeechUI && SpeechUI.offered()
+            ? 'От 80 из 100 ступень засчитывается автоматически. Без проверки — запись, образец и самооценка.'
+            : 'Проверка голоса недоступна или выключена — запись, образец и самооценка.'}</p>`;
       case 'improv':
         // Ступень 8 — полноценный раунд импровизации (improv_ui.js): подумать → таймер → образцы
         if (window.ImprovUI) return '<div class="ladder-improv" id="ladder-improv"></div>';
@@ -413,7 +449,7 @@ const LadderUI = (() => {
           <textarea class="ladder-input ladder-textarea" id="ladder-input" rows="2" lang="en" spellcheck="false"
             placeholder="Напиши ответ или скажи его вслух…"></textarea>
           ${recorderHtml()}
-          <div class="ladder-row" id="ladder-done-row"><button class="btn-primary" id="ladder-done" type="button">Готово — показать образцы</button></div>
+          <div class="ladder-row" id="ladder-done-row">${window.SpeechUI ? SpeechUI.voiceBtnHtml() : ''}<button class="btn-primary" id="ladder-done" type="button">Готово — показать образцы</button></div>
           <p class="setting-hint">Письменный ответ с фразой засчитывается автоматически; голосовой — пока по образцам и самооценке.</p>`;
       default:
         return '';
@@ -453,6 +489,10 @@ const LadderUI = (() => {
       if (e.target.closest('#ladder-next')) { next(); return; }
       if (e.target.closest('#ladder-dispute')) { dispute(); return; }
       if (e.target.closest('#ladder-intro-next')) { introNext(); return; }
+      const sc = e.target.closest('.speech-btn');
+      if (sc) { speechCheck(sc.closest('.speech-check')); return; }
+      const sv = e.target.closest('.speech-voice');
+      if (sv) { const ta = document.getElementById('ladder-input'); if (ta) speechVoice(sv, ta); return; }
       if (e.target.closest('#ladder-quit')) { quit(); return; }
       if (e.target.closest('#ladder-rec')) { startRecording(); return; }
       if (e.target.closest('#ladder-rec-stop')) { stopRecording(); return; }
@@ -644,7 +684,9 @@ const LadderUI = (() => {
       // Итог дня: «открыл M ступеней»
       if (p.result.event === 'up' || p.result.event === 'top') DB.addDayCounter(SRS.todayStr(), 'stepsUp', 1);
       // Паспорт акцента: «на слух» (1) и «вслух» (6) засчитываются всем ловушкам фразы
-      if (window.TrapsUI && (st.ex.step === 1 || st.ex.step === 6)) TrapsUI.recordPhrase(st.ex.step === 6 ? st.ex.text : st.me.front, p.ok);
+      // если фраза проверена распознаванием — в паспорт идут ловушки по словам, иначе — все ловушки фразы
+      if (window.TrapsUI && st.ex.step === 6 && st.speechTraps) TrapsUI.recordTrapMap(st.speechTraps);
+      else if (window.TrapsUI && (st.ex.step === 1 || st.ex.step === 6)) TrapsUI.recordPhrase(st.ex.step === 6 ? st.ex.text : st.me.front, p.ok);
       if (p.ok) st.stats.correct++;
       if (p.result.event === 'up' || p.result.event === 'top') st.stats.ups++;
       if (p.result.event === 'down') st.stats.downs++;

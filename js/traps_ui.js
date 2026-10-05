@@ -162,6 +162,14 @@ const TrapsUI = (() => {
     } catch (e) { /* паспорт — не критично для урока */ }
   }
 
+  // Распознавание речи: результат по каждой ловушке отдельно { th: false, ae: true }
+  async function recordTrapMap(map) {
+    const ok = Object.keys(map || {}).filter((k) => map[k]);
+    const bad = Object.keys(map || {}).filter((k) => !map[k]);
+    if (ok.length) await savePassport(ok, true);
+    if (bad.length) await savePassport(bad, false);
+  }
+
   // Ступени 1 («на слух») и 6 («вслух») лестницы: результат идёт во все ловушки фразы
   async function recordPhrase(text, ok) {
     await ensureLookup();
@@ -293,7 +301,7 @@ const TrapsUI = (() => {
     hydrate(content);
   }
 
-  return { init, placeholder, hydrate, ensureLookup, startDrill, recordPhrase, passportHtml, refreshPassport };
+  return { init, placeholder, hydrate, ensureLookup, startDrill, recordPhrase, recordTrapMap, passportHtml, refreshPassport };
 })();
 
 if (typeof window !== 'undefined') window.TrapsUI = TrapsUI;
