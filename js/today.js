@@ -13,7 +13,7 @@
         затем 3 круга по лестнице;
      3) сцена — следующий непройденный эпизод истории (scenes_us.js); её
         проигрывает ScenesUI после заданий лестницы (поле scene плана);
-     TODO(этап 4): импровизация в конце урока — только когда она готова.
+     4) импровизация — N спинов импров-рулетки в конце (ImprovUI, поле improv плана).
    ========================================================================== */
 
 const Today = (() => {
@@ -55,6 +55,7 @@ const Today = (() => {
    *   lookup    — источник IPA для разметки ловушек (может быть null)
    *   theme     — тема новых фраз (необязательно)
    *   scene     — id эпизода сцены для этого урока (или null)
+   *   improv    — сколько спинов импровизации в конце урока (0 — без блока)
    *   warmup / fresh / rounds — размеры урока
    * @returns {{ warmup: string[], fresh: string[], theme: string|null, tasks: object[], scene: string|null }}
    */
@@ -82,15 +83,14 @@ const Today = (() => {
     // Знакомство: послушай и повтори вслух — первая фраза вслух в первые минуты урока
     fresh.forEach((id) => tasks.push({ type: 'intro', id, label: LABELS.intro }));
     for (let r = 0; r < o.rounds; r++) fresh.forEach((id) => tasks.push({ type: 'ex', id, label: LABELS.fresh }));
-    // TODO(этап 4): tasks.push({ type: 'improv', … }) — импров-рулетка в конце
-
-    return { warmup, fresh, theme: fresh.length ? theme : null, tasks, scene: o.scene || null };
+    return { warmup, fresh, theme: fresh.length ? theme : null, tasks, scene: o.scene || null,
+      improv: Math.max(0, Number(o.improv) || 0) };
   }
 
   /* ---------- Сохранённый урок: можно прервать и продолжить в тот же день ---------- */
 
   // Состояние урока в settings.today_lesson; урок другого дня не продолжаем.
-  // phase: 'tasks' — задания лестницы, 'scene' — задания пройдены, осталась сцена.
+  // phase: 'tasks' — задания лестницы, 'scene' — осталась сцена, 'improv' — остались спины импровизации.
   function resumable(saved, today) {
     if (!saved || typeof saved !== 'object') return null;
     if (saved.date !== today || saved.done) return null;
@@ -98,10 +98,12 @@ const Today = (() => {
     const idx = Math.max(0, Math.min(Number(saved.idx) || 0, tasks.length));
     if (idx < tasks.length) return { ...saved, tasks, idx, phase: 'tasks' };
     if (saved.scene && !saved.sceneDone) return { ...saved, tasks, idx, phase: 'scene' };
+    if ((Number(saved.improv) || 0) > (Number(saved.improvDone) || 0)) return { ...saved, tasks, idx, phase: 'improv' };
     return null;
   }
 
   // В уроке есть что делать: задания или сцена
+  // Импровизация одна урок не составляет: она венчает задания или сцену
   const hasWork = (plan) => !!(plan && ((plan.tasks && plan.tasks.length) || plan.scene));
 
   const doneToday = (saved, today) => !!(saved && saved.date === today && saved.done);

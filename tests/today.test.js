@@ -114,6 +114,13 @@ describe('Урок «Сегодня»: продолжение прерванно
     expect(Today.hasWork(l)).toBe(true);
     expect(Today.hasWork({ tasks: [], scene: null })).toBe(false);
   });
+  it('после сцены — спины импровизации: продолжаем с фазы improv, пока не сделаны все', () => {
+    const base = { date: '2026-10-05', tasks, idx: 2, scene: 'ep1-airport', sceneDone: true, improv: 2 };
+    expect(Today.resumable({ ...base, improvDone: 1 }, '2026-10-05').phase).toBe('improv');
+    expect(Today.resumable({ ...base, improvDone: 2 }, '2026-10-05')).toBe(null);
+    expect(Today.resumable({ ...base, sceneDone: false, improvDone: 0 }, '2026-10-05').phase).toBe('scene');
+    expect(Today.buildLesson({ items: ITEMS, due: [], started: new Set(), improv: 2 }).improv).toBe(2);
+  });
   it('урок дня пройден', () => {
     expect(Today.doneToday({ date: '2026-10-05', done: true }, '2026-10-05')).toBe(true);
     expect(Today.doneToday({ date: '2026-10-04', done: true }, '2026-10-05')).toBe(false);
