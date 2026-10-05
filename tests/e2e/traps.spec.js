@@ -66,3 +66,30 @@ test('ловушки: блок есть и на ступени «Скажи вс
   await page.locator('.traps-block[data-ready] .trap-chip').first().click();
   await expect(page.locator('.trap-explain')).toBeVisible();
 });
+
+test('ловушки: мини-тренажёр — 5 пар на слух, результат пишется в паспорт акцента', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page);
+  await openPhrase(page, 'Can you pass the salt?');
+  await page.locator('.trap-chip', { hasText: 'bad ≠ bed' }).click();
+  await page.locator('.trap-drill-btn').click();
+
+  const drill = page.locator('#trap-drill');
+  for (let i = 1; i <= 5; i++) {
+    await expect(drill.locator('.session-counter')).toContainText(`пара ${i} из 5`);
+    await expect(drill.locator('.trap-drill-opt')).toHaveCount(2);
+    await drill.locator('.trap-drill-opt').first().click();
+    await expect(drill.locator('.ladder-verdict')).toBeVisible();
+    await expect(drill).not.toContainText('Неверно');
+    await drill.locator('#trap-drill-next').click();
+  }
+  await expect(drill.locator('.trap-drill-score')).toContainText('из 5');
+
+  const passport = await page.evaluate(() => DB.getSetting('accent_passport').then((r) => r.data));
+  expect(passport.ae.total).toBe(5);
+  expect(passport.ae.hist.length).toBe(5);
+  await drill.locator('#trap-drill-close').click();
+  await expect(drill).toBeHidden();
+  expect(errors).toEqual([]);
+});
