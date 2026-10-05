@@ -3099,3 +3099,38 @@ button:not([class]):hover { background: var(--fill-strong); }
   .scene-row { grid-template-columns: 28px minmax(0, 1fr); }
   .scene-row .scene-play { grid-column: 1 / -1; }
 }
+
+/* ==========================================================================
+   Этап 4: импровизация (improv_ui.js)
+   ========================================================================== */
+.imp-modes { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.imp-card { display: flex; flex-direction: column; gap: 12px; }
+.imp-round { display: flex; flex-direction: column; gap: 12px; }
+.imp-situation { padding: 12px 14px; border-radius: var(--radius); background: var(--bg); border-left: 3px solid var(--accent); }
+.imp-situation p { margin: 4px 0 0; font-size: 16px; }
+.imp-place { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-strong); }
+.imp-mood { margin: 0; padding: 8px 12px; border-radius: var(--radius); background: var(--accent-soft); font-weight: 600; }
+.imp-mood span { font-weight: 400; }
+.imp-cond { margin: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 16px; }
+.imp-stage { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.imp-stage .ladder-samples, .imp-stage .traps-block { align-self: stretch; }
+.imp-clock {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 108px; height: 108px; border-radius: 50%; align-self: center;
+  border: 6px solid var(--border); font-size: 13px; color: var(--text-muted);
+}
+.imp-clock .imp-num { font-size: 40px; font-weight: 800; line-height: 1; color: var(--text); font-variant-numeric: tabular-nums; }
+.imp-clock.is-think { border-color: var(--warning); }
+.imp-clock.is-talk { border-color: var(--success); animation: impPulse 1.2s ease-in-out infinite; }
+@keyframes impPulse { 50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.15); } }
+@media (prefers-reduced-motion: reduce) { .imp-clock.is-talk { animation: none; } }
+.imp-stage .imp-clock + .ladder-sub { align-self: center; text-align: center; }
+.imp-rec-status { margin: 0; align-self: center; color: var(--text-muted); font-size: 14px; }
+.imp-stage > .ladder-row { align-self: center; }
+.imp-tone { margin: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.imp-after { margin-top: 8px; }
+.ladder-improv { margin-top: 4px; }
+.ya-review { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; }
+.ya-review p { margin: 0 0 4px; }
+.ya-their { font-weight: 600; }
+.ya-mine { color: var(--accent-strong); }

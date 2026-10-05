@@ -135,6 +135,9 @@
     addStudyLog,
     applyOnboarding,
     startSrsSession: () => startSessionUI(),
+    // Модуль сам рисует экран в #content (лестница, сцена, импровизация, итог дня):
+    // запоздавший асинхронный рендер вкладки не должен его затереть
+    claimContent: () => { renderToken++; },
     // Открыть режим тренажёра (лестница, сцены…) — для модулей вне app.js
     openPractice: (mode) => { state.practiceMode = mode || null; return switchTab('practice'); },
     plural,
@@ -292,6 +295,7 @@
     if (window.TrapsUI) TrapsUI.init();
     if (window.TodayUI) TodayUI.init(window.ER);
     if (window.ScenesUI) ScenesUI.init(window.ER);
+    if (window.ImprovUI) ImprovUI.init(window.ER);
     IELTS.init(window.ER);
     Search.init(window.ER);
     Onboarding.init(window.ER);
@@ -499,6 +503,7 @@
     if (window.Shadowing && Shadowing.stop) Shadowing.stop();
     if (window.LadderUI) LadderUI.stop();
     if (window.ScenesUI) ScenesUI.stop();
+    if (window.ImprovUI) ImprovUI.stop();
     if (window.IELTS) IELTS.stop();
     closeWordPopup();
 
@@ -568,6 +573,7 @@
     if (tabId === 'practice' && state.practiceMode === 'shadowing') Shadowing.bindSetup();
     if (tabId === 'practice' && state.practiceMode === 'ladder') LadderUI.bindSetup();
     if (tabId === 'practice' && state.practiceMode === 'scenes') ScenesUI.bindSetup();
+    if (tabId === 'practice' && state.practiceMode === 'improv') ImprovUI.bindSetup();
     if (VOCAB_STORES[tabId]) bindLazyLoading(tabId);
   }
 
@@ -1240,6 +1246,7 @@
         <button class="mode-btn ${state.practiceMode === 'shadowing' ? 'active' : ''}" data-mode="shadowing" type="button">🎤 Shadowing</button>
         <button class="mode-btn ${state.practiceMode === 'ladder' ? 'active' : ''}" data-mode="ladder" type="button">🪜 Лестница фраз</button>
         <button class="mode-btn ${state.practiceMode === 'scenes' ? 'active' : ''}" data-mode="scenes" type="button">🎬 Сцены</button>
+        <button class="mode-btn ${state.practiceMode === 'improv' ? 'active' : ''}" data-mode="improv" type="button">🎲 Импровизация</button>
       </div>`;
 
     let panel;
@@ -1251,6 +1258,8 @@
       panel = await LadderUI.renderSetup();
     } else if (state.practiceMode === 'scenes') {
       panel = await ScenesUI.renderSetup();
+    } else if (state.practiceMode === 'improv') {
+      panel = await ImprovUI.renderSetup();
     } else {
       panel = due.length ? `
         <h2 class="detail-title">Повторение</h2>

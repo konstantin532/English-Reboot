@@ -290,6 +290,7 @@ const LadderUI = (() => {
 
     const step = Ladder.STEPS[ex.step - 1];
     const pct = Math.round((st.idx / st.queue.length) * 100);
+    if (ER && ER.claimContent) ER.claimContent();
     document.getElementById('content').innerHTML = `
       <div class="section-wrap">
         <div class="card ladder-card" id="ladder-root" data-step="${ex.step}" data-kind="${ex.kind}">
@@ -308,7 +309,23 @@ const LadderUI = (() => {
         </div>
       </div>`;
     bindExercise(ex);
+    if (ex.kind === 'improv' && window.ImprovUI) mountImprov(ex, me);
     if (ex.step === 1) setTimeout(() => speak(ex.audio), 250);
+  }
+
+  // Ступень 8: раунд импровизации с фразой как условием. Фраза прозвучала в письменном
+  // ответе — засчитано автоматически; иначе — самооценка после образцов.
+  function mountImprov(ex, me) {
+    const el = document.getElementById('ladder-improv');
+    if (!el) return;
+    ImprovUI.round(el, {
+      place: me.theme, situation: 'Собеседник обращается к тебе — ответь без подготовки и вверни фразу.',
+      who: 'Partner', say: ex.cue, mood: window.Improv ? Improv.moodById.get(ex.mood && ex.mood.key) : null,
+      condition: me.front, samples: ex.samples, autoAccept: true,
+    }, (res) => {
+      if (res.recorded) { st.spokenThis = true; st.stats.spoken++; }
+      settle(res.condition === true || !!res.selfOk, { self: true });
+    });
   }
 
   // Знакомство с новой фразой: послушай, посмотри разбор, повтори вслух. Без оценки:
@@ -317,6 +334,7 @@ const LadderUI = (() => {
     st.ex = { kind: 'intro', step: 0 }; st.me = me; st.pending = null; st.spokenThis = false; st.shownAt = Date.now();
     resetRecording();
     const pct = Math.round((st.idx / st.queue.length) * 100);
+    if (ER && ER.claimContent) ER.claimContent();
     document.getElementById('content').innerHTML = `
       <div class="section-wrap">
         <div class="card ladder-card ladder-intro" id="ladder-root" data-kind="intro">
@@ -386,8 +404,11 @@ const LadderUI = (() => {
             </div>
           </div>
           <p class="setting-hint">Временная версия: автоматической проверки произношения пока нет — оценка за тобой.</p>`;
-      case 'own':
       case 'improv':
+        // Ступень 8 — полноценный раунд импровизации (improv_ui.js): подумать → таймер → образцы
+        if (window.ImprovUI) return '<div class="ladder-improv" id="ladder-improv"></div>';
+        // fallthrough: без модуля импровизации — как ступень 7
+      case 'own':
         return `${ex.mood ? `<p class="ladder-mood">🎭 ${esc(ex.mood.ru)}</p>` : ''}${cueHtml(ex.cue)}
           <textarea class="ladder-input ladder-textarea" id="ladder-input" rows="2" lang="en" spellcheck="false"
             placeholder="Напиши ответ или скажи его вслух…"></textarea>

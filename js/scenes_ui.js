@@ -85,6 +85,7 @@ const ScenesUI = (() => {
     st.result = { finished: false, opensOk: 0, opensSelf: 0, opensTotal: 0, tones: { natural: 0, formal: 0, rude: 0 }, spoken: 0 };
     st.startedAt = Date.now();
     resetRecording();
+    if (ER && ER.claimContent) ER.claimContent();
     document.getElementById('content').innerHTML = `
       <div class="section-wrap">
         <div class="card scene-card" id="scene-root" data-ep="${ep.id}">
