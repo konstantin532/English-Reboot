@@ -298,6 +298,7 @@
     if (window.TodayUI) TodayUI.init(window.ER);
     if (window.ScenesUI) ScenesUI.init(window.ER);
     if (window.ImprovUI) ImprovUI.init(window.ER);
+    if (window.SpeechUI) await SpeechUI.init(window.ER);
     IELTS.init(window.ER);
     Search.init(window.ER);
     Onboarding.init(window.ER);
@@ -570,7 +571,7 @@
 
   function bindTabEvents(tabId) {
     if (tabId === 'today') TodayUI.bind();
-    if (tabId === 'settings') bindSettings();
+    if (tabId === 'settings') { bindSettings(); if (window.SpeechUI) SpeechUI.bindSettings(); }
     if (tabId === 'ielts') IELTS.bind();
     if (tabId === 'practice' && state.practiceMode === 'dictation') Dictation.bindSetup();
     if (tabId === 'practice' && state.practiceMode === 'shadowing') Shadowing.bindSetup();
@@ -1812,6 +1813,7 @@
             </ol>
           </details>
         </section>
+        ${window.SpeechUI ? SpeechUI.settingsHtml() : ''}
         <section class="card settings-card">
           <h3 class="card-title">Слои разметки</h3>
           <div class="layer-preview" aria-hidden="true">

@@ -3134,3 +3134,29 @@ button:not([class]):hover { background: var(--fill-strong); }
 .ya-review p { margin: 0 0 4px; }
 .ya-their { font-weight: 600; }
 .ya-mine { color: var(--accent-strong); }
+
+/* ==========================================================================
+   Этап 5: проверка голоса (speech_ui.js)
+   ========================================================================== */
+.speech-check { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; align-self: stretch; }
+.speech-status { font-size: 14px; color: var(--text-muted); }
+.speech-result { flex-basis: 100%; display: none; gap: 14px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius); background: var(--bg); border: 1px solid var(--border); }
+.speech-result.is-shown { display: flex; animation: sectionIn 0.2s ease both; }
+.sp-score { flex: none; display: flex; align-items: baseline; gap: 2px; padding: 8px 12px; border-radius: var(--radius); background: var(--bg-card); }
+.sp-score b { font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+.sp-score span { color: var(--text-muted); font-size: 13px; }
+.sp-score.is-pass b { color: var(--success); }
+.sp-score.is-almost b { color: var(--warning); }
+.sp-score.is-miss b { color: var(--danger); }
+.sp-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sp-body p { margin: 0; }
+.sp-verdict { font-weight: 700; }
+.sp-words { font-size: 18px; line-height: 1.8; }
+.sp-word { padding: 1px 4px; border-radius: 4px; }
+.sp-word.is-ok { background: rgba(16, 185, 129, 0.14); color: var(--success); }
+.sp-word.is-wrong { background: rgba(245, 158, 11, 0.18); color: var(--warning); text-decoration: underline wavy; }
+.sp-word.is-missing { background: rgba(239, 68, 68, 0.12); color: var(--danger); text-decoration: line-through; }
+.sp-heard { font-size: 14px; color: var(--text-muted); }
+.sp-note { font-size: 12px; color: var(--text-muted); }
+.speech-voice-status { flex-basis: 100%; }
+@media (max-width: 640px) { .speech-result.is-shown { flex-direction: column; } }

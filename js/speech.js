@@ -129,18 +129,15 @@ const Speech = (() => {
 
   const Ctor = () => (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) || null;
 
-  // { available, local: true|false|null } — local null: неизвестно (скорее всего нужен интернет)
-  async function support() {
-    const SR = Ctor();
-    if (!SR) return { available: false, local: false };
-    try {
-      if (typeof SR.available === 'function') {
-        const s = await SR.available({ langs: ['en-US'], processLocally: true });
-        return { available: true, local: s === 'available' };
-      }
-    } catch (e) { /* старый API без проверки офлайн-режима */ }
-    return { available: true, local: null };
+  // Синхронно: есть ли API вообще. local: null — неизвестно (скорее всего нужен интернет)
+  function supportNow() {
+    return Ctor() ? { available: true, local: null } : { available: false, local: false };
   }
+
+  // SpeechRecognition.available() НЕ вызываем: в текущем Chromium он роняет вкладку целиком.
+  // Поэтому честно считаем, что распознавание, скорее всего, идёт через интернет.
+  // TODO: определять офлайн-распознавание, когда API станет стабильным.
+  async function support() { return supportNow(); }
 
   /**
    * Распознать речь. opts: { continuous, maxMs }.
@@ -196,7 +193,7 @@ const Speech = (() => {
     })[code] || 'Распознать не получилось — можно продолжить по образцу и самооценке.';
   }
 
-  return { PASS, ALMOST, normWord, tokensOf, align, compare, best, trapResults, support, listen, errorText };
+  return { PASS, ALMOST, normWord, tokensOf, align, compare, best, trapResults, supportNow, support, listen, errorText };
 })();
 
 if (typeof globalThis !== 'undefined') globalThis.Speech = Speech;
