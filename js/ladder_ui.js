@@ -206,6 +206,9 @@ const LadderUI = (() => {
     return `<div class="ladder-phrase"><div class="example-text">${body}</div>${audioBtn(text, 'Прослушать')}</div>`;
   }
 
+  // Ловушки русского акцента в показанной фразе (traps_ui.js), фраза уже выведена выше — компактно
+  const trapsHtml = (text) => (window.TrapsUI ? TrapsUI.placeholder(text, { compact: true }) : '');
+
   function audioBtn(text, label) {
     return `<button class="audio-btn" data-speech="${esc(text)}" type="button" title="${label}" aria-label="${label}">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
@@ -278,6 +281,7 @@ const LadderUI = (() => {
           <p class="ladder-sub">Ответь вслух вот так:</p>
           ${phraseHtml(ex.text)}
           <p class="ladder-sub">«${esc(me.ru)}»</p>
+          ${trapsHtml(ex.text)}
           ${recorderHtml()}
           <div class="ladder-self" id="ladder-self">
             <p class="ladder-sub">Сравни с образцом: похоже звучит?</p>
@@ -458,7 +462,7 @@ const LadderUI = (() => {
       : r.event === 'down' ? `<p class="ladder-event is-down">${say('down')} Ступень ${r.to} — ${Ladder.STEPS[r.to - 1].title}.</p>`
         : r.event === 'top' ? `<p class="ladder-event is-up">${say('top')}</p>` : '';
     const correctBlock = (!ok && !opts.self) || st.ex.step === 1 || st.ex.step === 3 || st.ex.step === 4
-      ? `<p class="ladder-sub">${ok ? 'Фраза' : 'Правильно'}: «${esc(st.me.ru)}»</p>${phraseHtml(st.ex.step === 2 ? st.me.b : st.me.front)}` : '';
+      ? `<p class="ladder-sub">${ok ? 'Фраза' : 'Правильно'}: «${esc(st.me.ru)}»</p>${phraseHtml(st.ex.step === 2 ? st.me.b : st.me.front)}${trapsHtml(st.ex.step === 2 ? st.me.b : st.me.front)}` : '';
     const fb = document.getElementById('ladder-feedback');
     const keepSamples = opts.self && (st.ex.kind === 'own' || st.ex.kind === 'improv') ? fb.innerHTML : '';
     fb.innerHTML = `${keepSamples}

@@ -285,6 +285,7 @@
     Dictation.init(window.ER);
     Shadowing.init(window.ER);
     if (window.LadderUI) LadderUI.init(window.ER);
+    if (window.TrapsUI) TrapsUI.init();
     IELTS.init(window.ER);
     Search.init(window.ER);
     Onboarding.init(window.ER);
@@ -839,6 +840,7 @@
           </div>
           ${headHtml}
           ${extraBlock}
+          ${window.TrapsUI && window.Ladder && Ladder.isUsCard(cardData) ? TrapsUI.placeholder(p.front) : ''}
           ${window.Ladder && Ladder.isUsCard(cardData) ? ladderButtonHtml(cardData, rec) : ''}
           ${(p.examples || []).length ? `<h3>Примеры</h3>
           <div class="examples">${examplesHtml(p)}</div>` : ''}
