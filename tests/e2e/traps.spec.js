@@ -128,3 +128,30 @@ test('паспорт акцента: 10 ловушек на «Прогрессе
   await expect(passport.locator('.passport-row', { hasText: 'th [θ ð]' })).toHaveClass(/is-progress/);
   expect(errors).toEqual([]);
 });
+
+test('паспорт акцента: лестница первыми берёт новые фразы со слабой ловушкой', async ({ page }) => {
+  await start(page);
+  const firstPhrase = async () => {
+    await page.evaluate(() => ER.switchTab('practice'));
+    await page.locator('.mode-btn[data-mode="ladder"]').click();
+    await page.locator('#ladder-theme').selectOption('Знакомство и small talk');
+    await page.locator('#ladder-start').click();
+    const said = await page.locator('.ladder-play').first().getAttribute('data-say');
+    const traps = await page.evaluate(async (t) => AccentTraps.trapIdsOf(t, await TrapsUI.ensureLookup()), said);
+    await page.evaluate(() => ER.switchTab('practice')); // выйти без сохранения ответов
+    return { said, traps };
+  };
+
+  const before = await firstPhrase();
+  expect(before.traps).not.toContain('th'); // по порядку темы первой идёт фраза без th
+
+  // th «в работе» (встречалась, не побеждена)
+  await page.evaluate(async () => {
+    let p = null;
+    [false, false, true].forEach((ok) => { p = AccentTraps.recordResult(p, 'th', ok); });
+    await DB.saveSetting('accent_passport', p);
+  });
+  const after = await firstPhrase();
+  expect(after.traps).toContain('th');
+  expect(after.said).not.toBe(before.said);
+});
