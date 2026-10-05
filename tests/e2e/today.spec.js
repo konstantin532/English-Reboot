@@ -19,6 +19,17 @@ async function onboard(page) {
   await expect(page.locator('#seed-progress')).toBeHidden({ timeout: 20000 });
 }
 
+// Блок импровизации в конце урока: N спинов с ускоренным таймером
+async function doImprovSpins(page, n) {
+  for (let i = 1; i <= n; i++) {
+    await expect(page.locator('.session-counter')).toContainText(`Спин ${i} из ${n}`);
+    // ускоренный таймер: «подумать» и «говорить» истекают сами — ждём фазу ответа
+    await expect(page.locator('#imp-round')).toHaveAttribute('data-phase', 'review', { timeout: 10000 });
+    await page.locator('#imp-reveal').click();
+    await page.locator('.imp-self[data-ok="1"]').click();
+  }
+}
+
 async function recordAloud(page) {
   await page.locator('#ladder-rec').click();
   await page.waitForTimeout(1200); // «фраза вслух» засчитывается от 1 секунды
@@ -55,6 +66,7 @@ test('«Сегодня»: после онбординга урок открыв�
   await expect(page.locator('.today-start')).toHaveCount(1);
   await expect(page.locator('.today-plan')).toContainText('3 фразы');
   await expect(page.locator('.today-plan')).toContainText('Сцена — «Аэропорт JFK»');
+  await expect(page.locator('.today-plan')).toContainText('Импровизация — 2 ситуации');
 
   await page.locator('#today-start').click();
 
@@ -79,12 +91,17 @@ test('«Сегодня»: после онбординга урок открыв�
   await page.locator('#scene-answer').fill('I just landed!'); await page.locator('#scene-check').click(); await next();
   await page.locator('#scene-done').click();
 
+  // В конце — 2 спина импровизации
+  await page.evaluate(() => ImprovUI.configure({ secondMs: 40 }));
+  await doImprovSpins(page, 2);
+
   // Итог дня: честные цифры из статистики дня
   const summary = page.locator('#today-summary');
   await expect(summary).toContainText('Сказано вслух: 3 фразы');
   await expect(summary).toContainText('Открыто ступеней: 3');
   await expect(summary).toContainText('серия 1 день');
   await expect(summary).toContainText('Сцена «Аэропорт JFK» пройдена');
+  await expect(summary).toContainText('Импровизаций: 2');
 
   // Главная: урок дня пройден, плитки обновились
   await page.locator('#today-home').click();

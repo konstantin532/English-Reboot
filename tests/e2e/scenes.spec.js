@@ -6,6 +6,17 @@ test.use({
   launchOptions: { args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] },
 });
 
+// Блок импровизации в конце урока: N спинов с ускоренным таймером
+async function doImprovSpins(page, n) {
+  for (let i = 1; i <= n; i++) {
+    await expect(page.locator('.session-counter')).toContainText(`Спин ${i} из ${n}`);
+    // ускоренный таймер: «подумать» и «говорить» истекают сами — ждём фазу ответа
+    await expect(page.locator('#imp-round')).toHaveAttribute('data-phase', 'review', { timeout: 10000 });
+    await page.locator('#imp-reveal').click();
+    await page.locator('.imp-self[data-ok="1"]').click();
+  }
+}
+
 async function onboard(page) {
   await page.goto('/');
   const skip = page.locator('#ob-skip');
@@ -118,6 +129,9 @@ test('«Сегодня»: после заданий урока идёт сцен
   await page.locator('#scene-answer').fill('I just landed!'); await page.locator('#scene-check').click(); await next(page);
   await page.locator('#scene-done').click();
 
+  // после сцены — импровизация, затем итог дня
+  await page.evaluate(() => ImprovUI.configure({ secondMs: 40 }));
+  await doImprovSpins(page, 2);
   await expect(page.locator('#today-summary')).toBeVisible();
   await expect(page.locator('#today-scene-done')).toContainText('Сцена «Аэропорт JFK» пройдена');
 });
