@@ -114,3 +114,30 @@ describe('Прогресс сцен', () => {
     expect(t).toContain('For one year');
   });
 });
+
+describe('Ступень 7 лестницы: проверка по смыслу', () => {
+  const L = ctx.Ladder;
+  const items = ctx.CONVERSATION_CARDS.filter(L.isUsCard).map(L.itemFromCard);
+  const me = items.find((x) => x.front === 'Could you give me a hand?');
+  const tones = { [me.front]: { polite: 'Would you mind helping me with this?', neutral: 'Could you give me a hand?', friend: 'Hey, gimme a hand?' } };
+  const ex = L.buildExercise(7, me, items, { tones });
+  const ok = (t) => !!S.matchMeaning(t, ex.meanings);
+
+  it('засчитано, если фраза есть в ответе — в любой форме и с опечаткой', () => {
+    expect(ok('Sure! Could you give me a hand with these boxes?')).toBe(true);
+    expect(ok('could you giv me a hand')).toBe(true);
+  });
+  it('вариант тона тоже засчитывается: «Hey, gimme a hand?»', () => {
+    expect(ok('Gimme a hand, please!')).toBe(true);
+    expect(ok('Would you mind helping me with this box?')).toBe(true);
+  });
+  it('ответ без фразы автоматически не засчитывается — только образцы и самооценка', () => {
+    expect(ok('I can help you tomorrow')).toBe(false);
+  });
+  it('у фраз с «...» многоточие не мешает', () => {
+    const lss = items.find((x) => x.front.includes('...'));
+    if (!lss) return;
+    const e = L.buildExercise(7, lss, items, { tones: {} });
+    expect(e.meanings[0].keys[0]).not.toContain('...');
+  });
+});

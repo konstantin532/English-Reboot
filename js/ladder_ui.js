@@ -393,7 +393,7 @@ const LadderUI = (() => {
             placeholder="Напиши ответ или скажи его вслух…"></textarea>
           ${recorderHtml()}
           <div class="ladder-row" id="ladder-done-row"><button class="btn-primary" id="ladder-done" type="button">Готово — показать образцы</button></div>
-          <p class="setting-hint">Временная версия: ответ своими словами пока не проверяется автоматически — покажем образцы, оценка за тобой.</p>`;
+          <p class="setting-hint">Письменный ответ с фразой засчитывается автоматически; голосовой — пока по образцам и самооценке.</p>`;
       default:
         return '';
     }
@@ -518,10 +518,21 @@ const LadderUI = (() => {
     if (!text && !st.spokenThis) { ER.toast('Напиши ответ или запиши его голосом'); return; }
     if (st.rec.active) stopRecording();
     if (input) input.disabled = true;
-    const used = text ? Ladder.usesPhrase(text, st.me.front) : null;
-    const usedLine = used === null ? ''
-      : used ? `<p class="ladder-fact is-ok">✓ В ответе есть «${esc(st.me.front)}».</p>`
-        : `<p class="ladder-fact">Фразы «${esc(st.me.front)}» в ответе не нашлось — попробуй вставить её в следующий раз.</p>`;
+    const doneRow = document.getElementById('ladder-done-row');
+    const samplesList = `<ul class="ladder-samples">${st.ex.samples.map((s) => `<li>${esc(s)} ${audioBtn(s, 'Прослушать')}</li>`).join('')}</ul>`;
+    // Честная проверка по смыслу (scenes.js): фраза или её вариант тона есть в ответе и не под отрицанием
+    const m = text && window.Scenes && st.ex.meanings ? Scenes.matchMeaning(text, st.ex.meanings) : null;
+    if (m) {
+      if (doneRow) doneRow.remove();
+      document.getElementById('ladder-feedback').innerHTML = `
+        <p class="ladder-fact is-ok">✓ Засчитано: ${esc(m.meaning.label)}${m.key !== m.meaning.keys[0] ? ` (вариант «${esc(m.key)}»)` : ''}.</p>
+        <p class="ladder-sub">Как ещё можно сказать:</p>${samplesList}`;
+      settle(true, { self: true });
+      return;
+    }
+    const usedLine = text
+      ? `<p class="ladder-fact">Фразы «${esc(st.me.front)}» в ответе не нашлось (или она стоит с отрицанием) — автоматически не засчитать. Сравни с образцами:</p>`
+      : '<p class="ladder-fact">Голосовой ответ пока не проверяется автоматически — сравни с образцами:</p>';
     const label = st.ex.kind === 'improv'
       ? 'Как эта фраза звучит в живой речи (это примеры, а не единственно верный ответ):'
       : 'Как ответил бы носитель — сравни со своим:';
@@ -533,7 +544,6 @@ const LadderUI = (() => {
     document.getElementById('ladder-actions').innerHTML = `
       <button class="btn-primary ladder-selfbtn" type="button" data-ok="1">Да, подходит</button>
       <button class="btn btn-ghost ladder-selfbtn" type="button" data-ok="0">Пока не очень</button>`;
-    const doneRow = document.getElementById('ladder-done-row');
     if (doneRow) doneRow.remove();
   }
 

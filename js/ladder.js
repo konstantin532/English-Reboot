@@ -203,6 +203,18 @@ const Ladder = (() => {
 
   const tokens = (s) => String(s || '').trim().split(/\s+/).map((w) => w.replace(/^[^\w']+|[^\w']+$/g, '')).filter(Boolean);
 
+  // «Смысл» для ступеней 7–8: в ответе есть сама фраза или один из её вариантов тона
+  // (без «...» и финальной пунктуации). Проверяет Scenes.matchMeaning — с отрицаниями и опечатками.
+  function phraseMeanings(me, table) {
+    const t = toneOf(me.front, table);
+    // без «...», финальной пунктуации и вводных междометий («Hey, gimme a hand?» → «gimme a hand»)
+    const clean = (s) => String(s || '').replace(/\.\.\./g, ' ').replace(/[?!.,]+\s*$/, '').trim()
+      .replace(/^((hey|oh|so|well|okay|ok|um|uh|ha|wait|yeah|honestly)[,!]?\s+)+/i, '').trim();
+    const keys = [me.front, ...(t ? [t.polite, t.neutral, t.friend] : [])].map(clean).filter(Boolean)
+      .filter((k, i, arr) => arr.findIndex((x) => normText(x) === normText(k)) === i);
+    return [{ id: 'phrase', label: 'в ответе есть «' + clean(me.front) + '»', keys }];
+  }
+
   /* ---------- Генераторы упражнений ---------- */
 
   function buildExercise(step, me, items, opts) {
@@ -246,19 +258,19 @@ const Ladder = (() => {
         // TODO(этап 5): заменить самооценку проверкой через SpeechRecognition
         return { kind: 'say', step, prompt: 'Ответь собеседнику вслух — с американским произношением', cue: me.a, text: me.b, phrase: me.front };
       case 7: {
-        // TODO(этап 3): проверка по «смыслам» вместо самооценки
+        // Проверка по смыслам (scenes.js): засчитано, если в ответе есть фраза или её вариант тона
         const t = toneOf(me.front, table);
         const norm = (x) => normText(x);
         const samples = [me.b, me.ex, t && t.neutral, t && t.friend, t && t.polite, me.front]
           .filter((x, i, arr) => x && arr.findIndex((y) => y && norm(y) === norm(x)) === i).slice(0, 3);
         return { kind: 'own', step, prompt: 'Ответь своими словами, используя «' + me.front + '»',
-          cue: me.a, phrase: me.front, samples };
+          cue: me.a, phrase: me.front, samples, meanings: phraseMeanings(me, table) };
       }
       case 8: {
         // TODO(этап 4): полноценная импров-рулетка (карточки ситуаций, таймер 20–30 с)
         const mood = pick(MOODS, rng);
         return { kind: 'improv', step, prompt: 'Без подготовки: ответь так, чтобы прозвучало «' + me.front + '»',
-          cue: me.a, mood, theme: me.theme, phrase: me.front, samples: [me.b, me.ex].filter(Boolean) };
+          cue: me.a, mood, theme: me.theme, phrase: me.front, samples: [me.b, me.ex].filter(Boolean), meanings: phraseMeanings(me, table) };
       }
       default:
         return null;
