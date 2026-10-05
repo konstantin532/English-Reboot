@@ -132,7 +132,7 @@ card('g052','A1',['знакомство','базовое'],
 card('g053','A1',['have got','владение'],
 'Have got / Has got',
 'I/you/we/they have got · he/she/it has got · − haven\'t / hasn\'t got',
-'«Иметь, владеть»: I have got a dog. С he/she/it — has got. В разговоре сокращают: I\'ve got, she\'s got.',
+'«Иметь, владеть»: I have got a dog. С he/she/it — has got. В разговоре сокращают: I\'ve got, she\'s got. В США в вопросах и отрицаниях говорят Do you have…? / I don\'t have…, а I\'ve got звучит в утверждениях.',
 [
  ex('I have got a dog.',[
   w('I','pron','/aɪ/'), w('have','verb','/hæv/'), w('got','verb','/ɡɑt/'), w('a','art','/ə/'), w('dog','noun','/dɔɡ/')]),
