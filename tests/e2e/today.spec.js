@@ -39,13 +39,13 @@ async function doTask(page) {
     await page.locator('.ladder-opt').filter({ hasText: said }).first().click();
     await page.locator('#ladder-next').click();
   }
-  await expect.poll(async () => (await page.locator('#today-summary').isVisible().catch(() => false))
+  await expect.poll(async () => (await page.locator('#today-summary, #scene-root').first().isVisible().catch(() => false))
     || (await page.locator('.session-counter').innerText().catch(() => counter)) !== counter).toBe(true);
   return kind === 'intro' ? 'intro' : 'ex';
 }
 
 test('«Сегодня»: после онбординга урок открывается одним кликом и доходит до итога дня', async ({ page }) => {
-  test.setTimeout(90000); // 12 заданий, три записи голоса по 1+ с
+  test.setTimeout(120000); // 12 заданий, три записи голоса по 1+ с и сцена
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await onboard(page);
@@ -54,6 +54,7 @@ test('«Сегодня»: после онбординга урок открыв�
   await expect.poll(() => page.evaluate(() => document.body.dataset.tab)).toBe('today');
   await expect(page.locator('.today-start')).toHaveCount(1);
   await expect(page.locator('.today-plan')).toContainText('3 фразы');
+  await expect(page.locator('.today-plan')).toContainText('Сцена — «Аэропорт JFK»');
 
   await page.locator('#today-start').click();
 
@@ -62,16 +63,28 @@ test('«Сегодня»: после онбординга урок открыв�
   await expect(page.locator('#ladder-rec')).toBeVisible();
 
   const done = { intro: 0, ex: 0 };
-  for (let i = 0; i < 30 && !(await page.locator('#today-summary').isVisible().catch(() => false)); i++) {
+  for (let i = 0; i < 30 && !(await page.locator('#scene-root').isVisible().catch(() => false)); i++) {
     done[await doTask(page)]++;
   }
   expect(done).toEqual({ intro: 3, ex: 9 });
+
+  // После заданий — сцена истории: проходим «Аэропорт JFK» естественными ответами
+  await expect(page.locator('.scene-title')).toHaveText('Аэропорт JFK');
+  const opt = (t) => page.locator('.scene-opt').filter({ hasText: t }).click();
+  const next = () => page.locator('#scene-next').click();
+  await opt("I'm here for business"); await next();
+  await page.locator('#scene-answer').fill('For a year'); await page.locator('#scene-check').click(); await next();
+  await opt('No, nothing to declare'); await next();
+  await next();
+  await page.locator('#scene-answer').fill('I just landed!'); await page.locator('#scene-check').click(); await next();
+  await page.locator('#scene-done').click();
 
   // Итог дня: честные цифры из статистики дня
   const summary = page.locator('#today-summary');
   await expect(summary).toContainText('Сказано вслух: 3 фразы');
   await expect(summary).toContainText('Открыто ступеней: 3');
   await expect(summary).toContainText('серия 1 день');
+  await expect(summary).toContainText('Сцена «Аэропорт JFK» пройдена');
 
   // Главная: урок дня пройден, плитки обновились
   await page.locator('#today-home').click();
