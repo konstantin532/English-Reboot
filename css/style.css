@@ -2960,3 +2960,20 @@ button:not([class]):hover { background: var(--fill-strong); }
 }
 .trap-pair { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .trap-pair-note { font-size: 13px; color: var(--text-muted); }
+.trap-drill-btn { align-self: flex-start; }
+.trap-drill { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; }
+.trap-drill-options > *, .trap-drill-feedback .trap-pair > * { min-width: 0; }
+.trap-drill h3 { margin: 0; }
+.trap-drill-play { display: flex; gap: 8px; flex-wrap: wrap; }
+.trap-drill-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.trap-drill-opt {
+  font-family: inherit; font-size: 20px; font-weight: 600; cursor: pointer; padding: 16px 12px;
+  color: var(--text); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.trap-drill-opt:hover:not(:disabled) { border-color: var(--accent); }
+.trap-drill-opt.is-correct { background: rgba(16, 185, 129, 0.14); border-color: var(--success); color: var(--success); }
+.trap-drill-opt.is-wrong { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+.trap-drill-feedback:empty { display: none; }
+.trap-drill-feedback { display: flex; flex-direction: column; gap: 8px; }
+.trap-drill-feedback p { margin: 0; }
+.trap-drill-score { font-size: 18px; margin: 0; }

@@ -95,7 +95,8 @@ const TrapsUI = (() => {
         <button class="btn trap-say-pair" type="button" data-a="${esc(a)}" data-b="${esc(b)}">🔊 ${esc(a)} → ${esc(b)}</button>
         <span class="trap-pair-note">${pairLabel}</span>
         <button class="btn btn-ghost trap-next-pair" type="button">Другая пара</button>
-      </div>`;
+      </div>
+      <button class="btn-primary trap-drill-btn" type="button" data-trap="${trapId}">🎧 Тренажёр: 5 пар на слух</button>`;
     panel.hidden = false;
     block.querySelectorAll('.trap-chip, .trap-word').forEach((el) => {
       const on = el.classList.contains('trap-chip') ? el.dataset.trap === trapId
@@ -127,11 +128,103 @@ const TrapsUI = (() => {
     if (pair) { speak(pair.dataset.a + '. ' + pair.dataset.b + '.', 0.6); return; }
     const say = e.target.closest('.trap-say');
     if (say) { speak(say.dataset.say); return; }
+    const drill = e.target.closest('.trap-drill-btn');
+    if (drill) { startDrill(drill.dataset.trap); return; }
     if (e.target.closest('.trap-next-pair')) {
       const panel = block.querySelector('.trap-explain');
       panel.dataset.pair = String(Number(panel.dataset.pair || 0) + 1);
       explain(block, panel.dataset.trap);
     }
+  }
+
+  /* ---------- Мини-тренажёр пар (модальное окно) ---------- */
+
+  const COACH = {
+    ok: ['Слышишь разницу!', 'Точно!', 'Ухо уже американское.', 'Есть!'],
+    miss: ['Коварная пара — послушай ещё раз обе.', 'Почти. Сравни медленно.', 'Это и есть ловушка — теперь ты её знаешь.'],
+  };
+  const pickLine = (k) => COACH[k][Math.floor(Math.random() * COACH[k].length)];
+  const drill = { trap: null, rounds: [], i: 0, correct: 0, answered: false };
+
+  async function savePassport(trapId, ok) {
+    try {
+      const r = await DB.getSetting('accent_passport');
+      const next = AccentTraps.recordResult(r.success ? r.data : null, trapId, ok, window.SRS ? SRS.todayStr() : null);
+      await DB.saveSetting('accent_passport', next);
+    } catch (e) { /* паспорт — не критично для урока */ }
+  }
+
+  function startDrill(trapId) {
+    if (!window.ER) return;
+    drill.trap = AccentTraps.byId.get(trapId);
+    drill.rounds = AccentTraps.buildDrill(trapId, { rounds: 5 });
+    drill.i = 0; drill.correct = 0; drill.answered = false;
+    ER.showModal('<div class="trap-drill" id="trap-drill"></div>', {});
+    const root = document.getElementById('trap-drill');
+    root.addEventListener('click', onDrillClick);
+    renderRound();
+  }
+
+  function renderRound() {
+    const root = document.getElementById('trap-drill');
+    if (!root) return;
+    const t = drill.trap;
+    if (drill.i >= drill.rounds.length) {
+      const n = drill.rounds.length;
+      const line = drill.correct === n ? 'Чисто! Эту ловушку ты слышишь.' : drill.correct >= n - 1 ? 'Почти идеально.' : 'Уши настраиваются — повтори завтра, станет легче.';
+      root.innerHTML = `
+        <h3>${esc(t.title)}</h3>
+        <p class="trap-drill-score"><b>${drill.correct} из ${n}</b> — ${line}</p>
+        <p class="setting-hint">Результат записан в паспорт акцента.</p>
+        <div class="session-actions">
+          <button class="btn-primary" id="trap-drill-again" type="button">Ещё 5 пар</button>
+          <button class="btn btn-ghost" id="trap-drill-close" type="button">Закрыть</button>
+        </div>`;
+      return;
+    }
+    const r = drill.rounds[drill.i];
+    drill.answered = false;
+    root.innerHTML = `
+      <p class="session-counter">${esc(t.title)} · пара ${drill.i + 1} из ${drill.rounds.length}</p>
+      <h3 class="trap-drill-q">${esc(r.prompt)}</h3>
+      <div class="trap-drill-play">
+        <button class="btn-primary" id="trap-drill-play" type="button">▶ Прослушать</button>
+        <button class="btn btn-ghost" id="trap-drill-slow" type="button">🐢 Медленно</button>
+      </div>
+      <div class="trap-drill-options">${r.options.map((o, i) =>
+        `<button class="trap-drill-opt" type="button" data-i="${i}">${esc(o)}</button>`).join('')}</div>
+      <div class="trap-drill-feedback" id="trap-drill-feedback" aria-live="polite"></div>
+      <div class="session-actions"><button class="btn btn-ghost" id="trap-drill-close" type="button">Закончить</button></div>`;
+    setTimeout(() => speak(r.play, 0.75), 200);
+  }
+
+  function onDrillClick(e) {
+    const r = drill.rounds[drill.i];
+    if (e.target.closest('#trap-drill-play') && r) { speak(r.play, 0.75); return; }
+    if (e.target.closest('#trap-drill-slow') && r) { speak(r.play, 0.5); return; }
+    if (e.target.closest('#trap-drill-close')) { ER.closeModal(); return; }
+    if (e.target.closest('#trap-drill-again')) { startDrill(drill.trap.id); return; }
+    if (e.target.closest('#trap-drill-next')) { drill.i++; renderRound(); return; }
+    const opt = e.target.closest('.trap-drill-opt');
+    if (opt && r && !drill.answered) {
+      drill.answered = true;
+      const i = Number(opt.dataset.i);
+      const ok = i === r.correct;
+      if (ok) drill.correct++;
+      document.querySelectorAll('.trap-drill-opt').forEach((b, j) => {
+        b.disabled = true;
+        if (j === r.correct) b.classList.add('is-correct'); else if (j === i) b.classList.add('is-wrong');
+      });
+      const [a, b] = r.pair;
+      document.getElementById('trap-drill-feedback').innerHTML = `
+        <p class="ladder-verdict ${ok ? 'is-ok' : 'is-miss'}"><b>${pickLine(ok ? 'ok' : 'miss')}</b></p>
+        <p class="trap-pair"><button class="btn trap-drill-compare" type="button" data-a="${esc(a)}" data-b="${esc(b)}">🔊 ${esc(a)} → ${esc(b)}</button>
+          <button class="btn-primary" id="trap-drill-next" type="button">Дальше →</button></p>`;
+      savePassport(drill.trap.id, ok);
+      return;
+    }
+    const cmp = e.target.closest('.trap-drill-compare');
+    if (cmp) speak(cmp.dataset.a + '. ' + cmp.dataset.b + '.', 0.6);
   }
 
   function init() {
@@ -141,7 +234,7 @@ const TrapsUI = (() => {
     hydrate(content);
   }
 
-  return { init, placeholder, hydrate, ensureLookup };
+  return { init, placeholder, hydrate, ensureLookup, startDrill };
 })();
 
 if (typeof window !== 'undefined') window.TrapsUI = TrapsUI;
