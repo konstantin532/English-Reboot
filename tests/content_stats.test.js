@@ -10,19 +10,20 @@ describe('Счётчик контента: план «+4000»', () => {
     expect(Object.values(PLAN.types).reduce((a, b) => a + b, 0)).toBe(PLAN.total);
   });
 
-  it('пакет A1, часть 1: 200 слов + 100 фраз + 25 импровизаций = 325', () => {
-    expect(s.bySection.words).toBe(200);
-    expect(s.plan.types.words).toBe(200);
-    expect(s.plan.types.phrases).toBe(100);
-    expect(s.plan.types.improv).toBe(25);
-    expect(s.plan.sublevels.A1).toBe(325);
-    expect(s.plan.done).toBe(325);
+  it('пакет A1 (части 1 и 2): 400 слов + 200 фраз + 50 импровизаций = 650 — цель подуровня A1', () => {
+    expect(s.bySection.words).toBe(400);
+    expect(s.plan.types.words).toBe(400);
+    expect(s.plan.types.phrases).toBe(200);
+    expect(s.plan.types.improv).toBe(50);
+    expect(s.plan.sublevels.A1).toBe(650);
+    expect(s.plan.sublevels.A1).toBe(PLAN.sublevels.A1);
+    expect(s.plan.done).toBe(650);
   });
 
-  it('старый контент не считается сделанным по плану, всего карточек больше 2100', () => {
-    expect(s.total).toBeGreaterThan(2100);
+  it('старый контент не считается сделанным по плану, всего карточек больше 2400', () => {
+    expect(s.total).toBeGreaterThan(2400);
     expect(s.total - s.plan.done + s.plan.types.improv).toBeGreaterThan(1800);
-    expect(s.byLevel.A1).toBeGreaterThan(450);
+    expect(s.byLevel.A1).toBeGreaterThan(780);
   });
 
   it('чистая функция: дубли id не считаются дважды, без sublevel — не план', () => {
