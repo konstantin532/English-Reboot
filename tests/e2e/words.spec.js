@@ -15,10 +15,10 @@ async function onboard(page) {
   await expect(page.locator('#today-start')).toBeVisible();
 }
 
-test('раздел «Слова»: 200 слов A1, перевод примеров под строкой, 5 вопросов в карточке', async ({ page }) => {
+test('раздел «Слова»: 400 слов A1, перевод примеров под строкой, 5 вопросов в карточке', async ({ page }) => {
   await onboard(page);
   await page.locator('.nav-link[data-tab="words"]').click();
-  await expect(page.locator('.list-summary')).toContainText('из 200');
+  await expect(page.locator('.list-summary')).toContainText('из 400');
   const first = page.locator('.vocab-tile').first();
   await expect(first).toContainText('water');
   await expect(first).toContainText('A1');
@@ -57,8 +57,43 @@ test('обновление базы v1 → v2: прогресс на месте,
     kept: (await DB.getByKey('progress', 'cv_1001')).data,
     version: (await DB.getByKey('content_meta', 'words_version')).data.value,
   }));
-  expect(st.words).toBe(200);
+  expect(st.words).toBe(400);
   expect(st.kept.reps).toBe(3);
   expect(st.kept.ladder.step).toBe(3);
-  expect(st.version).toBe('1.0.0');
+  expect(st.version).toBe('1.1.0');
+});
+
+test('«Сегодня» → слова урока: неверный ответ показывает правильный, урок можно прервать и продолжить со слов', async ({ page }) => {
+  await onboard(page);
+  // Все фразы уже в работе — в уроке слова, затем сцена и импровизация
+  await page.evaluate(async () => {
+    const cards = (await DB.getAll('conversation')).data.filter((c) => (c.tags || []).includes('США'));
+    const later = SRS.addDays(SRS.todayStr(), 30);
+    await DB.bulkPut('progress', cards.map((c) => ({ cardId: c.id, storeName: 'conversation', status: 'review', stability: 30, difficulty: 5,
+      ease: 2.3, lapseCount: 0, reps: 3, lastReview: SRS.todayStr(), nextReview: later, ladder: { step: 2, best: 2, hist: {} } })));
+    await ER.switchTab('today');
+  });
+  await expect(page.locator('.today-plan')).toContainText('Слова — 5 слов');
+  await page.locator('#today-start').click();
+  await expect(page.locator('#words-root .session-counter')).toContainText('Слово 1 из 5 · Новое слово');
+  await expect(page.locator('.words-word')).toHaveText('water');
+  await expect(page.locator('.words-ipa')).toContainText('/ˈwɔtɚ/');
+
+  // неверный вариант: подсветка, правильный ответ и пример с переводом; FSRS — «не знаю»
+  const t = await page.evaluate(async () => (await DB.getByKey('words', 'wd_0001')).data.payload.test[0]);
+  await page.locator('.words-opt').nth((t.correct + 1) % 4).click();
+  await expect(page.locator('.words-opt.is-wrong')).toHaveCount(1);
+  await expect(page.locator('.words-opt.is-correct')).toHaveText('вода');
+  await expect(page.locator('#words-feedback')).toContainText('Правильно: water — вода');
+  await expect(page.locator('#words-feedback')).toContainText('Можно мне воды?');
+  await expect.poll(() => page.evaluate(async () => ((await DB.getByKey('progress', 'wd_0001')).data || {}).reps)).toBe(1);
+
+  // прервать: на главной — «Остались слова: 4 из 5», после перезагрузки — дальше со второго слова
+  await page.locator('#words-quit').click();
+  await expect(page.locator('.today-sub')).toContainText('Остались слова: 4 из 5');
+  await page.reload();
+  await expect(page.locator('#today-continue')).toBeVisible({ timeout: 20000 });
+  await page.locator('#today-continue').click();
+  await expect(page.locator('#words-root .session-counter')).toContainText('Слово 2 из 5');
+  await expect(page.locator('.words-word')).toHaveText('coffee');
 });
