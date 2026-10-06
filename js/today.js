@@ -112,6 +112,26 @@ const Today = (() => {
       improv: Math.max(0, Number(o.improv) || 0), words, wordsDue: dueWords.length };
   }
 
+  /* ---------- Слова урока: сложность заданий по подуровню слова ---------- */
+  // Схема автора: A1–A1+ — задания в духе LinguaLeo (значение, перевод в обе стороны, собрать из букв,
+  // написать на слух); с A2 добавятся задания на произношение в духе ELSA (сказать вслух) —
+  // TODO(A2): 'say' и 'pairs'. Пока для подуровней выше A1+ — набор A1+, чтобы не имитировать проверку.
+  // meaning — выбрать значение; reverse — выбрать английское слово по русскому;
+  // letters — собрать слово из букв; listen — послушать и написать.
+  const WORD_DRILLS = {
+    A1: { fresh: ['meaning'], review: ['meaning'] },
+    'A1+': { fresh: ['meaning', 'letters'], review: ['reverse', 'listen'] },
+  };
+  function wordDrills(sublevel, review) {
+    const set = WORD_DRILLS[sublevel] || (sublevel === 'A1' || !sublevel ? WORD_DRILLS.A1 : WORD_DRILLS['A1+']);
+    return (review ? set.review : set.fresh).slice();
+  }
+  // Оценка для FSRS: без ошибок — «знаю», ошибка не во всех заданиях — «сложно», иначе — «не знаю»
+  const gradeWord = (errors, total) => (errors <= 0 ? 'know' : errors < total ? 'hard' : 'dontknow');
+  // «Послушай и напиши»: сравниваем только буквы (регистр, пробелы, апостроф и знаки не важны)
+  const lettersOf = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '');
+  const sameWord = (typed, answer) => lettersOf(typed) !== '' && lettersOf(typed) === lettersOf(answer);
+
   /* ---------- Сохранённый урок: можно прервать и продолжить в тот же день ---------- */
 
   // Состояние урока в settings.today_lesson; урок другого дня не продолжаем.
@@ -136,7 +156,7 @@ const Today = (() => {
 
   const doneToday = (saved, today) => !!(saved && saved.date === today && saved.done);
 
-  return { DEFAULTS, LABELS, buildLesson, pickTheme, resumable, doneToday, hasWork };
+  return { DEFAULTS, LABELS, buildLesson, pickTheme, resumable, doneToday, hasWork, wordDrills, gradeWord, sameWord };
 })();
 
 if (typeof globalThis !== 'undefined') globalThis.Today = Today;

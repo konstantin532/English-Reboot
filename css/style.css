@@ -2904,6 +2904,23 @@ button:not([class]):hover { background: var(--fill-strong); }
 .words-ipa { margin: -4px 0 4px; color: var(--text-muted); font-size: 15px; }
 .words-ex { margin-top: 6px; }
 .words-ex-ru { color: var(--text-muted); }
+.words-word--ru { font-size: 30px; }
+.words-hint { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 16px; margin: 0; }
+.words-slots { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; }
+.words-slot { width: 34px; height: 42px; display: grid; place-items: center; border-bottom: 3px solid var(--border); font-size: 24px; font-weight: 700; text-transform: lowercase; }
+.words-slot.is-filled { border-bottom-color: var(--success); color: var(--success); }
+.words-slot.is-fixed { border-bottom-color: transparent; width: 14px; }
+.words-tiles { display: flex; flex-wrap: wrap; gap: 8px; }
+.words-tile { min-width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 20px; font-weight: 600; cursor: pointer; }
+.words-tile:hover:not(:disabled) { border-color: var(--accent); }
+.words-tile.is-used { opacity: .25; cursor: default; }
+.words-tile.is-wrong { border-color: var(--danger); color: var(--danger); animation: words-shake .3s; }
+@keyframes words-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) { .words-tile.is-wrong { animation: none; } }
+.words-write { display: flex; gap: 8px; flex-wrap: wrap; }
+.words-input { flex: 1; min-width: 180px; height: 46px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 20px; }
+.words-input.is-correct { border-color: var(--success); }
+.words-input.is-wrong { border-color: var(--danger); }
 .ladder-verdict { padding: 10px 14px; border-radius: var(--radius); border-left: 3px solid var(--success); background: var(--bg); }
 .ladder-verdict.is-miss { border-left-color: var(--warning); }
 .ladder-event { margin: 0; font-weight: 600; }

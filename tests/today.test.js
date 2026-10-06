@@ -116,6 +116,24 @@ describe('Урок «Сегодня»: выбор темы и края', () => {
     expect(Today.resumable(saved, '2026-10-06').phase).toBe('words');
     expect(Today.resumable({ ...saved, wordsDone: 2 }, '2026-10-06').phase).toBe('scene');
   });
+  it('сложность слов по подуровню: A1 — значение; A1+ — значение и буквы, повтор — перевод с русского и на слух', () => {
+    expect(Today.wordDrills('A1', false)).toEqual(['meaning']);
+    expect(Today.wordDrills('A1', true)).toEqual(['meaning']);
+    expect(Today.wordDrills('A1+', false)).toEqual(['meaning', 'letters']);
+    expect(Today.wordDrills('A1+', true)).toEqual(['reverse', 'listen']);
+  });
+  it('оценка слова: «знаю» только без единой ошибки', () => {
+    expect(Today.gradeWord(0, 2)).toBe('know');
+    expect(Today.gradeWord(1, 2)).toBe('hard');
+    expect(Today.gradeWord(2, 2)).toBe('dontknow');
+    expect(Today.gradeWord(1, 1)).toBe('dontknow');
+  });
+  it('«послушай и напиши»: регистр, пробелы и знаки не важны, буквы — важны', () => {
+    expect(Today.sameWord('  Get Together! ', 'get together')).toBe(true);
+    expect(Today.sameWord("dont", "don't")).toBe(true);
+    expect(Today.sameWord('gether', 'get together')).toBe(false);
+    expect(Today.sameWord('', 'go')).toBe(false);
+  });
   it('заданная тема соблюдается', () => {
     const l = Today.buildLesson({ items: ITEMS, due: [], started: new Set(), theme: 'Отель' });
     l.fresh.forEach((id) => expect(byId.get(id).theme).toBe('Отель'));

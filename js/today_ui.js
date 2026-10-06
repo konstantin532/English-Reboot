@@ -174,7 +174,7 @@ const TodayUI = (() => {
     });
   }
 
-  /* ---------- Слова урока: послушай и выбери значение ---------- */
+  /* ---------- Слова урока: значение, перевод, буквы, на слух ---------- */
   // Слова раздела «Слова». Ответ проверяется честно (вариант выбран верно или нет), результат
   // идёт в FSRS («знаю» / «не знаю») и в журнал дня — как отметка карточки в библиотеке.
   const bareOf = (w) => String(w || '').toLowerCase().replace(/[^a-z']/g, '');
@@ -198,72 +198,164 @@ const TodayUI = (() => {
     showWord(lesson, byId);
   }
 
-  function showWord(lesson, byId) {
+  // Слово проходит 1–2 задания (Today.wordDrills по подуровню): значение, перевод с русского,
+  // сборка из букв, запись на слух. Оценка в FSRS — после последнего задания (Today.gradeWord).
+  const DRILL_TITLE = {
+    meaning: 'Послушай и выбери значение',
+    reverse: 'Выбери слово по-английски',
+    letters: 'Собери слово из букв',
+    listen: 'Послушай и напиши',
+  };
+  // Буквы для «собери из букв»: перемешаны детерминированно (по id), чтобы экран не прыгал
+  function shuffledLetters(word, seed) {
+    const letters = String(word).toLowerCase().split('').filter((ch) => /[a-z]/.test(ch));
+    let x = 0;
+    for (const ch of String(seed)) x = (x * 31 + ch.charCodeAt(0)) >>> 0;
+    const rnd = () => ((x = (x * 1664525 + 1013904223) >>> 0) / 4294967296);
+    const out = letters.map((ch, i) => ({ ch, i }));
+    for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
+    // Совпало с исходным порядком — сдвигаем, чтобы было что собирать
+    if (out.length > 1 && out.every((o, i) => o.i === i)) out.push(out.shift());
+    return out;
+  }
+
+  function showWord(lesson, byId, drillIdx = 0, errors = 0) {
     const i = lesson.wordsDone || 0;
     if (i >= lesson.words.length) { afterTasks(lesson); return; }
     const card = byId.get(lesson.words[i]);
     const p = card.payload;
-    const t = p.test[0]; // «Что значит …?» — первый вопрос каждой карточки слова
-    const ipa = wordIpa(card);
     const review = i < (lesson.wordsDue || 0);
+    const drills = Today.wordDrills(card.sublevel || card.level, review);
+    const kind = drills[drillIdx];
+    const ipa = wordIpa(card);
     const pct = Math.round((i / lesson.words.length) * 100);
+    const ipaHtml = ipa ? `<p class="words-ipa">${esc(ipa)} <span class="ru-tr">${window.Annotate ? Annotate.ruTranscribe(ipa, p.front) : ''}</span></p>` : '';
+    const playBtn = `<button class="audio-btn" id="words-play" type="button" title="Прослушать" aria-label="Прослушать слово">${PLAY_ICON}</button>`;
+    const optsHtml = (t) => `<div class="ladder-options">${t.options.map((o, k) => `<button class="ladder-opt words-opt" type="button" data-i="${k}">${esc(o)}</button>`).join('')}</div>`;
+    let body = '';
+    let target = p.front;
+    if (kind === 'meaning') {
+      body = `<div class="words-front"><span class="words-word">${esc(p.front)}</span>${playBtn}</div>${ipaHtml}${optsHtml(p.test[0])}`;
+    } else if (kind === 'reverse') {
+      body = `<div class="words-front"><span class="words-word words-word--ru">${esc(p.translation)}</span></div>${optsHtml(p.test[1])}`;
+    } else if (kind === 'letters') {
+      const tiles = shuffledLetters(p.front, card.id);
+      const slots = p.front.split('').map((ch) => (/[a-z]/i.test(ch) ? '<span class="words-slot"></span>' : `<span class="words-slot is-fixed">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`)).join('');
+      body = `<p class="words-hint">${esc(p.translation)} ${playBtn}</p>
+        <div class="words-slots" id="words-slots" aria-live="polite">${slots}</div>
+        <div class="words-tiles">${tiles.map((t, k) => `<button class="words-tile" type="button" data-k="${k}" data-ch="${t.ch}">${t.ch}</button>`).join('')}</div>`;
+    } else {
+      target = p.front;
+      body = `<div class="words-front">${playBtn}<span class="words-hint">Слово звучит — напиши его по-английски</span></div>
+        <form class="words-write" id="words-write" autocomplete="off">
+          <input class="words-input" id="words-input" type="text" autocapitalize="off" spellcheck="false" aria-label="Слово по-английски">
+          <button class="btn-primary" id="words-check" type="submit">Проверить</button>
+        </form>`;
+    }
     if (ER && ER.claimContent) ER.claimContent();
     document.getElementById('content').innerHTML = `
       <div class="section-wrap">
-        <div class="card ladder-card words-card" id="words-root" data-id="${esc(card.id)}">
+        <div class="card ladder-card words-card" id="words-root" data-id="${esc(card.id)}" data-kind="${kind}">
           <div class="session-progress"><div class="session-progress-fill" style="width:${pct}%"></div></div>
-          <div class="ladder-head"><p class="session-counter">Слово ${i + 1} из ${lesson.words.length} · ${review ? 'Повторение' : 'Новое слово'}</p></div>
+          <div class="ladder-head"><p class="session-counter">Слово ${i + 1} из ${lesson.words.length} · ${review ? 'Повторение' : 'Новое слово'}${drills.length > 1 ? ` · задание ${drillIdx + 1} из ${drills.length}` : ''}</p></div>
           <h2 class="ladder-step-title">Слова урока</h2>
-          <p class="ladder-prompt">Послушай и выбери значение</p>
-          <div class="words-front">
-            <span class="words-word">${esc(p.front)}</span>
-            <button class="audio-btn" id="words-play" type="button" title="Прослушать" aria-label="Прослушать слово">${PLAY_ICON}</button>
-          </div>
-          ${ipa ? `<p class="words-ipa">${esc(ipa)} <span class="ru-tr">${window.Annotate ? Annotate.ruTranscribe(ipa, p.front) : ''}</span></p>` : ''}
-          <div class="ladder-options">${t.options.map((o, k) => `<button class="ladder-opt words-opt" type="button" data-i="${k}">${esc(o)}</button>`).join('')}</div>
+          <p class="ladder-prompt">${DRILL_TITLE[kind]}</p>
+          ${body}
           <div class="ladder-feedback" id="words-feedback" aria-live="polite"></div>
           <div class="ladder-actions" id="words-actions"><button class="btn btn-ghost" id="words-quit" type="button">Закончить</button></div>
         </div>
       </div>`;
     window.scrollTo(0, 0);
-    setTimeout(() => speakWord(p.front), 250);
+    // В «выбери по-английски» звук выдал бы ответ — слово звучит только после ответа
+    if (kind !== 'reverse') setTimeout(() => speakWord(p.front), 250);
     const root = document.getElementById('words-root');
     let answered = false;
-    root.addEventListener('click', (e) => {
-      if (e.target.closest('#words-play')) { speakWord(p.front); return; }
-      if (e.target.closest('#words-quit')) { ER.switchTab('today'); return; }
-      if (e.target.closest('#words-next')) { showWord(lesson, byId); return; }
-      const opt = e.target.closest('.words-opt');
-      if (!opt || answered) return;
+    let placed = 0;
+    let slipped = false; // ошибка в «собери из букв» считается один раз
+    const letterSlots = [...root.querySelectorAll('.words-slot:not(.is-fixed)')];
+
+    const finishDrill = (ok, shown) => {
       answered = true;
-      const ok = Number(opt.dataset.i) === t.correct;
-      root.querySelectorAll('.words-opt').forEach((b, k) => {
-        b.disabled = true;
-        if (k === t.correct) b.classList.add('is-correct');
-        else if (b === opt) b.classList.add('is-wrong');
-      });
+      setTimeout(() => speakWord(p.front), 150); // после ответа слово звучит всегда
       const ex = (p.examples || [])[0];
       document.getElementById('words-feedback').innerHTML = `
         <div class="ladder-verdict${ok ? '' : ' is-miss'}">
-          <p><b>${ok ? 'Верно' : 'Правильно:'}</b> ${esc(p.front)} — ${esc(p.translation)}</p>
+          <p><b>${ok ? 'Верно' : 'Правильно:'}</b> ${esc(p.front)} — ${esc(p.translation)}${shown ? ` · ${shown}` : ''}</p>
           ${ex ? `<p class="words-ex">${esc(ex.text)} <span class="words-ex-ru">— ${esc(ex.ru || '')}</span></p>` : ''}
         </div>`;
       document.getElementById('words-actions').innerHTML = `
         <button class="btn btn-ghost" id="words-quit" type="button">Закончить</button>
         <button class="btn-primary" id="words-next" type="button">Дальше</button>`;
-      // Счётчики урока меняем сразу: «Дальше» может прийти раньше, чем запишется прогресс
+      const errs = errors + (ok ? 0 : 1);
+      if (drillIdx + 1 < drills.length) {
+        root.__next = () => showWord(lesson, byId, drillIdx + 1, errs);
+        return;
+      }
+      // Слово пройдено: счётчики урока меняем сразу — «Дальше» может прийти раньше записи
+      const mark = Today.gradeWord(errs, drills.length);
       lesson.wordsDone = i + 1;
-      lesson.wordsOk = (lesson.wordsOk || 0) + (ok ? 1 : 0);
-      recordWord(lesson, card.id, ok);
+      lesson.wordsOk = (lesson.wordsOk || 0) + (mark === 'know' ? 1 : 0);
+      root.__next = () => showWord(lesson, byId);
+      recordWord(lesson, card.id, mark);
+    };
+
+    root.addEventListener('click', (e) => {
+      if (e.target.closest('#words-play')) { speakWord(p.front); return; }
+      if (e.target.closest('#words-quit')) { ER.switchTab('today'); return; }
+      if (e.target.closest('#words-next')) { if (root.__next) root.__next(); return; }
+      if (answered) return;
+      const opt = e.target.closest('.words-opt');
+      if (opt) {
+        const t = kind === 'reverse' ? p.test[1] : p.test[0];
+        const ok = Number(opt.dataset.i) === t.correct;
+        root.querySelectorAll('.words-opt').forEach((b, k) => {
+          b.disabled = true;
+          if (k === t.correct) b.classList.add('is-correct');
+          else if (b === opt) b.classList.add('is-wrong');
+        });
+        finishDrill(ok);
+        return;
+      }
+      const tile = e.target.closest('.words-tile');
+      if (tile && !tile.disabled) {
+        const want = target.toLowerCase().replace(/[^a-z]/g, '')[placed];
+        if (tile.dataset.ch === want) {
+          letterSlots[placed].textContent = tile.dataset.ch;
+          letterSlots[placed].classList.add('is-filled');
+          tile.disabled = true;
+          tile.classList.add('is-used');
+          placed++;
+          if (placed === letterSlots.length) finishDrill(!slipped);
+        } else {
+          slipped = true;
+          tile.classList.remove('is-wrong');
+          void tile.offsetWidth; // перезапуск анимации
+          tile.classList.add('is-wrong');
+        }
+      }
     });
+    const form = document.getElementById('words-write');
+    if (form) {
+      const input = document.getElementById('words-input');
+      setTimeout(() => input.focus(), 50);
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (answered || !input.value.trim()) return;
+        const ok = Today.sameWord(input.value, target);
+        input.disabled = true;
+        input.classList.add(ok ? 'is-correct' : 'is-wrong');
+        document.getElementById('words-check').disabled = true;
+        finishDrill(ok, ok ? '' : `написано: «${esc(input.value.trim())}»`);
+      });
+    }
   }
 
-  async function recordWord(lesson, id, ok) {
+  async function recordWord(lesson, id, mark) {
     await save(lesson);
-    const r = await SRS.saveProgress(id, 'words', ok ? 'know' : 'dontknow');
+    const r = await SRS.saveProgress(id, 'words', mark);
     if (r && r.success) {
       SRS.updateStreak();
-      if (ER && ER.addStudyLog) await ER.addStudyLog(1, ok ? 1 : 0, 0);
+      if (ER && ER.addStudyLog) await ER.addStudyLog(1, mark === 'know' ? 1 : 0, 0);
     }
   }
 

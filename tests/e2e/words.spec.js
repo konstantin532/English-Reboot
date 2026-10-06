@@ -15,10 +15,10 @@ async function onboard(page) {
   await expect(page.locator('#today-start')).toBeVisible();
 }
 
-test('раздел «Слова»: 400 слов A1, перевод примеров под строкой, 5 вопросов в карточке', async ({ page }) => {
+test('раздел «Слова»: 550 слов A1–A1+, перевод примеров под строкой, 5 вопросов в карточке', async ({ page }) => {
   await onboard(page);
   await page.locator('.nav-link[data-tab="words"]').click();
-  await expect(page.locator('.list-summary')).toContainText('из 400');
+  await expect(page.locator('.list-summary')).toContainText('из 550');
   const first = page.locator('.vocab-tile').first();
   await expect(first).toContainText('water');
   await expect(first).toContainText('A1');
@@ -57,10 +57,10 @@ test('обновление базы v1 → v2: прогресс на месте,
     kept: (await DB.getByKey('progress', 'cv_1001')).data,
     version: (await DB.getByKey('content_meta', 'words_version')).data.value,
   }));
-  expect(st.words).toBe(400);
+  expect(st.words).toBe(550);
   expect(st.kept.reps).toBe(3);
   expect(st.kept.ladder.step).toBe(3);
-  expect(st.version).toBe('1.1.0');
+  expect(st.version).toBe('1.2.0');
 });
 
 test('«Сегодня» → слова урока: неверный ответ показывает правильный, урок можно прервать и продолжить со слов', async ({ page }) => {
@@ -96,4 +96,51 @@ test('«Сегодня» → слова урока: неверный ответ 
   await page.locator('#today-continue').click();
   await expect(page.locator('#words-root .session-counter')).toContainText('Слово 2 из 5');
   await expect(page.locator('.words-word')).toHaveText('coffee');
+});
+
+test('слова A1+ в «Сегодня»: новое — значение и «собери из букв», повтор — перевод с русского и «напиши на слух»', async ({ page }) => {
+  await onboard(page);
+  // Фразы и слова A1 уже в работе; слово begin (A1+) пора повторить — в уроке повтор и новые слова A1+
+  await page.evaluate(async () => {
+    const later = SRS.addDays(SRS.todayStr(), 30);
+    const rec = (cardId, storeName, extra) => ({ cardId, storeName, status: 'review', stability: 30, difficulty: 5, ease: 2.3, lapseCount: 0,
+      reps: 3, lastReview: SRS.todayStr(), nextReview: later, ...extra });
+    const us = (await DB.getAll('conversation')).data.filter((c) => (c.tags || []).includes('США'));
+    await DB.bulkPut('progress', us.map((c) => rec(c.id, 'conversation', { ladder: { step: 2, best: 2, hist: {} } })));
+    const a1 = (await DB.getAll('words')).data.filter((c) => c.sublevel === 'A1');
+    await DB.bulkPut('progress', a1.map((c) => rec(c.id, 'words')));
+    await DB.saveCard('progress', rec('wd_0402', 'words', { lastReview: '2026-01-01', nextReview: '2026-01-10' }));
+    await ER.switchTab('today');
+  });
+  await expect(page.locator('.today-plan')).toContainText('Слова — 5 слов, из них 1 на повтор');
+  await page.locator('#today-start').click();
+
+  // Повтор begin: перевод с русского (слово не звучит заранее), потом на слух — с опечаткой
+  await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'reverse');
+  await expect(page.locator('#words-root .session-counter')).toContainText('Слово 1 из 5 · Повторение · задание 1 из 2');
+  await expect(page.locator('.words-word')).toHaveText('начинать(ся)');
+  await page.locator('.words-opt', { hasText: /^begin$/ }).click();
+  await expect(page.locator('#words-feedback')).toContainText('Верно');
+  await page.locator('#words-next').click();
+  await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'listen');
+  await page.locator('#words-input').fill('begn');
+  await page.locator('#words-check').click();
+  await expect(page.locator('#words-feedback')).toContainText('Правильно: begin');
+  await expect(page.locator('#words-feedback')).toContainText('написано: «begn»');
+  await expect.poll(() => page.evaluate(async () => (await DB.getByKey('progress', 'wd_0402')).data.mark)).toBe('hard');
+  await page.locator('#words-next').click();
+
+  // Новое слово arrive: значение, затем «собери из букв»: неверная буква — встряска, слово всё равно собирается
+  await expect(page.locator('#words-root .session-counter')).toContainText('Слово 2 из 5 · Новое слово · задание 1 из 2');
+  await expect(page.locator('.words-word')).toHaveText('arrive');
+  const t = await page.evaluate(async () => (await DB.getByKey('words', 'wd_0401')).data.payload.test[0]);
+  await page.locator('.words-opt').nth(t.correct).click();
+  await page.locator('#words-next').click();
+  await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'letters');
+  await page.locator('.words-tile[data-ch="z"], .words-tile:not([data-ch="a"])').first().click(); // первая буква — a, другая — ошибка
+  await expect(page.locator('.words-tile.is-wrong')).toHaveCount(1);
+  for (const ch of 'arrive') await page.locator(`.words-tile[data-ch="${ch}"]:not(:disabled)`).first().click();
+  await expect(page.locator('#words-slots')).toHaveText('arrive');
+  await expect(page.locator('#words-feedback')).toContainText('Правильно: arrive');
+  await expect.poll(() => page.evaluate(async () => (await DB.getByKey('progress', 'wd_0401')).data.mark)).toBe('hard');
 });
