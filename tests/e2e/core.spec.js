@@ -22,13 +22,20 @@ test('сброс прогресса в Настройках чистит про�
   await onboard(page);
   await page.evaluate(() => DB.saveCard('progress', { cardId: 'g001', storeName: 'grammar_cards', status: 'mastered', stability: 30,
     difficulty: 5, ease: 2.5, lapseCount: 0, reps: 5, lastReview: SRS.todayStr(), nextReview: '2099-01-01' }));
-  await page.evaluate(() => { ER.reloadContent(); return ER.openCardAnywhere('grammar_cards', 'g001'); });
+  // reloadContent сбрасывает кэш и асинхронно перерисовывает «Сегодня» — дожидаемся, иначе
+  // запоздавшая перерисовка закроет карточку
+  await page.evaluate(() => ER.reloadContent());
+  await expect(page.locator('#today-start')).toBeVisible();
+  await page.evaluate(() => ER.openCardAnywhere('grammar_cards', 'g001'));
   await expect(page.locator('.detail-top .status-mastered')).toBeVisible();
 
   await page.evaluate(() => ER.switchTab('settings'));
   await page.locator('#btn-reset-progress').click();
   await page.locator('#modal-zone [data-confirm]').click();
-  await expect.poll(() => page.evaluate(() => DB.getAllProgress().then((r) => r.data.length))).toBe(0);
+  // сброс чистит 4 хранилища по очереди и сбрасывает кэш в конце — ждём его завершения (тост),
+  // а не первого пустого хранилища
+  await expect(page.locator('#toast-zone')).toContainText('Прогресс сброшен');
+  expect(await page.evaluate(() => DB.getAllProgress().then((r) => r.data.length))).toBe(0);
 
   await page.evaluate(() => ER.openCardAnywhere('grammar_cards', 'g001'));
   await expect(page.locator('.detail-top')).toBeVisible();

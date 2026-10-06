@@ -107,6 +107,7 @@
   const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
 
   /* ---------- Модули ядра (app_*.js) ---------- */
+  const { ladderButtonHtml, srsButtonsHtml, handleSrsMark, renderPractice, startSessionUI, closeSessionModal, bindSessionModal, handleTestAnswer } = AppSession;
   const { renderSettings, bindSettings, persistSetting } = AppSettings;
   const { renderProgress } = AppProgress;
   const { applyTheme, applyLayer, updateSidebarStats, plural, bindHeader, closeMobileNav, bindKeyboard, toast, confirmDialog, closeModal, escapeHtml, escapeAttr, showDbError } = AppUI;
@@ -119,7 +120,9 @@
     get APP_VERSION() { return APP_VERSION; },
     get CONTENT_STORES() { return CONTENT_STORES; },
     get LAYERS() { return LAYERS; },
+    get MARK_LABEL() { return MARK_LABEL; },
     get RING_CIRCUMFERENCE() { return RING_CIRCUMFERENCE; },
+    get addStudyLog() { return addStudyLog; },
     get applyLayer() { return applyLayer; },
     get applyTheme() { return applyTheme; },
     get closeModal() { return closeModal; },
@@ -127,15 +130,18 @@
     get closeWordPopup() { return closeWordPopup; },
     get closeWordbank() { return closeWordbank; },
     get confirmDialog() { return confirmDialog; },
+    get currentSession() { return currentSession; }, set currentSession(v) { currentSession = v; },
     get currentStreak() { return currentStreak; },
     get deferredPrompt() { return deferredPrompt; }, set deferredPrompt(v) { deferredPrompt = v; },
     get escapeAttr() { return escapeAttr; },
     get escapeHtml() { return escapeHtml; },
+    get examplesHtml() { return examplesHtml; },
     get grammarCache() { return grammarCache; }, set grammarCache(v) { grammarCache = v; },
     get lineBullet() { return lineBullet; },
     get openWordbank() { return openWordbank; },
     get plural() { return plural; },
     get refreshHeaderStats() { return refreshHeaderStats; },
+    get runAchievementCheck() { return runAchievementCheck; },
     get sectionHeader() { return sectionHeader; },
     get settings() { return settings; }, set settings(v) { settings = v; },
     get showModal() { return showModal; },
@@ -144,7 +150,7 @@
     get toast() { return toast; },
     get vocabCache() { return vocabCache; },
   };
-  [AppProgress, AppSettings, AppUI].forEach((m) => m.bind(core));
+  [AppProgress, AppSession, AppSettings, AppUI].forEach((m) => m.bind(core));
   /* ---------- /контекст ---------- */
 
 
@@ -1230,320 +1236,6 @@
     await ensureVocabData(storeName);
     await switchTab(key);
     openVocabCard(storeName, cardId);
-  }
-
-  /* ---------- SRS-кнопки ---------- */
-
-  // Американская разговорная фраза: вход в лестницу упражнений (ladder_ui.js)
-  function ladderButtonHtml(cardData, rec) {
-    const step = LadderUI.stepOf(rec);
-    const title = Ladder.STEPS[step - 1].title;
-    return `
-      <div class="ladder-entry">
-        <button class="btn-primary ladder-train-btn" data-id="${escapeAttr(cardData.id)}" type="button">🪜 Тренировать: сказать, а не прочитать</button>
-        <span class="ladder-entry-step">Ступень ${step} из 8 · ${title}</span>
-      </div>`;
-  }
-
-  function srsButtonsHtml(isNew) {
-    if (isNew) {
-      return `
-        <div class="srs-buttons">
-          <button class="srs-btn srs-hard" data-mark="hard" type="button">Сложно</button>
-          <button class="srs-btn srs-know" data-mark="know" type="button">Знаю</button>
-        </div>`;
-    }
-    return `
-      <div class="srs-buttons">
-        <button class="srs-btn srs-dontknow" data-mark="dontknow" type="button">Не знаю</button>
-        <button class="srs-btn srs-hard" data-mark="hard" type="button">Сложно</button>
-        <button class="srs-btn srs-know" data-mark="know" type="button">Знаю</button>
-      </div>`;
-  }
-
-  function srsDoneHtml(mark) {
-    return `
-      <div class="srs-done">
-        <span class="srs-done-label">✓ Отмечено: ${MARK_LABEL[mark]}</span>
-        <button class="btn btn-ghost edit-mark-btn" type="button">Изменить</button>
-      </div>`;
-  }
-
-  async function handleSrsMark(btn) {
-    let cardId, storeName;
-    if (state.inSession && currentSession) {
-      const item = currentSession.cards[currentSession.currentIndex];
-      if (!item) return;
-      cardId = item.cardId;
-      storeName = item.storeName;
-    } else {
-      cardId = state.currentCardId;
-      storeName = state.currentStore || 'grammar_cards';
-    }
-    if (!cardId) return;
-    const mark = btn.dataset.mark;
-    document.querySelectorAll('.srs-btn').forEach((b) => { b.disabled = true; });
-
-    const res = await SRS.saveProgress(cardId, storeName, mark);
-    if (!res.success) {
-      toast('Не удалось сохранить: ' + res.error, 'danger');
-      document.querySelectorAll('.srs-btn').forEach((b) => { b.disabled = false; });
-      return;
-    }
-    const cache = storeName === 'grammar_cards' ? grammarCache : vocabCache[storeName];
-    if (cache) cache.progress[cardId] = res.data;
-
-    SRS.updateStreak();
-    if (!state.inSession) await addStudyLog(1, mark === 'know' ? 1 : 0, 0);
-    runAchievementCheck();
-    refreshHeaderStats();
-
-    if (state.inSession) {
-      if (mark === 'know') currentSession.correctCount++;
-      currentSession.currentIndex++;
-      setTimeout(advanceSession, 350);
-    } else {
-      const area = document.getElementById('srs-area');
-      if (area) area.innerHTML = srsDoneHtml(mark);
-      toast('Отметка сохранена: ' + MARK_LABEL[mark], 'success');
-    }
-  }
-
-  /* ---------- Тренажёр ---------- */
-
-  async function renderPractice(t) {
-    const due = await SRS.getDueCards();
-    const relearn = due.filter((c) => c.status === 'relearning' || c.status === 'lapsed').length;
-    const modes = `
-      <div class="practice-modes" role="tablist" aria-label="Режимы тренажёра">
-        <button class="mode-btn ${!state.practiceMode ? 'active' : ''}" data-mode="srs" type="button">🔄 SRS-повторение</button>
-        <button class="mode-btn ${state.practiceMode === 'dictation' ? 'active' : ''}" data-mode="dictation" type="button">✍️ Диктант</button>
-        <button class="mode-btn ${state.practiceMode === 'shadowing' ? 'active' : ''}" data-mode="shadowing" type="button">🎤 Shadowing</button>
-        <button class="mode-btn ${state.practiceMode === 'ladder' ? 'active' : ''}" data-mode="ladder" type="button">🪜 Лестница фраз</button>
-        <button class="mode-btn ${state.practiceMode === 'scenes' ? 'active' : ''}" data-mode="scenes" type="button">🎬 Сцены</button>
-        <button class="mode-btn ${state.practiceMode === 'improv' ? 'active' : ''}" data-mode="improv" type="button">🎲 Импровизация</button>
-      </div>`;
-
-    let panel;
-    if (state.practiceMode === 'dictation') {
-      panel = Dictation.renderSetup();
-    } else if (state.practiceMode === 'shadowing') {
-      panel = Shadowing.renderSetup();
-    } else if (state.practiceMode === 'ladder') {
-      panel = await LadderUI.renderSetup();
-    } else if (state.practiceMode === 'scenes') {
-      panel = await ScenesUI.renderSetup();
-    } else if (state.practiceMode === 'improv') {
-      panel = await ImprovUI.renderSetup();
-    } else {
-      panel = due.length ? `
-        <h2 class="detail-title">Повторение</h2>
-        <p class="practice-intro">У тебя <b>${due.length}</b> ${plural(due.length, 'карточка', 'карточки', 'карточек')} на повторение${relearn ? ' · ' + relearn + ' требуют особого внимания' : ''}. Жми «Начать»!</p>
-        <button class="btn-primary" id="start-session-btn" type="button">Начать повторение</button>
-        <p class="practice-alt">Или изучай новые карточки в разделах выше.</p>
-      ` : `
-        <h2 class="detail-title">Всё повторено!</h2>
-        <p class="practice-intro">На сегодня всё. Возвращайся завтра — и не забывай отмечать новые карточки в разделах.</p>
-        <p class="practice-alt">Или изучай новые карточки в разделах выше.</p>
-      `;
-    }
-
-    return `<div class="section-wrap">${sectionHeader(t)}${modes}<div class="card practice-panel">${panel}</div></div>`;
-  }
-
-  /* ---------- SRS-сессия ---------- */
-
-  async function startSessionUI() {
-    const cards = await SRS.startSession(SRS.todayStr(), 15);
-    if (!cards.length) { toast('Нет карточек на повторение'); return; }
-    currentSession = {
-      cards, currentIndex: 0, correctCount: 0, totalCount: cards.length,
-      startedAt: new Date().toISOString(),
-    };
-    state.inSession = true;
-    state.readingRate = Number(settings.tts_rate) || 0.7;
-    renderSessionCard();
-  }
-
-  function sessionCardContentHtml(cardData) {
-    const p = cardData.payload;
-    if (cardData.type === 'grammar') {
-      return `
-        <h2 class="detail-title">${p.title}</h2>
-        <div class="formula">${escapeHtml(p.formula)}</div>
-        <p class="explanation">${p.explanation}</p>
-        <h3>Примеры</h3><div class="examples">${examplesHtml(p)}</div>`;
-    }
-    if (cardData.type === 'minimal_pair') {
-      const words = p.word2 ? `
-        <div class="pair-words">
-          <div class="pair-word">
-            <button class="audio-btn" data-speech="${escapeAttr(p.word1)}" type="button" aria-label="Озвучить ${p.word1}">🔊</button>
-            <span class="pw-text">${p.word1}</span><span class="ipa">${p.ipa1}</span><span class="ru-tr">${Annotate.ruTranscribe(p.ipa1, p.word1)}</span>
-          </div>
-          <span class="pair-slash">/</span>
-          <div class="pair-word">
-            <button class="audio-btn" data-speech="${escapeAttr(p.word2)}" type="button" aria-label="Озвучить ${p.word2}">🔊</button>
-            <span class="pw-text">${p.word2}</span><span class="ipa">${p.ipa2}</span><span class="ru-tr">${Annotate.ruTranscribe(p.ipa2, p.word2)}</span>
-          </div>
-        </div>` : `<div class="ipa-chips"><span class="ipa-chip">${p.ipa1} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa1, p.word1)}</span></span></div>`;
-      return `
-        <h2 class="detail-title">${p.front}</h2>
-        ${words}
-        <p class="articulation">${p.articulation}</p>
-        <h3>Примеры</h3><div class="examples">${examplesHtml(p)}</div>`;
-    }
-    if (cardData.type === 'reading') {
-      const paras = escapeHtml(p.text).split('\n').map((l) => `<p class="reading-line">${l}</p>`).join('');
-      return `
-        <h2 class="detail-title">${p.title}</h2>
-        <div class="reading-controls">
-          <button class="btn read-all-btn" type="button">🔊 Озвучить текст</button>
-          <div class="reading-speed-control">
-            <label>Скорость:</label>
-            <select class="reading-speed" id="reading-rate" aria-label="Скорость озвучки">
-              ${[0.5, 0.7, 1.0].map((r) => `<option value="${r}" ${Math.abs(state.readingRate - r) < 0.05 ? 'selected' : ''}>${r.toFixed(1)}×</option>`).join('')}
-            </select>
-          </div>
-        </div>
-        <div class="reading-text">${paras}</div>`;
-    }
-    let head;
-    if (p.full_form) {
-      head = `
-        <h2 class="detail-title">${p.front}</h2>
-        <p class="slang-full-form">= ${p.full_form}</p>
-        <div class="ipa-chips">
-          <span class="ipa-chip">полная: ${p.ipa_full} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa_full, p.full_form || '')}</span></span>
-          <span class="ipa-chip">сокращённая: ${p.ipa_short} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa_short, p.front)}</span></span>
-        </div>`;
-    } else {
-      head = `
-        <h2 class="detail-title">${p.front}
-          <button class="audio-btn audio-btn--inline" data-speech="${escapeAttr(p.front)}" type="button" aria-label="Озвучить">🔊</button>
-        </h2>
-        <p class="card-translation">${p.translation || ''}</p>`;
-    }
-    let extra = '';
-    if (p.dialog) extra = `<div class="conversation-dialog">${p.dialog.map((l) => `<p>${String(l).replace(/^\s*[—–-]\s*/, '')}</p>`).join('')}</div>`;
-    if (p.context) extra = `<div class="context-note"><span class="context-icon" aria-hidden="true">💡</span><p>${p.context}</p></div>`;
-    if (p.category && !p.dialog) extra = `<div class="category-badge">${p.category}</div>`;
-    return head + extra + ((p.examples || []).length ? `<h3>Примеры</h3><div class="examples">${examplesHtml(p)}</div>` : '');
-  }
-
-  async function renderSessionCard() {
-    if (!currentSession) return;
-    const item = currentSession.cards[currentSession.currentIndex];
-    if (!item) { showSessionComplete(); return; }
-    const res = await DB.getByKey(item.storeName, item.cardId);
-    if (!res.success || !res.data) {
-      currentSession.currentIndex++;
-      advanceSession();
-      return;
-    }
-    const cardData = res.data;
-    if (cardData.type === 'reading') state.readingText = cardData.payload.text;
-    const pct = Math.round((currentSession.currentIndex / currentSession.totalCount) * 100);
-    const statusLabel = (item.status === 'relearning' || item.status === 'lapsed')
-      ? '<span class="status-badge status-relearning">На повторении</span>' : '';
-
-    document.getElementById('content').innerHTML = `
-      <div class="section-wrap">
-        <div class="session-progress"><div class="session-progress-fill" style="width:${pct}%"></div></div>
-        <p class="session-counter" aria-live="polite">Карточка ${currentSession.currentIndex + 1} из ${currentSession.totalCount} · клавиши 1/2/3 — оценка</p>
-        <div class="card-detail session-card">
-          <div class="detail-top">
-            <span class="practice-alt" style="margin:0">Оцени себя честно — интервал зависит от отметки.</span>
-            <span class="topic-meta">${statusLabel}
-              <span class="level-badge level-badge--${cardData.level}">${cardData.level}</span>
-            </span>
-          </div>
-          ${sessionCardContentHtml(cardData)}
-          <div class="srs-area" id="srs-area">${srsButtonsHtml(false)}</div>
-        </div>
-      </div>`;
-    window.scrollTo(0, 0);
-  }
-
-  function advanceSession() {
-    if (!currentSession) return;
-    if (currentSession.currentIndex >= currentSession.totalCount) { showSessionComplete(); return; }
-    renderSessionCard();
-  }
-
-  function showSessionComplete() {
-    const dur = currentSession.startedAt
-      ? Math.round((Date.now() - new Date(currentSession.startedAt).getTime()) / 1000) : 0;
-    addStudyLog(currentSession.totalCount, currentSession.correctCount, dur);
-    runAchievementCheck();
-
-    const zone = document.getElementById('session-complete-modal');
-    if (!zone) { currentSession = null; return; }
-    const { correctCount, totalCount } = currentSession;
-    const percent = totalCount ? Math.round((correctCount / totalCount) * 100) : 0;
-    zone.querySelector('.session-result').innerHTML = `
-      <p>Пройдено карточек: <strong>${totalCount}</strong></p>
-      <p>Ответов «Знаю»: <strong>${correctCount}</strong></p>
-      <p>Точность: <strong>${percent}%</strong></p>`;
-    zone.hidden = false;
-    requestAnimationFrame(() => zone.querySelector('.modal-overlay').classList.add('show'));
-    refreshHeaderStats();
-  }
-
-  function closeSessionModal() {
-    const zone = document.getElementById('session-complete-modal');
-    if (zone && !zone.hidden) {
-      zone.querySelector('.modal-overlay').classList.remove('show');
-      setTimeout(() => { zone.hidden = true; }, 200);
-    }
-    currentSession = null;
-    state.inSession = false;
-    refreshHeaderStats();
-  }
-
-  function bindSessionModal() {
-    const zone = document.getElementById('session-complete-modal');
-    if (!zone) return;
-    zone.querySelector('#btn-repeat-today').addEventListener('click', async () => {
-      closeSessionModal();
-      const due = await SRS.getDueCards();
-      if (due.length) startSessionUI();
-      else toast('Все карточки повторены! Возвращайся завтра.', 'success');
-    });
-    zone.querySelector('#btn-close-modal').addEventListener('click', () => {
-      closeSessionModal();
-      switchTab('practice');
-    });
-  }
-
-  /* ---------- Логика теста ---------- */
-
-  function handleTestAnswer(btn) {
-    const qEl = btn.closest('.test-question');
-    if (!qEl || qEl.classList.contains('answered')) return;
-    qEl.classList.add('answered');
-    const isCorrect = btn.dataset.correct === 'true';
-    if (isCorrect) state.test.correct += 1;
-    state.test.answered += 1;
-    qEl.querySelectorAll('.test-option').forEach((b) => {
-      b.disabled = true;
-      if (b.dataset.correct === 'true') b.classList.add('is-correct');
-    });
-    if (!isCorrect) btn.classList.add('is-wrong');
-    const progressEl = document.getElementById('test-progress');
-    if (progressEl) progressEl.textContent = `Ответлено ${state.test.answered}/${state.test.total}`;
-    if (state.test.answered === state.test.total) showTestResult();
-  }
-
-  function showTestResult() {
-    const el = document.getElementById('test-result');
-    if (!el) return;
-    const { correct, total } = state.test;
-    const verdict = correct === total ? 'Отлично! Можно отмечать «Знаю».'
-      : correct / total >= 0.6 ? 'Неплохо, но стоит перечитать материал.'
-      : 'Стоит вернуться к правилу и примерам.';
-    el.innerHTML = `<b>${correct}/${total} правильных</b><span>${verdict}</span>`;
-    el.hidden = false;
   }
 
   /* ---------- Аудио ---------- */
