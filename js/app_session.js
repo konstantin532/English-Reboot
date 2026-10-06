@@ -310,7 +310,7 @@ const AppSession = (() => {
     });
     if (!isCorrect) btn.classList.add('is-wrong');
     const progressEl = document.getElementById('test-progress');
-    if (progressEl) progressEl.textContent = `Ответлено ${C.state.test.answered}/${C.state.test.total}`;
+    if (progressEl) progressEl.textContent = `Отвечено ${C.state.test.answered}/${C.state.test.total}`;
     if (C.state.test.answered === C.state.test.total) showTestResult();
   }
 

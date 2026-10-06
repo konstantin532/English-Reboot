@@ -388,7 +388,7 @@ const Gamify = (() => {
     card.querySelectorAll('.heatmap-cell').forEach((cell) => {
       const open = () => {
         const key = cell.dataset.store;
-        const map = { grammar_cards: 'grammar', phrasal_verbs: 'phrasal', collocations: 'collocations',
+        const map = { words: 'words', grammar_cards: 'grammar', phrasal_verbs: 'phrasal', collocations: 'collocations',
           idioms: 'idioms', conversation: 'conversation', slang: 'slang',
           minimal_pairs: 'minimal', readings: 'reading' };
         ER.switchTab(map[key] || 'grammar');

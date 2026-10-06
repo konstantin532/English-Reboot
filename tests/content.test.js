@@ -6,13 +6,13 @@ import path from 'node:path';
 /* Целостность контента: файлы content_*.js — классические скрипты с общим
    глобальным пространством, поэтому грузим их в одном vm-контексте в том же
    порядке, что и index.html, вместе с lex_us.js (дозаполнение IPA). */
-const ORDER = ['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us', 'lex_us'];
+const ORDER = ['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us', 'content_words', 'lex_us'];
 const ctx = { console: { log() {}, warn() {}, error() {} } };
 ctx.window = ctx;
 vm.createContext(ctx);
 const src = ORDER.map((f) => fs.readFileSync(path.resolve(process.cwd(), 'js', f + '.js'), 'utf8')).join('\n;\n');
 vm.runInContext(src + `
-;this.__C = { grammar: GRAMMAR_CARDS, phrasal: PHRASAL_CARDS, collocations: COLLOCATION_CARDS, idioms: IDIOM_CARDS,
+;this.__C = { words: WORD_CARDS, grammar: GRAMMAR_CARDS, phrasal: PHRASAL_CARDS, collocations: COLLOCATION_CARDS, idioms: IDIOM_CARDS,
   conversation: CONVERSATION_CARDS, slang: SLANG_CARDS, minimal: MINIMAL_PAIR_CARDS, readings: READING_CARDS,
   pro: Object.values(PRO_CONTENT).flat() };`, ctx);
 const C = ctx.__C;

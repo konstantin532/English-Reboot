@@ -13,6 +13,7 @@ const Search = (() => {
   let built = false;
 
   const SECTIONS = [
+    { store: 'words', label: 'Слова' },
     { store: 'grammar_cards', label: 'Грамматика' },
     { store: 'phrasal_verbs', label: 'Фразовые глаголы' },
     { store: 'collocations', label: 'Коллокации' },

@@ -53,7 +53,7 @@ const SRS = (() => {
   function storeForCard(cardId) {
     if (/^g\d+$/.test(cardId)) return 'grammar_cards';
     const map = { pv_: 'phrasal_verbs', cl_: 'collocations', col_: 'collocations', id_: 'idioms',
-      cv_: 'conversation', sl_: 'slang', mp_: 'minimal_pairs', rd_: 'readings', pd_: 'personal_deck' };
+      cv_: 'conversation', sl_: 'slang', mp_: 'minimal_pairs', rd_: 'readings', pd_: 'personal_deck', wd_: 'words' };
     for (const p of Object.keys(map)) if (cardId.startsWith(p)) return map[p];
     return null;
   }
@@ -291,7 +291,7 @@ const SRS = (() => {
   }
 
   /* ---------- Spaced Dictation: очередь словных карточек ---------- */
-  const DICT_STORES = ['phrasal_verbs', 'collocations', 'idioms', 'slang'];
+  const DICT_STORES = ['words', 'phrasal_verbs', 'collocations', 'idioms', 'slang'];
   async function getSpacedDictationQueue(today) {
     const due = await getDueCards(today);
     return due.filter((c) => DICT_STORES.includes(c.storeName))
@@ -334,7 +334,7 @@ const SRS = (() => {
     const total14 = logs.reduce((s, l) => s + (l.cardsStudied || 0), 0);
     const avgPerDay = Math.max(1, Math.round(total14 / 14));
 
-    const stores = ['grammar_cards', 'phrasal_verbs', 'collocations', 'idioms',
+    const stores = ['words', 'grammar_cards', 'phrasal_verbs', 'collocations', 'idioms',
       'conversation', 'slang', 'minimal_pairs', 'readings'];
     let totalCards = 0, masteredCards = 0;
     const prog = await DB.getAllProgress();
@@ -354,7 +354,7 @@ const SRS = (() => {
   /* ---------- Heatmap по разделам ---------- */
   async function getHeatmap() {
     const names = {
-      grammar_cards: 'Грамматика', phrasal_verbs: 'Фразовые', collocations: 'Коллокации',
+      words: 'Слова', grammar_cards: 'Грамматика', phrasal_verbs: 'Фразовые', collocations: 'Коллокации',
       idioms: 'Идиомы', conversation: 'Разговорные', slang: 'Сленг',
       minimal_pairs: 'Minimal Pairs', readings: 'Чтение',
     };

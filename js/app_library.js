@@ -107,7 +107,7 @@ const AppLibrary = (() => {
           </div>
           <h3>Проверь себя</h3>
           <div class="test-block">
-            <p class="test-progress" id="test-progress">Ответлено 0/${p.test.length}</p>
+            <p class="test-progress" id="test-progress">Отвечено 0/${p.test.length}</p>
             ${questionsHtml(p.test)}
           </div>
           <div class="srs-area" id="srs-area">${C.srsButtonsHtml(!rec)}</div>
@@ -139,7 +139,7 @@ const AppLibrary = (() => {
         ${c.type === 'slang' ? `<span class="tile-full-form">${c.payload.full_form}</span>` : ''}
         <span class="tile-trans">${c.payload.translation || ''}</span>
         <span class="topic-meta">
-          ${c.level ? `<span class="level-badge level-badge--${c.level}">${c.level}</span>` : ''}
+          ${c.level ? `<span class="level-badge level-badge--${c.level}">${c.sublevel || c.level}</span>` : ''}
           ${sub && c.type !== 'slang' ? `<span class="tag-chip">${sub}</span>` : ''}
           ${mark ? `<span class="mark-chip mark-chip--${mark}">${mark === 'know' ? '✓ ' : '↻ '}${C.MARK_LABEL[mark]}</span>` : ''}
         </span>
@@ -265,7 +265,7 @@ const AppLibrary = (() => {
     let extraBlock = '';
     if (p.dialog) extraBlock = `<div class="conversation-dialog">${p.dialog.map((l) => `<p>${String(l).replace(/^\s*[—–-]\s*/, '')}</p>`).join('')}</div>`;
     if (p.context) extraBlock = `<div class="context-note"><span class="context-icon" aria-hidden="true">💡</span><p>${p.context}</p></div>`;
-    if (p.category && !p.dialog) extraBlock = `<div class="category-badge">${p.category}</div>`;
+    if (p.category && !p.dialog) extraBlock = `<div class="category-badge">${cardData.type === 'word' && p.pos ? p.pos + ' · ' : ''}${p.category}</div>`;
 
     const errorsBlock = p.errors ? `
       <h3>Как НЕ говорить</h3>
@@ -285,7 +285,7 @@ const AppLibrary = (() => {
             <button class="btn btn-ghost back-btn" type="button">← Назад к списку</button>
             <span class="topic-meta">
               ${statusBadgeHtml(rec)}
-              ${cardData.level ? `<span class="level-badge level-badge--${cardData.level}">${cardData.level}</span>` : ''}
+              ${cardData.level ? `<span class="level-badge level-badge--${cardData.level}">${cardData.sublevel || cardData.level}</span>` : ''}
             </span>
           </div>
           ${headHtml}
@@ -297,7 +297,7 @@ const AppLibrary = (() => {
           ${errorsBlock}
           ${(p.test || []).length ? `<h3>Проверь себя</h3>
           <div class="test-block">
-            <p class="test-progress" id="test-progress">Ответлено 0/${p.test.length}</p>
+            <p class="test-progress" id="test-progress">Отвечено 0/${p.test.length}</p>
             ${questionsHtml(p.test)}
           </div>` : ''}
           <div class="srs-area" id="srs-area">${C.srsButtonsHtml(!rec)}</div>
@@ -356,7 +356,7 @@ const AppLibrary = (() => {
           <div class="examples">${examplesHtml(p)}</div>
           <h3>Проверь себя</h3>
           <div class="test-block">
-            <p class="test-progress" id="test-progress">Ответлено 0/${p.test.length}</p>
+            <p class="test-progress" id="test-progress">Отвечено 0/${p.test.length}</p>
             ${questionsHtml(p.test)}
           </div>
           <div class="srs-area" id="srs-area">${C.srsButtonsHtml(!rec)}</div>
@@ -467,7 +467,7 @@ const AppLibrary = (() => {
           <p class="setting-hint">Кликните по любому слову: произношение и «+ В словарь».</p>
           <h3>Вопросы на понимание</h3>
           <div class="test-block">
-            <p class="test-progress" id="test-progress">Ответлено 0/${p.questions.length}</p>
+            <p class="test-progress" id="test-progress">Отвечено 0/${p.questions.length}</p>
             ${questionsHtml(p.questions)}
           </div>
           <div class="srs-area" id="srs-area">${C.srsButtonsHtml(!rec)}</div>

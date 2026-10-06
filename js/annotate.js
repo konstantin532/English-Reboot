@@ -185,7 +185,7 @@ const Annotate = (() => {
   function renderExample(ex) {
     return `
       <div class="example">
-        <div class="example-text">${renderParts(ex.parts)}</div>
+        <div class="example-text">${renderParts(ex.parts)}${ex.ru ? `<p class="example-ru">${ex.ru}</p>` : ''}</div>
         <button class="audio-btn" data-speech="${escapeAttr(ex.text)}" type="button"
                 title="Прослушать" aria-label="Прослушать пример">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"

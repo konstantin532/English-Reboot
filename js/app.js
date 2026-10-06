@@ -17,26 +17,28 @@
 
   const CONTENT_VERSION = 4; // 4: американская IPA и написание по аудиту (этап 7)
   const VOCAB_VERSION = '1.3.0'; // 1.3.0: американская IPA, написание и слова (этап 7)
-  const EXTRA_VERSION = '1.7.0'; // 1.7.0: аудит — IPA, сленг, пары звуков, дубли (этап 7)
+  const EXTRA_VERSION = '1.8.0'; // 1.8.0: +100 фраз A1 «Первая неделя» с подуровнями
+  const WORDS_VERSION = '1.0.0'; // раздел «Слова»: 1.0.0 — пакет A1, часть 1 (200 слов)
   const APP_VERSION = '1.1.0';
 
   // Каждый раздел — «линия метро»: цвет и буква значка (цвета линий нью-йоркского метро).
   // shape: 'circle' — разделы с карточками, 'diamond' — практика (как экспрессы в метро).
   const TABS = [
     { id: 'today',        title: 'Сегодня',           num: '00', group: null,       glyph: '▶', line: '#F97316' },
-    { id: 'grammar',      title: 'Грамматика',        num: '01', group: 'Библиотека', glyph: 'G', line: '#0039A6' },
-    { id: 'phrasal',      title: 'Фразовые глаголы',  num: '02', group: 'Библиотека', glyph: 'P', line: '#FF6319' },
-    { id: 'collocations', title: 'Коллокации',        num: '03', group: 'Библиотека', glyph: 'C', line: '#6CBE45' },
-    { id: 'idioms',       title: 'Идиомы',            num: '04', group: 'Библиотека', glyph: 'I', line: '#B933AD' },
-    { id: 'conversation', title: 'Разговорные фразы', num: '05', group: 'Библиотека', glyph: 'T', line: '#EE352E' },
-    { id: 'slang',        title: 'Сленг',             num: '06', group: 'Библиотека', glyph: 'S', line: '#FCCC0A', ink: '#111' },
-    { id: 'minimal',      title: 'Minimal Pairs',     num: '07', group: 'Библиотека', glyph: 'M', line: '#996633' },
-    { id: 'reading',      title: 'Чтение',            num: '08', group: 'Библиотека', glyph: 'R', line: '#00933C' },
-    { id: 'personal',     title: 'Моя колода',        num: '09', group: 'Библиотека', glyph: 'D', line: '#808183' },
-    { id: 'practice',     title: 'Тренажёр',          num: '10', group: 'Практика', glyph: 'X', line: '#00A1DE', shape: 'diamond' },
-    { id: 'ielts',        title: 'IELTS',             num: '11', group: 'Практика', glyph: 'E', line: '#0039A6', shape: 'diamond' },
-    { id: 'progress',     title: 'Прогресс',          num: '12', group: 'Я',        glyph: '%', line: '#1B1E24' },
-    { id: 'settings',     title: 'Настройки',         num: '13', group: 'Я',        glyph: '⚙', line: '#1B1E24' },
+    { id: 'words',        title: 'Слова',             num: '01', group: 'Библиотека', glyph: 'W', line: '#C2185B' },
+    { id: 'grammar',      title: 'Грамматика',        num: '02', group: 'Библиотека', glyph: 'G', line: '#0039A6' },
+    { id: 'phrasal',      title: 'Фразовые глаголы',  num: '03', group: 'Библиотека', glyph: 'P', line: '#FF6319' },
+    { id: 'collocations', title: 'Коллокации',        num: '04', group: 'Библиотека', glyph: 'C', line: '#6CBE45' },
+    { id: 'idioms',       title: 'Идиомы',            num: '05', group: 'Библиотека', glyph: 'I', line: '#B933AD' },
+    { id: 'conversation', title: 'Разговорные фразы', num: '06', group: 'Библиотека', glyph: 'T', line: '#EE352E' },
+    { id: 'slang',        title: 'Сленг',             num: '07', group: 'Библиотека', glyph: 'S', line: '#FCCC0A', ink: '#111' },
+    { id: 'minimal',      title: 'Minimal Pairs',     num: '08', group: 'Библиотека', glyph: 'M', line: '#996633' },
+    { id: 'reading',      title: 'Чтение',            num: '09', group: 'Библиотека', glyph: 'R', line: '#00933C' },
+    { id: 'personal',     title: 'Моя колода',        num: '10', group: 'Библиотека', glyph: 'D', line: '#808183' },
+    { id: 'practice',     title: 'Тренажёр',          num: '11', group: 'Практика', glyph: 'X', line: '#00A1DE', shape: 'diamond' },
+    { id: 'ielts',        title: 'IELTS',             num: '12', group: 'Практика', glyph: 'E', line: '#0039A6', shape: 'diamond' },
+    { id: 'progress',     title: 'Прогресс',          num: '13', group: 'Я',        glyph: '%', line: '#1B1E24' },
+    { id: 'settings',     title: 'Настройки',         num: '14', group: 'Я',        glyph: '⚙', line: '#1B1E24' },
   ];
   const lineBullet = (t, cls = '') =>
     `<span class="line-bullet ${t.shape === 'diamond' ? 'is-diamond' : ''} ${cls}" style="--line:${t.line};--line-ink:${t.ink || '#fff'}" aria-hidden="true"><span>${t.glyph}</span></span>`;
@@ -62,6 +64,7 @@
   const READING_TYPES = { dialog: 'диалог', article: 'статья', notice: 'объявление' };
 
   const CONTENT_STORES = [
+    { store: 'words',         label: 'Слова',             tab: 'words' },
     { store: 'grammar_cards', label: 'Грамматика',        tab: 'grammar' },
     { store: 'phrasal_verbs', label: 'Фразовые глаголы',  tab: 'phrasal' },
     { store: 'collocations',  label: 'Коллокации',        tab: 'collocations' },
@@ -98,6 +101,7 @@
   let pairRound = null;
 
   const VOCAB_STORES = {
+    words:        { store: 'words',         kind: 'vocab',   label: 'Слова' },
     phrasal:      { store: 'phrasal_verbs', kind: 'vocab',   label: 'Фразовые глаголы' },
     collocations: { store: 'collocations',  kind: 'vocab',   label: 'Коллокации' },
     idioms:       { store: 'idioms',        kind: 'vocab',   label: 'Идиомы' },
@@ -383,6 +387,7 @@
     await checkAndSeedContent();
     await checkAndSeedVocab();
     await checkAndSeedExtra();
+    await checkAndSeedWords();
     await migrateContentAudit();
 
     const mig = await SRS.migrateProgress();
@@ -468,6 +473,15 @@
       ['Minimal Pairs', window.MINIMAL_PAIR_CARDS, 'minimal_pairs'],
       ['Чтение', window.READING_CARDS, 'readings'],
     ], 'extra_version', EXTRA_VERSION);
+    if (okAll) dropCardCaches();
+  }
+
+  // Раздел «Слова» (content_words.js): своя версия — пакеты слов догружаются, не трогая остальное
+  async function checkAndSeedWords() {
+    const meta = await DB.getByKey('content_meta', 'words_version');
+    if (meta.success && meta.data && meta.data.value === WORDS_VERSION) return;
+    if (!window.WORD_CARDS) { toast('content_words.js не загрузился — раздел «Слова» недоступен', 'danger'); return; }
+    const okAll = await seedJobs([['Слова', window.WORD_CARDS, 'words']], 'words_version', WORDS_VERSION);
     if (okAll) dropCardCaches();
   }
 
@@ -665,6 +679,7 @@
 
   const RENDERERS = {
     today:        () => TodayUI.render(),
+    words:        (t) => renderVocabList(t, 'words'),
     grammar:      renderGrammar,
     phrasal:      (t) => renderVocabList(t, 'phrasal'),
     collocations: (t) => renderVocabList(t, 'collocations'),

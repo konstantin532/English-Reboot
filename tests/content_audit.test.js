@@ -4,14 +4,14 @@ import vm from 'node:vm';
 import path from 'node:path';
 
 /* Этап 7: защитные проверки после аудита контента — британское не должно вернуться. */
-const FILES = ['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us', 'lex_us', 'content_migrate'];
+const FILES = ['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us', 'content_words', 'lex_us', 'content_migrate'];
 const ctx = { console: { log() {}, warn() {}, error() {} } };
 ctx.window = ctx;
 vm.createContext(ctx);
 vm.runInContext(FILES.map((f) => fs.readFileSync(path.resolve(process.cwd(), 'js', f + '.js'), 'utf8')).join('\n;\n') +
   ';this.__G = GRAMMAR_CARDS;', ctx);
 const M = ctx.ContentMigrate;
-const ALL = [ctx.__G, ctx.PHRASAL_CARDS, ctx.COLLOCATION_CARDS, ctx.IDIOM_CARDS, ctx.CONVERSATION_CARDS, ctx.SLANG_CARDS,
+const ALL = [ctx.__G, ctx.WORD_CARDS, ctx.PHRASAL_CARDS, ctx.COLLOCATION_CARDS, ctx.IDIOM_CARDS, ctx.CONVERSATION_CARDS, ctx.SLANG_CARDS,
   ctx.MINIMAL_PAIR_CARDS, ctx.READING_CARDS, ctx.PRO_READINGS, ...Object.values(ctx.PRO_CONTENT || {})]
   .filter(Array.isArray).flat();
 

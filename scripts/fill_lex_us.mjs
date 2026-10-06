@@ -25,7 +25,7 @@ const cmu = loadCmu(cmuFile);
 const ctx = { console: { log() {}, warn() {}, error() {} } };
 ctx.window = ctx;
 vm.createContext(ctx);
-vm.runInContext(['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us', 'lex_us']
+vm.runInContext(['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us', 'content_words', 'lex_us']
   .map(read).join('\n;\n') + ';this.__G = GRAMMAR_CARDS;', ctx);
 const actx = { console, window: {} };
 vm.createContext(actx);
@@ -37,7 +37,7 @@ const walk = (o, d) => {
   if (Array.isArray(o.parts)) o.parts.forEach((p) => { if (p && !p.ipa && /[a-z]/i.test(p.word)) missing.add(String(p.word).toLowerCase().replace(/[^a-z']/g, '').replace(/'s$/, '').replace(/^'+|'+$/g, '')); });
   for (const v of Object.values(o)) if (v && typeof v === 'object') walk(v, d + 1);
 };
-[ctx.__G, ctx.PHRASAL_CARDS, ctx.COLLOCATION_CARDS, ctx.IDIOM_CARDS, ctx.CONVERSATION_CARDS, ctx.SLANG_CARDS,
+[ctx.__G, ctx.WORD_CARDS, ctx.PHRASAL_CARDS, ctx.COLLOCATION_CARDS, ctx.IDIOM_CARDS, ctx.CONVERSATION_CARDS, ctx.SLANG_CARDS,
   ctx.MINIMAL_PAIR_CARDS, ctx.READING_CARDS, ctx.PRO_READINGS, ...Object.values(ctx.PRO_CONTENT || {})]
   .forEach((a) => (a || []).forEach((c) => walk(c && c.payload, 0)));
 

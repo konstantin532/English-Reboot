@@ -1,6 +1,6 @@
 /* ==========================================================================
    English Reboot — финал: db.js
-   Схема IndexedDB (18 хранилищ), CRUD, настройки, прогресс, журнал ошибок,
+   Схема IndexedDB (19 хранилищ), CRUD, настройки, прогресс, журнал ошибок,
    study_log, достижения, батч-запись. Логика интервалов — в srs.js.
    Все функции async, возвращают { success, error?, data? }.
    ========================================================================== */
@@ -9,9 +9,10 @@ const DB = (() => {
   'use strict';
 
   const DB_NAME = 'english_reboot';
-  const DB_VERSION = 1;
+  const DB_VERSION = 2; // 2: хранилище words (раздел «Слова»)
 
   const STORES = [
+    { name: 'words',         keyPath: 'id',     indexes: ['level', 'payload.category'] },
     { name: 'grammar_cards', keyPath: 'id',     indexes: ['level', 'type'] },
     { name: 'phrasal_verbs', keyPath: 'id',     indexes: ['level', 'tags'] },
     { name: 'collocations',  keyPath: 'id',     indexes: ['level', 'payload.category'] },
@@ -81,15 +82,16 @@ const DB = (() => {
 
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
-          if (event.oldVersion < 1) {
-            STORES.forEach((cfg) => {
-              const store = db.createObjectStore(cfg.name, {
-                keyPath: cfg.keyPath,
-                autoIncrement: !!cfg.autoIncrement,
-              });
-              cfg.indexes.forEach((idx) => store.createIndex(idx, idx, { unique: false }));
+          // Создаём недостающие хранилища: при первой установке — все, при обновлении
+          // со старой версии — только новые (данные и прогресс ученика не трогаем)
+          STORES.forEach((cfg) => {
+            if (db.objectStoreNames.contains(cfg.name)) return;
+            const store = db.createObjectStore(cfg.name, {
+              keyPath: cfg.keyPath,
+              autoIncrement: !!cfg.autoIncrement,
             });
-          }
+            cfg.indexes.forEach((idx) => store.createIndex(idx, idx, { unique: false }));
+          });
         };
 
         request.onsuccess = () => {

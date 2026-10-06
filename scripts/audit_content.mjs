@@ -20,7 +20,7 @@ import { loadCmu } from './cmu_ipa.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8');
-const FILES = ['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us'];
+const FILES = ['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us', 'content_words'];
 
 /* ---------- загрузка: без lex_us (что дали сами файлы) и словарь CMU отдельно ---------- */
 function load(withLexUs) {
@@ -85,6 +85,7 @@ function proposeUS(word, br) {
 }
 
 const STORES = [
+  ['words', ctx.WORD_CARDS],
   ['grammar', ctx.__G], ['phrasal', ctx.PHRASAL_CARDS], ['collocations', ctx.COLLOCATION_CARDS],
   ['idioms', ctx.IDIOM_CARDS], ['conversation', ctx.CONVERSATION_CARDS], ['slang', ctx.SLANG_CARDS],
   ['minimal', ctx.MINIMAL_PAIR_CARDS], ['reading', ctx.READING_CARDS], ['pro-reading', ctx.PRO_READINGS],
@@ -317,10 +318,15 @@ const BR_SLANG = {
 const brSlang = cards.filter((c) => c.store === 'slang' && BR_SLANG[c.front.toLowerCase()]).map((c) => ({ id: c.id, front: c.front, note: BR_SLANG[c.front.toLowerCase()] }));
 
 /* ---------- 4. Дубли ---------- */
-const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+// Цифры значимы: «Call 911» — не дубль слова «call»
+const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const ruOf = (c) => String((c.card.payload && c.card.payload.translation) || '').toLowerCase().replace(/[^а-яё ]+/g, ' ').replace(/\s+/g, ' ').trim();
 const byFront = new Map();
 cards.forEach((c) => { const k = norm(c.front); if (k.length < 3) return; if (!byFront.has(k)) byFront.set(k, []); byFront.get(k).push(c); });
-const dupRows = [...byFront.entries()].filter(([, a]) => a.length > 1).map(([k, a]) => ({ front: k, cards: a.map((c) => c.store + ':' + c.id) }));
+// Раздел «Слова» учит базовое значение слова: если перевод другой (like «нравиться» и
+// филлер like «типа»), это омоним — отдельная карточка по смыслу, а не дубль
+const homonym = (a) => a.some((c) => c.store === 'words') && new Set(a.map(ruOf)).size === a.length;
+const dupRows = [...byFront.entries()].filter(([, a]) => a.length > 1 && !homonym(a)).map(([k, a]) => ({ front: k, cards: a.map((c) => c.store + ':' + c.id) }));
 
 /* ---------- отчёт ---------- */
 const dedupe = (rows, key) => { const s = new Set(); return rows.filter((r) => { const k = key(r); if (s.has(k)) return false; s.add(k); return true; }); };
