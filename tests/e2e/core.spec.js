@@ -43,6 +43,45 @@ test('сброс прогресса в Настройках чистит про�
   expect(errors).toEqual([]);
 });
 
+test('сброс прогресса во время загрузки раздела: старый прогресс не возвращается в кэш', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await onboard(page);
+  await page.evaluate(() => DB.saveCard('progress', { cardId: 'g001', storeName: 'grammar_cards', status: 'mastered', stability: 30,
+    difficulty: 5, ease: 2.5, lapseCount: 0, reps: 5, lastReview: SRS.todayStr(), nextReview: '2099-01-01' }));
+  await page.evaluate(() => ER.reloadContent());
+  await expect(page.locator('#today-start')).toBeVisible();
+
+  // Пока slow включён, чтение прогресса берёт данные из базы сразу, а возвращает их через 3 с —
+  // за это время ученик успевает сбросить прогресс
+  await page.evaluate(() => {
+    const orig = DB.getAllProgress;
+    window.__slow = { on: true, started: 0, pending: 0 };
+    DB.getAllProgress = async (...a) => {
+      if (!window.__slow.on) return orig(...a);
+      window.__slow.started++; window.__slow.pending++;
+      const r = await orig(...a);
+      await new Promise((s) => setTimeout(s, 3000));
+      window.__slow.pending--;
+      return r;
+    };
+  });
+  // не ждём отрисовку раздела (она ждёт загрузку) — только её начало
+  await page.evaluate(() => { ER.switchTab('grammar'); });
+  await expect.poll(() => page.evaluate(() => window.__slow.started)).toBeGreaterThan(0);
+  await page.evaluate(() => { window.__slow.on = false; return ER.switchTab('settings'); });
+  await page.locator('#btn-reset-progress').click();
+  await page.locator('#modal-zone [data-confirm]').click();
+  await expect(page.locator('#toast-zone')).toContainText('Прогресс сброшен');
+  expect(await page.evaluate(() => window.__slow.pending)).toBeGreaterThan(0); // сброс завершился раньше загрузки
+  await expect.poll(() => page.evaluate(() => window.__slow.pending), { timeout: 6000 }).toBe(0);
+
+  await page.evaluate(() => ER.openCardAnywhere('grammar_cards', 'g001'));
+  await expect(page.locator('.detail-top')).toBeVisible();
+  await expect(page.locator('.status-mastered')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('тема переключается кнопкой в шапке и сохраняется; Escape закрывает окно подтверждения', async ({ page }) => {
   await onboard(page);
   const before = await page.evaluate(() => document.documentElement.dataset.theme);
