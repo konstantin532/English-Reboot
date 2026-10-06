@@ -95,6 +95,10 @@ async function gotoSettled(page, url) {
 }
 
 async function skipOnboardingIfShown(page) {
+  // Онбординг появляется после загрузки контента в IndexedDB — дождаться её конца
+  // (контента стало больше, и загрузка уже не укладывается в «networkidle + 0,5 с»)
+  await page.locator('#seed-progress').waitFor({ state: 'hidden', timeout: 30000 }).catch(() => {});
+  await page.locator('#onboarding-container .onboarding-overlay').first().waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
   const overlay = page.locator('#onboarding-container .onboarding-overlay').first();
   if (!(await overlay.isVisible().catch(() => false))) return;
 
