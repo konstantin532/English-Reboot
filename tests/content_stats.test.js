@@ -19,6 +19,9 @@ describe('Счётчик контента: план «+4000»', () => {
     expect(s.bySection.words).toBe(550);
     expect(s.plan.sublevels['A1+']).toBe(280);
     expect(s.plan.types.vocab).toBe(30);
+    expect(s.plan.types.words).toBe(550);
+    expect(s.plan.types.phrases).toBe(275);
+    expect(s.plan.types.improv).toBe(75);
     expect(s.plan.done).toBe(930);
   });
 
