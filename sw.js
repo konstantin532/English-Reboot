@@ -8,7 +8,7 @@ const ASSETS = [
   './js/db.js', './js/content_grammar.js', './js/content_vocab.js', './js/content_extra.js', './js/content_pro.js', './js/content_us.js', './js/content_migrate.js', './js/lex_us.js',
   './js/tone_us.js', './js/traps_us.js', './js/ladder.js', './js/today.js', './js/scenes.js', './js/scenes_us.js', './js/improv.js', './js/improv_us.js', './js/speech.js', './js/coach.js', './js/pacers.js', './js/srs.js', './js/annotate.js', './js/tts.js', './js/dictation.js', './js/shadowing.js', './js/ladder_ui.js', './js/traps_ui.js', './js/today_ui.js', './js/scenes_ui.js', './js/improv_ui.js', './js/speech_ui.js', './js/ielts.js',
   './js/onboarding.js', './js/search.js', './js/achievements.js', './js/effects.js', './js/gamify.js',
-  './js/qrcode.js', './js/exportImport.js', './js/backup.js', './js/notifications.js', './js/app.js',
+  './js/qrcode.js', './js/exportImport.js', './js/backup.js', './js/notifications.js', './js/app_ui.js', './js/app.js',
 ];
 
 self.addEventListener('install', (event) => {
