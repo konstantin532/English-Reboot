@@ -2898,6 +2898,12 @@ button:not([class]):hover { background: var(--fill-strong); }
 .ladder-rec-status { font-size: 14px; color: var(--text-muted); }
 .ladder-feedback:empty { display: none; }
 .ladder-feedback { display: flex; flex-direction: column; gap: 6px; animation: sectionIn 0.25s ease both; }
+/* «Сегодня» → слова урока (today_ui.js): карточка как у лестницы, слово крупно */
+.words-front { display: flex; align-items: center; gap: 12px; }
+.words-word { font-size: 40px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+.words-ipa { margin: -4px 0 4px; color: var(--text-muted); font-size: 15px; }
+.words-ex { margin-top: 6px; }
+.words-ex-ru { color: var(--text-muted); }
 .ladder-verdict { padding: 10px 14px; border-radius: var(--radius); border-left: 3px solid var(--success); background: var(--bg); }
 .ladder-verdict.is-miss { border-left-color: var(--warning); }
 .ladder-event { margin: 0; font-weight: 600; }

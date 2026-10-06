@@ -91,6 +91,31 @@ describe('Урок «Сегодня»: выбор темы и края', () => {
     const almost = new Set(ITEMS.filter((x) => x.sublevel).map((x) => x.id));
     expect(Today.buildLesson({ items: ITEMS, due: [], started: almost, level: 'A1' }).theme).toBe(ITEMS[0].theme);
   });
+  it('слова урока: сначала повторение (забытые первыми, не больше 3), потом новые своего уровня', () => {
+    const W = Array.from({ length: 12 }, (_, i) => ({ id: 'wd_' + String(i + 1).padStart(4, '0'), level: 'A1', sublevel: 'A1' }));
+    const base = { items: ITEMS, started: new Set(ITEMS.map((x) => x.id)), wordItems: W };
+    // новичок: 5 новых слов по порядку курса
+    const fresh = Today.buildLesson({ ...base, due: [], level: 'A1' });
+    expect(fresh.words).toEqual(W.slice(0, 5).map((w) => w.id));
+    expect(fresh.wordsDue).toBe(0);
+    expect(Today.hasWork(fresh)).toBe(true); // одних слов хватает на урок
+    // пора повторить 4 слова: в урок идут 3 (забытое первым) и 2 новых
+    const started = new Set([...base.started, 'wd_0001', 'wd_0002', 'wd_0003', 'wd_0004']);
+    const due = [{ cardId: 'wd_0002', status: 'review' }, { cardId: 'wd_0003', status: 'lapsed' }, { cardId: 'wd_0001', status: 'review' }, { cardId: 'wd_0004', status: 'review' }];
+    const mix = Today.buildLesson({ ...base, started, due, level: 'A1' });
+    expect(mix.words).toEqual(['wd_0003', 'wd_0002', 'wd_0001', 'wd_0005', 'wd_0006']);
+    expect(mix.wordsDue).toBe(3);
+    // ученику A2 новые слова A1 не даём — только повторение
+    expect(Today.buildLesson({ ...base, started, due, level: 'A2' }).words).toEqual(['wd_0003', 'wd_0002', 'wd_0001']);
+    // без раздела «Слова» блока нет
+    expect(Today.buildLesson({ items: ITEMS, due: [], started: new Set() }).words).toEqual([]);
+  });
+  it('урок со словами продолжается со слов после заданий лестницы', () => {
+    const saved = { date: '2026-10-06', tasks: [{ type: 'ex', id: 'cv_1001' }], idx: 1, words: ['wd_0001', 'wd_0002'], wordsDone: 1,
+      scene: 'ep2-taxi', sceneDone: false, improv: 2, improvDone: 0 };
+    expect(Today.resumable(saved, '2026-10-06').phase).toBe('words');
+    expect(Today.resumable({ ...saved, wordsDone: 2 }, '2026-10-06').phase).toBe('scene');
+  });
   it('заданная тема соблюдается', () => {
     const l = Today.buildLesson({ items: ITEMS, due: [], started: new Set(), theme: 'Отель' });
     l.fresh.forEach((id) => expect(byId.get(id).theme).toBe('Отель'));

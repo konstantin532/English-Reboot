@@ -111,6 +111,10 @@ test('«Сегодня»: после заданий урока идёт сцен
     const later = SRS.addDays(SRS.todayStr(), 30);
     await DB.bulkPut('progress', cards.map((c) => ({ cardId: c.id, storeName: 'conversation', status: 'review', stability: 30, difficulty: 5,
       ease: 2.3, lapseCount: 0, reps: 3, lastReview: SRS.todayStr(), nextReview: later, ladder: { step: 2, best: 2, hist: {} } })));
+    // и слова уже в работе — повторять нечего
+    const words = (await DB.getAll('words')).data;
+    await DB.bulkPut('progress', words.map((c) => ({ cardId: c.id, storeName: 'words', status: 'review', stability: 30, difficulty: 5,
+      ease: 2.3, lapseCount: 0, reps: 3, lastReview: SRS.todayStr(), nextReview: later })));
     await ER.switchTab('today');
   });
   await expect(page.locator('.today-plan')).toContainText('Сцена — «Аэропорт JFK»');

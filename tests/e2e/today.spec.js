@@ -50,13 +50,26 @@ async function doTask(page) {
     await page.locator('.ladder-opt').filter({ hasText: said }).first().click();
     await page.locator('#ladder-next').click();
   }
-  await expect.poll(async () => (await page.locator('#today-summary, #scene-root').first().isVisible().catch(() => false))
+  await expect.poll(async () => (await page.locator('#today-summary, #scene-root, #words-root').first().isVisible().catch(() => false))
     || (await page.locator('.session-counter').innerText().catch(() => counter)) !== counter).toBe(true);
   return kind === 'intro' ? 'intro' : 'ex';
 }
 
+// Слова урока: верный вариант берём из карточки в базе; wrong — сколько первых слов ответить неверно
+async function doWords(page, n, wrong = 0) {
+  for (let i = 1; i <= n; i++) {
+    await expect(page.locator('#words-root .session-counter')).toContainText(`Слово ${i} из ${n}`);
+    const id = await page.locator('#words-root').getAttribute('data-id');
+    const t = await page.evaluate(async (cid) => (await DB.getByKey('words', cid)).data.payload.test[0], id);
+    const pick = i <= wrong ? (t.correct + 1) % t.options.length : t.correct;
+    await page.locator('.words-opt').nth(pick).click();
+    await expect(page.locator('#words-feedback')).toContainText(i <= wrong ? 'Правильно:' : 'Верно');
+    await page.locator('#words-next').click();
+  }
+}
+
 test('«Сегодня»: после онбординга урок открывается одним кликом и доходит до итога дня', async ({ page }) => {
-  test.setTimeout(120000); // 12 заданий, три записи голоса по 1+ с и сцена
+  test.setTimeout(150000); // 12 заданий, три записи голоса по 1+ с, слова и сцена
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await onboard(page);
@@ -65,6 +78,7 @@ test('«Сегодня»: после онбординга урок открыв�
   await expect.poll(() => page.evaluate(() => document.body.dataset.tab)).toBe('today');
   await expect(page.locator('.today-start')).toHaveCount(1);
   await expect(page.locator('.today-plan')).toContainText('3 фразы');
+  await expect(page.locator('.today-plan')).toContainText('Слова — 5 слов: послушай и выбери значение');
   await expect(page.locator('.today-plan')).toContainText('Сцена — «Аэропорт JFK»');
   await expect(page.locator('.today-plan')).toContainText('Импровизация — 2 ситуации');
 
@@ -75,10 +89,15 @@ test('«Сегодня»: после онбординга урок открыв�
   await expect(page.locator('#ladder-rec')).toBeVisible();
 
   const done = { intro: 0, ex: 0 };
-  for (let i = 0; i < 30 && !(await page.locator('#scene-root').isVisible().catch(() => false)); i++) {
+  for (let i = 0; i < 30 && !(await page.locator('#scene-root, #words-root').first().isVisible().catch(() => false)); i++) {
     done[await doTask(page)]++;
   }
   expect(done).toEqual({ intro: 3, ex: 9 });
+
+  // Слова урока: 5 новых слов, первое — неверно; ответы записаны в FSRS
+  await doWords(page, 5, 1);
+  const words = await page.evaluate(async () => (await DB.getAllProgress()).data.filter((r) => /^wd_/.test(r.cardId)).length);
+  expect(words).toBe(5);
 
   // После заданий — сцена истории: проходим «Аэропорт JFK» естественными ответами
   await expect(page.locator('.scene-title')).toHaveText('Аэропорт JFK');
@@ -102,6 +121,7 @@ test('«Сегодня»: после онбординга урок открыв�
   await expect(summary).toContainText('серия 1 день');
   await expect(summary).toContainText('Сцена «Аэропорт JFK» пройдена');
   await expect(summary).toContainText('Импровизаций: 2');
+  await expect(summary).toContainText('Слова: 4 из 5 — верно');
 
   // Главная: урок дня пройден, плитки обновились
   await page.locator('#today-home').click();

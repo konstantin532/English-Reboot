@@ -11,6 +11,8 @@
         дальше — со слабыми ловушками акцента);
      2) новое — 3 новые фразы ОДНОЙ темы: знакомство + «Повтори вслух»,
         затем 3 круга по лестнице;
+     2½) слова — до 5 слов раздела «Слова»: сначала те, что пора повторить по FSRS,
+        потом новые своего уровня; послушать и выбрать значение (TodayUI, поле words плана);
      3) сцена — следующий непройденный эпизод истории (scenes_us.js); её
         проигрывает ScenesUI после заданий лестницы (поле scene плана);
      4) импровизация — N спинов импров-рулетки в конце (ImprovUI, поле improv плана).
@@ -19,7 +21,7 @@
 const Today = (() => {
   'use strict';
 
-  const DEFAULTS = { warmup: 5, fresh: 3, rounds: 3 };
+  const DEFAULTS = { warmup: 5, fresh: 3, rounds: 3, wordCount: 5, wordDue: 3 };
 
   const LABELS = { warmup: 'Разминка', intro: 'Новая фраза', fresh: 'Новые фразы' };
 
@@ -64,8 +66,10 @@ const Today = (() => {
    *   level     — уровень ученика из настроек (необязательно): темы пакетов его уровня — первыми
    *   scene     — id эпизода сцены для этого урока (или null)
    *   improv    — сколько спинов импровизации в конце урока (0 — без блока)
-   *   warmup / fresh / rounds — размеры урока
-   * @returns {{ warmup: string[], fresh: string[], theme: string|null, tasks: object[], scene: string|null }}
+   *   wordItems — слова раздела «Слова» в порядке курса: [{ id, level, sublevel }]
+   *   warmup / fresh / rounds / wordCount / wordDue — размеры урока
+   * @returns {{ warmup: string[], fresh: string[], theme: string|null, tasks: object[], scene: string|null,
+   *             words: string[], wordsDue: number }}
    */
   function buildLesson(input) {
     const o = { ...DEFAULTS, ...(input || {}) };
@@ -86,33 +90,49 @@ const Today = (() => {
     const fresh = theme === null ? [] : weakFirst(freshAll.filter((x) => x.theme === theme), (x) => x.front, o.passport, o.lookup)
       .slice(0, Math.max(0, o.fresh)).map((x) => x.id);
 
+    // 2½) Слова: сначала пора повторить (забытые первыми), потом новые. Новые — своего уровня
+    // (у ученика A2 слов A1 в уроке не будет, только повторение); без уровня — по порядку курса.
+    const wordItems = o.wordItems || [];
+    const wordIds = new Set(wordItems.map((w) => w.id));
+    const wSeen = new Set();
+    const dueWords = (o.due || []).filter((c) => wordIds.has(c.cardId) && !wSeen.has(c.cardId) && wSeen.add(c.cardId))
+      .map((c, i) => ({ c, i })).sort((a, b) => lapsed(a.c) - lapsed(b.c) || a.i - b.i)
+      .slice(0, Math.max(0, Math.min(o.wordDue, o.wordCount))).map((x) => x.c.cardId);
+    const ownLevel = (w) => !o.level || String(w.sublevel || w.level || '').replace('+', '') === o.level;
+    const newWords = wordItems.filter((w) => !started.has(w.id) && !wSeen.has(w.id) && ownLevel(w))
+      .slice(0, Math.max(0, o.wordCount - dueWords.length)).map((w) => w.id);
+    const words = dueWords.concat(newWords);
+
     const tasks = [];
     warmup.forEach((id) => tasks.push({ type: 'ex', id, label: LABELS.warmup }));
     // Знакомство: послушай и повтори вслух — первая фраза вслух в первые минуты урока
     fresh.forEach((id) => tasks.push({ type: 'intro', id, label: LABELS.intro }));
     for (let r = 0; r < o.rounds; r++) fresh.forEach((id) => tasks.push({ type: 'ex', id, label: LABELS.fresh }));
     return { warmup, fresh, theme: fresh.length ? theme : null, tasks, scene: o.scene || null,
-      improv: Math.max(0, Number(o.improv) || 0) };
+      improv: Math.max(0, Number(o.improv) || 0), words, wordsDue: dueWords.length };
   }
 
   /* ---------- Сохранённый урок: можно прервать и продолжить в тот же день ---------- */
 
   // Состояние урока в settings.today_lesson; урок другого дня не продолжаем.
-  // phase: 'tasks' — задания лестницы, 'scene' — осталась сцена, 'improv' — остались спины импровизации.
+  // phase: 'tasks' — задания лестницы, 'words' — остались слова, 'scene' — осталась сцена,
+  // 'improv' — остались спины импровизации.
   function resumable(saved, today) {
     if (!saved || typeof saved !== 'object') return null;
     if (saved.date !== today || saved.done) return null;
     const tasks = Array.isArray(saved.tasks) ? saved.tasks : [];
     const idx = Math.max(0, Math.min(Number(saved.idx) || 0, tasks.length));
     if (idx < tasks.length) return { ...saved, tasks, idx, phase: 'tasks' };
+    const words = Array.isArray(saved.words) ? saved.words : [];
+    if ((Number(saved.wordsDone) || 0) < words.length) return { ...saved, tasks, idx, phase: 'words' };
     if (saved.scene && !saved.sceneDone) return { ...saved, tasks, idx, phase: 'scene' };
     if ((Number(saved.improv) || 0) > (Number(saved.improvDone) || 0)) return { ...saved, tasks, idx, phase: 'improv' };
     return null;
   }
 
-  // В уроке есть что делать: задания или сцена
+  // В уроке есть что делать: задания, слова или сцена
   // Импровизация одна урок не составляет: она венчает задания или сцену
-  const hasWork = (plan) => !!(plan && ((plan.tasks && plan.tasks.length) || plan.scene));
+  const hasWork = (plan) => !!(plan && ((plan.tasks && plan.tasks.length) || (plan.words && plan.words.length) || plan.scene));
 
   const doneToday = (saved, today) => !!(saved && saved.date === today && saved.done);
 
