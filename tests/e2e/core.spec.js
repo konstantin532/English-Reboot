@@ -74,15 +74,54 @@ test('Minimal Pairs: тренажёр на слух — раунд, ответ, 
   await page.locator('.pair-option').first().click();
   await expect(fb).toContainText('Раунд завершён');
 
-  // После неверного ответа слово повторяется через 600 мс. Известная ошибка (есть и до разделения
-  // app.js): смена вкладки в эти 600 мс → pairRound = null → TypeError в отложенном повторе.
-  // Здесь проверяем связь ядра и модуля, поэтому дожидаемся повтора.
-  await page.waitForTimeout(700);
   // switchTab в ядре обнуляет pairRound — модуль библиотеки должен увидеть это через контекст
   await page.evaluate(() => ER.switchTab('today'));
   await page.evaluate(() => ER.openCardAnywhere('minimal_pairs', 'mp_002'));
   await page.locator('.pair-option').first().click();
   await expect(page.locator('#pair-feedback')).toContainText('Сначала нажмите');
+  expect(errors).toEqual([]);
+});
+
+test('Minimal Pairs: уход с вкладки сразу после неверного ответа — без ошибки и без повтора старого слова', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await onboard(page);
+  // Считаем озвучки и фиксируем загаданное слово (Math.random() = 0 → word1)
+  await page.evaluate(() => {
+    window.__spoken = [];
+    const orig = TTS.speak.bind(TTS);
+    TTS.speak = (text, rate) => { window.__spoken.push(text); return orig(text, rate); };
+    window.__rnd = Math.random;
+    Math.random = () => 0;
+  });
+  const openAndMiss = async () => {
+    await page.evaluate(() => ER.openCardAnywhere('minimal_pairs', 'mp_002'));
+    await page.locator('.play-random').click();
+    await expect(page.locator('#pair-feedback')).toContainText('прослушивание 1 из 3');
+    await page.locator('.pair-option').nth(1).click(); // word2 — неверно
+    await expect(page.locator('#pair-feedback')).toContainText('Неверно');
+  };
+
+  // 1) Смена вкладки до повтора: раньше — TypeError в setTimeout
+  await openAndMiss();
+  await page.evaluate(() => ER.switchTab('today'));
+  const n1 = await page.evaluate(() => window.__spoken.length);
+  await page.waitForTimeout(900);
+  expect(await page.evaluate(() => window.__spoken.length)).toBe(n1);
+
+  // 2) Остался на карточке — повтор звучит (поведение сохранено)
+  await openAndMiss();
+  const n2 = await page.evaluate(() => window.__spoken.length);
+  await expect.poll(() => page.evaluate(() => window.__spoken.length)).toBe(n2 + 1);
+
+  // 3) Переоткрыл ту же пару до повтора — старый раунд не озвучивается
+  await openAndMiss();
+  await page.evaluate(() => ER.openCardAnywhere('minimal_pairs', 'mp_002'));
+  const n3 = await page.evaluate(() => window.__spoken.length);
+  await page.waitForTimeout(900);
+  expect(await page.evaluate(() => window.__spoken.length)).toBe(n3);
+
+  await page.evaluate(() => { Math.random = window.__rnd; });
   expect(errors).toEqual([]);
 });
 
