@@ -15,9 +15,10 @@ const PHRASES = new Set(ctx.CONVERSATION_CARDS.map((c) => c.payload.front));
 function rngFrom(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
 
 describe('Данные импровизации', () => {
-  it('40 карточек ситуаций и 15 историй «Yes, and…», id уникальны', () => {
-    expect(CARDS.length).toBe(40);
-    expect(new Set(CARDS.map((c) => c.id)).size).toBe(40);
+  it('65 карточек ситуаций (25 из них — A1) и 15 историй «Yes, and…», id уникальны', () => {
+    expect(CARDS.length).toBe(65);
+    expect(new Set(CARDS.map((c) => c.id)).size).toBe(65);
+    expect(CARDS.filter((c) => c.level === 'A1').length).toBe(25);
     expect(STORIES.length).toBe(15);
     expect(new Set(STORIES.map((s) => s.id)).size).toBe(15);
   });

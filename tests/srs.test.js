@@ -155,6 +155,7 @@ describe('FSRS: совместимость со старыми записями'
     expect(storeForCard('g12')).toBe('grammar_cards');
     expect(storeForCard('cv_1001')).toBe('conversation');
     expect(storeForCard('id_005')).toBe('idioms');
+    expect(storeForCard('wd_0001')).toBe('words');
     expect(storeForCard('xx_1')).toBe(null);
   });
 });

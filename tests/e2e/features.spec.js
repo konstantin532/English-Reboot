@@ -25,7 +25,7 @@ test('меню-«карта линий»: группы и значки, поло
   const nav = page.locator('#main-nav');
   await expect(nav).toBeVisible();
   await expect(nav.locator('.nav-group')).toHaveCount(3); // Библиотека, Практика, Я; «Сегодня» — над группами
-  await expect(nav.locator('.nav-link .line-bullet')).toHaveCount(14);
+  await expect(nav.locator('.nav-link .line-bullet')).toHaveCount(15);
   await expect(nav.locator('.nav-link').first()).toHaveAttribute('data-tab', 'today');
   await page.locator('.nav-link[data-tab="reading"]').click();
   await expect.poll(() => page.evaluate(() => document.body.dataset.tab)).toBe('reading');
