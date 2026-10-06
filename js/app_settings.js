@@ -393,8 +393,7 @@ const AppSettings = (() => {
       const res = await DB.clearStore(store);
       if (!res.success) { C.toast('Ошибка при сбросе: ' + res.error, 'danger'); return; }
     }
-    C.grammarCache = null;
-    Object.keys(C.vocabCache).forEach((k) => delete C.vocabCache[k]);
+    C.dropCardCaches();
     await DB.saveSetting('streak', 0);
     await DB.saveSetting('last_study_date', '');
     C.refreshHeaderStats();

@@ -109,6 +109,9 @@
   };
 
   let grammarCache = null;
+  // Поколение кэшей карточек: растёт при каждом сбросе. Загрузка, начатая до сброса,
+  // не записывает в кэш свой (уже устаревший) результат.
+  let cacheEpoch = 0;
   const vocabCache = {};
 
   const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
@@ -143,12 +146,13 @@
     get currentSession() { return currentSession; }, set currentSession(v) { currentSession = v; },
     get currentStreak() { return currentStreak; },
     get deferredPrompt() { return deferredPrompt; }, set deferredPrompt(v) { deferredPrompt = v; },
+    get dropCardCaches() { return dropCardCaches; },
     get ensureGrammarData() { return ensureGrammarData; },
     get ensureVocabData() { return ensureVocabData; },
     get escapeAttr() { return escapeAttr; },
     get escapeHtml() { return escapeHtml; },
     get examplesHtml() { return examplesHtml; },
-    get grammarCache() { return grammarCache; }, set grammarCache(v) { grammarCache = v; },
+    get grammarCache() { return grammarCache; },
     get ladderButtonHtml() { return ladderButtonHtml; },
     get lineBullet() { return lineBullet; },
     get openWordbank() { return openWordbank; },
@@ -177,8 +181,7 @@
 
   // Сбросить кэши карточек и перерисовать текущий раздел (после догрузки контента)
   function reloadContent() {
-    grammarCache = null;
-    Object.keys(vocabCache).forEach((k) => delete vocabCache[k]);
+    dropCardCaches();
     // Экран модуля (урок, сцена, лестница) не перерисовываем — ученик посреди задания
     const onList = !state.inSession && !state.currentCardId && !state.practiceMode && !moduleScreen;
     if (onList && currentTab !== 'settings') switchTab(currentTab);
@@ -435,7 +438,7 @@
     const res = await DB.seedContent(GRAMMAR_CARDS, 'grammar_cards', (d, t) => updateSeedProgress(d, t, 'Загрузка грамматики…'));
     if (res.success) {
       await DB.saveCard('content_meta', { key: 'content_version', value: CONTENT_VERSION, seededAt: new Date().toISOString(), count: GRAMMAR_CARDS.length });
-      grammarCache = null;
+      dropCardCaches();
     } else toast('Ошибка загрузки грамматики: ' + res.error, 'danger');
     hideSeedProgress();
   }
@@ -449,7 +452,7 @@
       ['Коллокации', window.COLLOCATION_CARDS, 'collocations'],
       ['Идиомы', window.IDIOM_CARDS, 'idioms'],
     ], 'vocab_version', VOCAB_VERSION);
-    if (okAll) Object.keys(vocabCache).forEach((k) => delete vocabCache[k]);
+    if (okAll) dropCardCaches();
   }
 
   async function checkAndSeedExtra() {
@@ -465,7 +468,7 @@
       ['Minimal Pairs', window.MINIMAL_PAIR_CARDS, 'minimal_pairs'],
       ['Чтение', window.READING_CARDS, 'readings'],
     ], 'extra_version', EXTRA_VERSION);
-    if (okAll) Object.keys(vocabCache).forEach((k) => delete vocabCache[k]);
+    if (okAll) dropCardCaches();
   }
 
   // Этап 7: прогресс после правок контента — дубли объединяются (прогресс переносится),
@@ -504,15 +507,30 @@
     };
   }
 
+  // Сбросить кэши карточек всех разделов (сброс прогресса, догрузка контента)
+  function dropCardCaches() {
+    cacheEpoch++;
+    grammarCache = null;
+    Object.keys(vocabCache).forEach((k) => delete vocabCache[k]);
+  }
+
+  // Если кэш сбросили, пока шла загрузка, её результат устарел (например, прогресс до сброса):
+  // в кэш его не пишем и читаем базу заново
   async function ensureGrammarData() {
-    if (grammarCache) return grammarCache;
-    grammarCache = await loadStoreWithProgress('grammar_cards');
+    while (!grammarCache) {
+      const epoch = cacheEpoch;
+      const data = await loadStoreWithProgress('grammar_cards');
+      if (epoch === cacheEpoch && !grammarCache) grammarCache = data;
+    }
     return grammarCache;
   }
 
   async function ensureVocabData(storeName) {
-    if (vocabCache[storeName]) return vocabCache[storeName];
-    vocabCache[storeName] = await loadStoreWithProgress(storeName);
+    while (!vocabCache[storeName]) {
+      const epoch = cacheEpoch;
+      const data = await loadStoreWithProgress(storeName);
+      if (epoch === cacheEpoch && !vocabCache[storeName]) vocabCache[storeName] = data;
+    }
     return vocabCache[storeName];
   }
 
