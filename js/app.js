@@ -16,9 +16,9 @@
   'use strict';
 
   const CONTENT_VERSION = 5; // 5: омографы в IPA (live /lɪv/, close /kloʊz/, read /rid/…)
-  const VOCAB_VERSION = '1.4.0'; // 1.4.0: омографы в IPA (lex_us.js)
-  const EXTRA_VERSION = '1.9.0'; // 1.9.0: +100 фраз A1 (часть 2), омографы в IPA
-  const WORDS_VERSION = '1.1.0'; // раздел «Слова»: 1.1.0 — пакет A1, часть 2 (400 слов)
+  const VOCAB_VERSION = '1.5.0'; // 1.5.0: +30 фразовых глаголов A1+ (pv_209–238)
+  const EXTRA_VERSION = '2.0.0'; // 2.0.0: +75 фраз A1+ «Первый месяц»
+  const WORDS_VERSION = '1.2.0'; // раздел «Слова»: 1.2.0 — пакет A1+, часть 1 (550 слов)
   const APP_VERSION = '1.1.0';
 
   // Каждый раздел — «линия метро»: цвет и буква значка (цвета линий нью-йоркского метро).

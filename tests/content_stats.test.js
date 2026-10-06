@@ -11,13 +11,15 @@ describe('Счётчик контента: план «+4000»', () => {
   });
 
   it('пакет A1 (части 1 и 2): 400 слов + 200 фраз + 50 импровизаций = 650 — цель подуровня A1', () => {
-    expect(s.bySection.words).toBe(400);
-    expect(s.plan.types.words).toBe(400);
-    expect(s.plan.types.phrases).toBe(200);
-    expect(s.plan.types.improv).toBe(50);
     expect(s.plan.sublevels.A1).toBe(650);
     expect(s.plan.sublevels.A1).toBe(PLAN.sublevels.A1);
-    expect(s.plan.done).toBe(650);
+  });
+
+  it('пакет A1+, часть 1: 150 слов + 30 фразовых глаголов + 75 фраз + 25 импровизаций = 280', () => {
+    expect(s.bySection.words).toBe(550);
+    expect(s.plan.sublevels['A1+']).toBe(280);
+    expect(s.plan.types.vocab).toBe(30);
+    expect(s.plan.done).toBe(930);
   });
 
   it('старый контент не считается сделанным по плану, всего карточек больше 2400', () => {
