@@ -98,3 +98,36 @@ describe('Аудит контента: дубли и миграция прогр
     expect(M.plan({}).del).toEqual([]);
   });
 });
+
+describe('Аудит контента: омографы (live, close, read, use, wind)', () => {
+  // IPA слова в конкретном примере курса: ищем предложение и берём разбор слова
+  function ipaIn(sentence, word) {
+    let found = null;
+    ALL.forEach((c) => walk(c.payload, (o) => {
+      if (found || !Array.isArray(o.parts)) return;
+      if (o.parts.map((p) => p.word).join(' ') !== sentence) return;
+      const p = o.parts.find((x) => String(x.word).toLowerCase().replace(/[^a-z']/g, '') === word);
+      if (p) found = p.ipa;
+    }));
+    return found;
+  }
+  it('в примерах курса выбран нужный вариант по смыслу', () => {
+    expect(ipaIn('I live on the fifth floor, 5C.', 'live')).toBe('/lɪv/');
+    expect(ipaIn('Close your eyes.', 'close')).toBe('/kloʊz/');
+    expect(ipaIn("It's close. Just two blocks.", 'close')).toBe('/kloʊs/');
+    expect(ipaIn('I read before bed.', 'read')).toBe('/rid/');
+    expect(ipaIn('He saw it but left me on read.', 'read')).toBe('/rɛd/');
+    expect(ipaIn('First, read the instructions.', 'read')).toBe('/rid/');
+    expect(ipaIn('Can I use this towel?', 'use')).toBe('/juz/');
+    expect(ipaIn('Warning: surfaces are hot after use. Keep away from children.', 'use')).toBe('/jus/');
+    expect(ipaIn('The wind is so cold.', 'wind')).toBe('/wɪnd/');
+  });
+  it('правила: live music, wind down, Tony read', () => {
+    const R = ctx.LEX_US_HOMOGRAPH_RULES;
+    expect(R.live('', 'music', [], '', 'live')).toBe('laɪv');
+    expect(R.live('i', 'in', [], 'I', 'live')).toBe('lɪv');
+    expect(R.wind('to', 'down', [], 'to', 'wind')).toBe('waɪnd');
+    expect(R.read('tony', 'it', [], 'Tony', 'read')).toBe('rɛd');
+    expect(R.read('i', 'it', ['i', 'read', 'it', 'yesterday'], 'I', 'read')).toBe('rɛd');
+  });
+});

@@ -15,10 +15,10 @@
 (() => {
   'use strict';
 
-  const CONTENT_VERSION = 4; // 4: американская IPA и написание по аудиту (этап 7)
-  const VOCAB_VERSION = '1.3.0'; // 1.3.0: американская IPA, написание и слова (этап 7)
-  const EXTRA_VERSION = '1.8.0'; // 1.8.0: +100 фраз A1 «Первая неделя» с подуровнями
-  const WORDS_VERSION = '1.0.0'; // раздел «Слова»: 1.0.0 — пакет A1, часть 1 (200 слов)
+  const CONTENT_VERSION = 5; // 5: омографы в IPA (live /lɪv/, close /kloʊz/, read /rid/…)
+  const VOCAB_VERSION = '1.4.0'; // 1.4.0: омографы в IPA (lex_us.js)
+  const EXTRA_VERSION = '1.9.0'; // 1.9.0: +100 фраз A1 (часть 2), омографы в IPA
+  const WORDS_VERSION = '1.1.0'; // раздел «Слова»: 1.1.0 — пакет A1, часть 2 (400 слов)
   const APP_VERSION = '1.1.0';
 
   // Каждый раздел — «линия метро»: цвет и буква значка (цвета линий нью-йоркского метро).
