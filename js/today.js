@@ -33,8 +33,15 @@ const Today = (() => {
     return A.orderByWeakTraps(list, textOf, passport, lookup, group);
   }
 
-  // Тема новых фраз: первая по порядку курса, где осталось ≥ need новых; иначе — где их больше всего
-  function pickTheme(fresh, need) {
+  // Тема новых фраз: первая по порядку курса, где осталось ≥ need новых; иначе — где их больше всего.
+  // level — уровень ученика (A1, A2, B1, B2): сначала темы пакетов «+4000» этого уровня (у их фраз
+  // есть подуровень): новичок A1 начинает с «Первой недели», хотя её фразы дописаны в конец курса.
+  function pickTheme(fresh, need, level) {
+    if (level) {
+      const own = fresh.filter((x) => x.sublevel && String(x.sublevel).replace('+', '') === level);
+      const t = own.length ? pickTheme(own, need) : null;
+      if (t !== null && own.filter((x) => x.theme === t).length >= need) return t;
+    }
     const count = new Map();
     const order = [];
     fresh.forEach((x) => {
@@ -54,6 +61,7 @@ const Today = (() => {
    *   passport  — settings.accent_passport (может быть null)
    *   lookup    — источник IPA для разметки ловушек (может быть null)
    *   theme     — тема новых фраз (необязательно)
+   *   level     — уровень ученика из настроек (необязательно): темы пакетов его уровня — первыми
    *   scene     — id эпизода сцены для этого урока (или null)
    *   improv    — сколько спинов импровизации в конце урока (0 — без блока)
    *   warmup / fresh / rounds — размеры урока
@@ -74,7 +82,7 @@ const Today = (() => {
 
     // 2) Новые: фразы без прогресса, не из разминки, одной темы
     const freshAll = items.filter((x) => !started.has(x.id) && !warmup.includes(x.id));
-    const theme = o.theme && freshAll.some((x) => x.theme === o.theme) ? o.theme : pickTheme(freshAll, o.fresh);
+    const theme = o.theme && freshAll.some((x) => x.theme === o.theme) ? o.theme : pickTheme(freshAll, o.fresh, o.level);
     const fresh = theme === null ? [] : weakFirst(freshAll.filter((x) => x.theme === theme), (x) => x.front, o.passport, o.lookup)
       .slice(0, Math.max(0, o.fresh)).map((x) => x.id);
 

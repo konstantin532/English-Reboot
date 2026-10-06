@@ -97,7 +97,7 @@ const Ladder = (() => {
     const p = (card && card.payload) || {};
     const d = p.dialog || [];
     return {
-      id: card.id, level: card.level, front: p.front, ru: p.translation, theme: p.category,
+      id: card.id, level: card.level, sublevel: card.sublevel || null, front: p.front, ru: p.translation, theme: p.category,
       a: stripDash(d[0]), b: stripDash(d[1]),
       ex: (p.examples && p.examples[0] && p.examples[0].text) || '',
     };
