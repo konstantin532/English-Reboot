@@ -39,7 +39,8 @@ const TodayUI = (() => {
     const lookup = window.TrapsUI ? await TrapsUI.ensureLookup() : null;
     const scene = window.ScenesUI ? await ScenesUI.nextEpisodeId() : null;
     const improv = window.ImprovUI ? IMPROV_SPINS : 0;
-    return Today.buildLesson({ items, due, started, passport: pass.success ? pass.data : null, lookup, scene, improv });
+    const level = (ER && ER.settings && ER.settings().currentLevel) || null;
+    return Today.buildLesson({ items, due, started, passport: pass.success ? pass.data : null, lookup, scene, improv, level });
   }
 
   async function dayStats() {

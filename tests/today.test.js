@@ -80,6 +80,17 @@ describe('Урок «Сегодня»: выбор темы и края', () => {
     expect(Today.pickTheme(f.slice(0, 3), 3)).toBe('Y');
     expect(Today.pickTheme([], 3)).toBe(null);
   });
+  it('ученик A1 начинает с темы пакета A1 («Первая неделя»), хотя её фразы в конце курса', () => {
+    const l = Today.buildLesson({ items: ITEMS, due: [], started: new Set(), level: 'A1' });
+    expect(l.theme).toMatch(/^Первая неделя/);
+    l.fresh.forEach((id) => expect(byId.get(id).sublevel).toBe('A1'));
+    // без уровня и для B1 — прежний порядок курса
+    expect(Today.buildLesson({ items: ITEMS, due: [], started: new Set() }).theme).toBe(ITEMS[0].theme);
+    expect(Today.buildLesson({ items: ITEMS, due: [], started: new Set(), level: 'B1' }).theme).toBe(ITEMS[0].theme);
+    // пакет своего уровня пройден — обычный порядок курса
+    const almost = new Set(ITEMS.filter((x) => x.sublevel).map((x) => x.id));
+    expect(Today.buildLesson({ items: ITEMS, due: [], started: almost, level: 'A1' }).theme).toBe(ITEMS[0].theme);
+  });
   it('заданная тема соблюдается', () => {
     const l = Today.buildLesson({ items: ITEMS, due: [], started: new Set(), theme: 'Отель' });
     l.fresh.forEach((id) => expect(byId.get(id).theme).toBe('Отель'));
