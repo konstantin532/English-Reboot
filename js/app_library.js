@@ -396,7 +396,10 @@ const AppLibrary = (() => {
       if (C.pairRound.tries >= 3) revealPair();
       else {
         setPairFeedback('Неверно. Слушайте ещё раз…', 'wrong');
-        setTimeout(() => C.speak(C.pairRound.target), 600);
+        // Повтор — только если этот же раунд ещё идёт: за 600 мс ученик мог сменить вкладку
+        // (ядро обнуляет pairRound), открыть другую пару или начать новый раунд.
+        const round = C.pairRound;
+        setTimeout(() => { if (C.pairRound === round && !round.done) C.speak(round.target); }, 600);
       }
     }
   }
