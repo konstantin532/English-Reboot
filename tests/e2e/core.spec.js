@@ -57,3 +57,44 @@ test('тема переключается кнопкой в шапке и сох
   await page.keyboard.press('Escape');
   await expect(page.locator('#modal-zone')).toBeHidden();
 });
+
+test('Minimal Pairs: тренажёр на слух — раунд, ответ, а смена вкладки (в ядре) сбрасывает раунд (в модуле)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await onboard(page);
+  await page.evaluate(() => ER.openCardAnywhere('minimal_pairs', 'mp_002'));
+  const fb = page.locator('#pair-feedback');
+  await page.locator('.pair-option').first().click();
+  await expect(fb).toContainText('Сначала нажмите');
+  await page.locator('.play-random').click();
+  await expect(fb).toContainText('прослушивание 1 из 3');
+  await page.locator('.pair-option').nth(0).click();
+  if (!(await fb.innerText()).includes('Верно!')) await page.locator('.pair-option').nth(1).click();
+  await expect(fb).toContainText('✓ Верно!');
+  await page.locator('.pair-option').first().click();
+  await expect(fb).toContainText('Раунд завершён');
+
+  // switchTab в ядре обнуляет pairRound — модуль библиотеки должен увидеть это через контекст
+  await page.evaluate(() => ER.switchTab('today'));
+  await page.evaluate(() => ER.openCardAnywhere('minimal_pairs', 'mp_002'));
+  await page.locator('.pair-option').first().click();
+  await expect(page.locator('#pair-feedback')).toContainText('Сначала нажмите');
+  expect(errors).toEqual([]);
+});
+
+test('Чтение: слово открывается во всплывающем окне, уходит в словарик, Escape закрывает окно', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await onboard(page);
+  await page.evaluate(() => ER.openCardAnywhere('readings', 'rd_003'));
+  const word = page.locator('.reading-text span.rw').first();
+  const w = (await word.innerText()).trim();
+  await word.click();
+  await expect(page.locator('#word-popup')).toBeVisible();
+  await page.locator('#word-popup .add-to-wordbank').click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#word-popup')).toHaveCount(0);
+  await page.locator('.open-wordbank-btn').click();
+  await expect(page.locator('body')).toContainText(w.replace(/[^A-Za-z'-]/g, ''));
+  expect(errors).toEqual([]);
+});
