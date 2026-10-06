@@ -74,6 +74,10 @@ test('Minimal Pairs: тренажёр на слух — раунд, ответ, 
   await page.locator('.pair-option').first().click();
   await expect(fb).toContainText('Раунд завершён');
 
+  // После неверного ответа слово повторяется через 600 мс. Известная ошибка (есть и до разделения
+  // app.js): смена вкладки в эти 600 мс → pairRound = null → TypeError в отложенном повторе.
+  // Здесь проверяем связь ядра и модуля, поэтому дожидаемся повтора.
+  await page.waitForTimeout(700);
   // switchTab в ядре обнуляет pairRound — модуль библиотеки должен увидеть это через контекст
   await page.evaluate(() => ER.switchTab('today'));
   await page.evaluate(() => ER.openCardAnywhere('minimal_pairs', 'mp_002'));
