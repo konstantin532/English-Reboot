@@ -219,13 +219,23 @@ const TodayUI = (() => {
     return out;
   }
 
-  function showWord(lesson, byId, drillIdx = 0, errors = 0) {
+  // Озвучка реально есть: системный английский голос или сеть для онлайн-голоса
+  function canListen() {
+    if (!window.TTS || !TTS.isTTSAvailable()) return false;
+    const st = TTS.getStatus();
+    return (st.englishVoices > 0 && !st.systemBroken) || st.online;
+  }
+
+  // Ход по заданиям слова хранится в уроке (wordDrill, wordErr): после перерыва урок продолжается
+  // с того же задания и с уже сделанными ошибками — иначе «знаю» можно было бы получить, начав заново
+  function showWord(lesson, byId, drillIdx = Number(lesson.wordDrill) || 0, errors = Number(lesson.wordErr) || 0) {
     const i = lesson.wordsDone || 0;
     if (i >= lesson.words.length) { afterTasks(lesson); return; }
     const card = byId.get(lesson.words[i]);
     const p = card.payload;
     const review = i < (lesson.wordsDue || 0);
-    const drills = Today.wordDrills(card.sublevel || card.level, review);
+    const drills = Today.wordDrills(card.sublevel || card.level, review, canListen());
+    if (drillIdx >= drills.length) { drillIdx = 0; errors = 0; }
     const kind = drills[drillIdx];
     const ipa = wordIpa(card);
     const pct = Math.round((i / lesson.words.length) * 100);
@@ -246,9 +256,10 @@ const TodayUI = (() => {
         <div class="words-tiles">${tiles.map((t, k) => `<button class="words-tile" type="button" data-k="${k}" data-ch="${t.ch}">${t.ch}</button>`).join('')}</div>`;
     } else {
       target = p.front;
-      body = `<div class="words-front">${playBtn}<span class="words-hint">Слово звучит — напиши его по-английски</span></div>
+      // Перевод-подсказка: на слух легко спутать омофоны (break / brake, sell / cell)
+      body = `<div class="words-front">${playBtn}<span class="words-hint">Слово звучит — напиши его по-английски. Значение: «${esc(p.translation)}»</span></div>
         <form class="words-write" id="words-write" autocomplete="off">
-          <input class="words-input" id="words-input" type="text" autocapitalize="off" spellcheck="false" aria-label="Слово по-английски">
+          <input class="words-input" id="words-input" type="text" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" aria-label="Слово по-английски">
           <button class="btn-primary" id="words-check" type="submit">Проверить</button>
         </form>`;
     }
@@ -270,6 +281,7 @@ const TodayUI = (() => {
     if (kind !== 'reverse') setTimeout(() => speakWord(p.front), 250);
     const root = document.getElementById('words-root');
     let answered = false;
+    const shownAt = Date.now();
     let placed = 0;
     let slipped = false; // ошибка в «собери из букв» считается один раз
     const letterSlots = [...root.querySelectorAll('.words-slot:not(.is-fixed)')];
@@ -278,16 +290,25 @@ const TodayUI = (() => {
       answered = true;
       setTimeout(() => speakWord(p.front), 150); // после ответа слово звучит всегда
       const ex = (p.examples || [])[0];
+      const errs = errors + (ok ? 0 : 1);
+      const more = drillIdx + 1 < drills.length;
+      // В промежуточном задании при верном ответе написание не показываем: следующее задание
+      // («собери из букв», «по русскому») не должно проверять память на пару секунд
+      const verdict = ok && more ? '<b>Верно</b> · дальше ещё одно задание с этим словом'
+        : `<b>${ok ? 'Верно' : 'Правильно:'}</b> ${esc(p.front)} — ${esc(p.translation)}${shown ? ` · ${shown}` : ''}`;
       document.getElementById('words-feedback').innerHTML = `
         <div class="ladder-verdict${ok ? '' : ' is-miss'}">
-          <p><b>${ok ? 'Верно' : 'Правильно:'}</b> ${esc(p.front)} — ${esc(p.translation)}${shown ? ` · ${shown}` : ''}</p>
-          ${ex ? `<p class="words-ex">${esc(ex.text)} <span class="words-ex-ru">— ${esc(ex.ru || '')}</span></p>` : ''}
+          <p>${verdict}</p>
+          ${ex && !(ok && more) ? `<p class="words-ex">${esc(ex.text)} <span class="words-ex-ru">— ${esc(ex.ru || '')}</span></p>` : ''}
         </div>`;
       document.getElementById('words-actions').innerHTML = `
         <button class="btn btn-ghost" id="words-quit" type="button">Закончить</button>
         <button class="btn-primary" id="words-next" type="button">Дальше</button>`;
-      const errs = errors + (ok ? 0 : 1);
-      if (drillIdx + 1 < drills.length) {
+      document.getElementById('words-next').focus();
+      if (more) {
+        lesson.wordDrill = drillIdx + 1;
+        lesson.wordErr = errs;
+        save(lesson);
         root.__next = () => showWord(lesson, byId, drillIdx + 1, errs);
         return;
       }
@@ -295,15 +316,18 @@ const TodayUI = (() => {
       const mark = Today.gradeWord(errs, drills.length);
       lesson.wordsDone = i + 1;
       lesson.wordsOk = (lesson.wordsOk || 0) + (mark === 'know' ? 1 : 0);
-      root.__next = () => showWord(lesson, byId);
+      lesson.wordDrill = 0;
+      lesson.wordErr = 0;
+      root.__next = () => showWord(lesson, byId, 0, 0);
       recordWord(lesson, card.id, mark);
     };
 
     root.addEventListener('click', (e) => {
       if (e.target.closest('#words-play')) { speakWord(p.front); return; }
       if (e.target.closest('#words-quit')) { ER.switchTab('today'); return; }
-      if (e.target.closest('#words-next')) { if (root.__next) root.__next(); return; }
-      if (answered) return;
+      // «Дальше» срабатывает один раз: двойной клик не ответит за ученика на следующем экране
+      if (e.target.closest('#words-next')) { const next = root.__next; root.__next = null; if (next) next(); return; }
+      if (answered || Date.now() - shownAt < 300) return; // хвост двойного клика по «Дальше»
       const opt = e.target.closest('.words-opt');
       if (opt) {
         const t = kind === 'reverse' ? p.test[1] : p.test[0];

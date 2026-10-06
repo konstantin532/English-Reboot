@@ -116,11 +116,16 @@ describe('Урок «Сегодня»: выбор темы и края', () => {
     expect(Today.resumable(saved, '2026-10-06').phase).toBe('words');
     expect(Today.resumable({ ...saved, wordsDone: 2 }, '2026-10-06').phase).toBe('scene');
   });
-  it('сложность слов по подуровню: A1 — значение; A1+ — значение и буквы, повтор — перевод с русского и на слух', () => {
+  it('сложность слов по подуровню: A1 — значение; A1+ — значение и буквы, повтор — на слух и перевод с русского', () => {
     expect(Today.wordDrills('A1', false)).toEqual(['meaning']);
     expect(Today.wordDrills('A1', true)).toEqual(['meaning']);
     expect(Today.wordDrills('A1+', false)).toEqual(['meaning', 'letters']);
-    expect(Today.wordDrills('A1+', true)).toEqual(['reverse', 'listen']);
+    expect(Today.wordDrills('A1+', true)).toEqual(['listen', 'reverse']);
+    // нет озвучки — «на слух» честно заменяется на «собери из букв»
+    expect(Today.wordDrills('A1+', true, false)).toEqual(['letters', 'reverse']);
+    // подуровни выше A1+ пока получают набор A1+ (ELSA-задания — следующий шаг), без подуровня — A1
+    expect(Today.wordDrills('A2', false)).toEqual(['meaning', 'letters']);
+    expect(Today.wordDrills(undefined, false)).toEqual(['meaning']);
   });
   it('оценка слова: «знаю» только без единой ошибки', () => {
     expect(Today.gradeWord(0, 2)).toBe('know');

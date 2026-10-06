@@ -62,6 +62,7 @@ async function doWords(page, n, wrong = 0) {
     const id = await page.locator('#words-root').getAttribute('data-id');
     const t = await page.evaluate(async (cid) => (await DB.getByKey('words', cid)).data.payload.test[0], id);
     const pick = i <= wrong ? (t.correct + 1) % t.options.length : t.correct;
+    await page.waitForTimeout(350); // экран слова первые 300 мс не принимает клики (защита от двойного клика)
     await page.locator('.words-opt').nth(pick).click();
     await expect(page.locator('#words-feedback')).toContainText(i <= wrong ? 'Правильно:' : 'Верно');
     await page.locator('#words-next').click();

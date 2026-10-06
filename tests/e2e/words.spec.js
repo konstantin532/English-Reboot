@@ -81,6 +81,7 @@ test('«Сегодня» → слова урока: неверный ответ 
 
   // неверный вариант: подсветка, правильный ответ и пример с переводом; FSRS — «не знаю»
   const t = await page.evaluate(async () => (await DB.getByKey('words', 'wd_0001')).data.payload.test[0]);
+  await page.waitForTimeout(350);
   await page.locator('.words-opt').nth((t.correct + 1) % 4).click();
   await expect(page.locator('.words-opt.is-wrong')).toHaveCount(1);
   await expect(page.locator('.words-opt.is-correct')).toHaveText('вода');
@@ -115,18 +116,26 @@ test('слова A1+ в «Сегодня»: новое — значение и �
   await expect(page.locator('.today-plan')).toContainText('Слова — 5 слов, из них 1 на повтор');
   await page.locator('#today-start').click();
 
-  // Повтор begin: перевод с русского (слово не звучит заранее), потом на слух — с опечаткой
-  await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'reverse');
-  await expect(page.locator('#words-root .session-counter')).toContainText('Слово 1 из 5 · Повторение · задание 1 из 2');
-  await expect(page.locator('.words-word')).toHaveText('начинать(ся)');
-  await page.locator('.words-opt', { hasText: /^begin$/ }).click();
-  await expect(page.locator('#words-feedback')).toContainText('Верно');
-  await page.locator('#words-next').click();
+  // Повтор begin: сначала на слух (с подсказкой-переводом) — с опечаткой
   await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'listen');
+  await expect(page.locator('#words-root .session-counter')).toContainText('Слово 1 из 5 · Повторение · задание 1 из 2');
+  await expect(page.locator('.words-hint')).toContainText('«начинать(ся)»');
   await page.locator('#words-input').fill('begn');
   await page.locator('#words-check').click();
   await expect(page.locator('#words-feedback')).toContainText('Правильно: begin');
   await expect(page.locator('#words-feedback')).toContainText('написано: «begn»');
+
+  // Перерыв посреди слова: ошибка не забывается — урок продолжается со второго задания
+  await page.locator('#words-quit').click();
+  await page.reload();
+  await expect(page.locator('#today-continue')).toBeVisible({ timeout: 20000 });
+  await page.locator('#today-continue').click();
+  await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'reverse');
+  await expect(page.locator('#words-root .session-counter')).toContainText('Слово 1 из 5 · Повторение · задание 2 из 2');
+  await expect(page.locator('.words-word')).toHaveText('начинать(ся)');
+  await page.waitForTimeout(350);
+  await page.locator('.words-opt', { hasText: /^begin$/ }).click();
+  await expect(page.locator('#words-feedback')).toContainText('Верно');
   await expect.poll(() => page.evaluate(async () => (await DB.getByKey('progress', 'wd_0402')).data.mark)).toBe('hard');
   await page.locator('#words-next').click();
 
@@ -134,10 +143,14 @@ test('слова A1+ в «Сегодня»: новое — значение и �
   await expect(page.locator('#words-root .session-counter')).toContainText('Слово 2 из 5 · Новое слово · задание 1 из 2');
   await expect(page.locator('.words-word')).toHaveText('arrive');
   const t = await page.evaluate(async () => (await DB.getByKey('words', 'wd_0401')).data.payload.test[0]);
+  await page.waitForTimeout(350);
   await page.locator('.words-opt').nth(t.correct).click();
+  await expect(page.locator('#words-feedback')).toContainText('Верно · дальше ещё одно задание');
+  await expect(page.locator('#words-feedback')).not.toContainText('arrive —');
   await page.locator('#words-next').click();
   await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'letters');
-  await page.locator('.words-tile[data-ch="z"], .words-tile:not([data-ch="a"])').first().click(); // первая буква — a, другая — ошибка
+  await page.waitForTimeout(350);
+  await page.locator('.words-tile:not([data-ch="a"])').first().click(); // первая буква — a, другая — ошибка
   await expect(page.locator('.words-tile.is-wrong')).toHaveCount(1);
   for (const ch of 'arrive') await page.locator(`.words-tile[data-ch="${ch}"]:not(:disabled)`).first().click();
   await expect(page.locator('#words-slots')).toHaveText('arrive');

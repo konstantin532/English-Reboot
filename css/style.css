@@ -2910,6 +2910,7 @@ button:not([class]):hover { background: var(--fill-strong); }
 .words-slot { width: 34px; height: 42px; display: grid; place-items: center; border-bottom: 3px solid var(--border); font-size: 24px; font-weight: 700; text-transform: lowercase; }
 .words-slot.is-filled { border-bottom-color: var(--success); color: var(--success); }
 .words-slot.is-fixed { border-bottom-color: transparent; width: 14px; }
+@media (max-width: 420px) { .words-slot { width: 26px; height: 36px; font-size: 20px; } .words-slots { gap: 4px; } }
 .words-tiles { display: flex; flex-wrap: wrap; gap: 8px; }
 .words-tile { min-width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 20px; font-weight: 600; cursor: pointer; }
 .words-tile:hover:not(:disabled) { border-color: var(--accent); }

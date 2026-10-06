@@ -120,11 +120,14 @@ const Today = (() => {
   // letters — собрать слово из букв; listen — послушать и написать.
   const WORD_DRILLS = {
     A1: { fresh: ['meaning'], review: ['meaning'] },
-    'A1+': { fresh: ['meaning', 'letters'], review: ['reverse', 'listen'] },
+    // повтор: сначала на слух (слово ещё не показано), потом выбор по русскому
+    'A1+': { fresh: ['meaning', 'letters'], review: ['listen', 'reverse'] },
   };
-  function wordDrills(sublevel, review) {
+  // canListen = false — озвучки нет (нет голоса и нет сети): «на слух» заменяем на «собери из букв»,
+  // иначе ошибка была бы гарантирована и оценка — нечестной
+  function wordDrills(sublevel, review, canListen = true) {
     const set = WORD_DRILLS[sublevel] || (sublevel === 'A1' || !sublevel ? WORD_DRILLS.A1 : WORD_DRILLS['A1+']);
-    return (review ? set.review : set.fresh).slice();
+    return (review ? set.review : set.fresh).map((k) => (k === 'listen' && !canListen ? 'letters' : k));
   }
   // Оценка для FSRS: без ошибок — «знаю», ошибка не во всех заданиях — «сложно», иначе — «не знаю»
   const gradeWord = (errors, total) => (errors <= 0 ? 'know' : errors < total ? 'hard' : 'dontknow');
