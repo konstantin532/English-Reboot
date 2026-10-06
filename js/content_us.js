@@ -86,6 +86,8 @@
   const SERVICE = new Set(['Путешествия и аэропорт', 'Отель', 'Деньги и банк', 'Покупки', 'Технологии и гаджеты',
     'Первая неделя: магазин', 'Первая неделя: город']);
   const service = (x) => SERVICE.has(x.theme);
+  // Короткие общие реакции («Not worth it.») годятся почти на любую реплику — в неверные ответы их не берём
+  const specificReply = (x) => service(x) && x.b.split(/\s+/).length > 3;
   const LIVE = ['gonna', 'wanna', 'gotta'];
   const LIVE_OPTS = ['gonna', 'wanna', 'gotta', 'gotcha'];
 
@@ -93,7 +95,7 @@
     const tests = [];
     const byGrammar = GRAMMAR_GROUPS.has(group(it.theme));
     const fr = distractors(i, (x) => x.front, 3);
-    tests.push(q('Вам сказали: «' + it.a + '». Что ответить?', it.b, distractors(i, (x) => x.b, 3, byGrammar ? service : null), i));
+    tests.push(q('Вам сказали: «' + it.a + '». Что ответить?', it.b, distractors(i, (x) => x.b, 3, byGrammar ? specificReply : null), i));
     const c = core(it.front);
     const at = it.ex.toLowerCase().indexOf(c.toLowerCase());
     if (at >= 0) {
