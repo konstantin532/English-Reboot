@@ -286,7 +286,7 @@ card('g004','A2',['артикли','a/an'],
 'A/an ставим перед исчисляемыми в ед. ч., когда предмет упоминается впервые или это один из многих. Выбор зависит от звука, а не буквы: an hour (h немая), a university /ju/.',
 [
  ex('She is an engineer.',[
-  w('She','pron','/ʃi/'), w('is','verb','/ɪz/'), w('an','art','/ən/'), w('engineer','noun','/ˈɛndʒənɪr/',{s:2})]),
+  w('She','pron','/ʃi/'), w('is','verb','/ɪz/'), w('an','art','/ən/'), w('engineer','noun','/ˌɛndʒəˈnɪr/',{s:2})]),
  ex('I saw a bird in the garden.',[
   w('I','pron','/aɪ/'), w('saw','verb','/sɔ/'), w('a','art','/ə/'), w('bird','noun','/bɝd/'), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('garden','noun','/ˈɡɑrdən/',{s:0})]),
  ex('It takes an hour by bus.',[
@@ -437,7 +437,7 @@ card('g010','A2',['местоимения','возвратные'],
 'Возвратные местоимения показывают, что действие направлено на самого деятеля: I hurt myself. Также для усиления: I did it myself — я сам это сделал.',
 [
  ex("Be careful! Don't hurt yourself.",[
-  w('Be','verb','/bi/'), w('careful','adj','/ˈkɛrfəl/',{s:0}), w("Don't",'aux','/doʊnt/'), w('hurt','verb','/hɝt/'), w('yourself','pron','/ˈjɔrsɛlf/',{s:1})]),
+  w('Be','verb','/bi/'), w('careful','adj','/ˈkɛrfəl/',{s:0}), w("Don't",'aux','/doʊnt/'), w('hurt','verb','/hɝt/'), w('yourself','pron','/jɔrˈsɛlf/',{s:1})]),
  ex('She taught herself French.',[
   w('She','pron','/ʃi/'), w('taught','verb','/tɔt/'), w('herself','pron','/hɚˈsɛlf/',{s:1}), w('French','noun','/frɛntʃ/')]),
  ex('We built the house ourselves.',[
