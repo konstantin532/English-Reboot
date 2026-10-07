@@ -12,7 +12,8 @@
    Часть речи: закрытые классы — таблица ниже (условности автора курса: притяжательные —
    pron, частицы up/out/back — adv, междометия — adv), остальное — pos_us.js и поле pos
    карточки «Слов» для её целевого слова; выбор между вариантами — по соседним словам.
-   Загружается ПОСЛЕ lex_us.js и pos_us.js, ДО app.js (до сидирования в IndexedDB).
+   Загружается ПОСЛЕ lex_us.js и pos_us.js, ДО app.js. Размечает курс WordMarks.markCourse() — app.js и gamify.js
+   вызывают его перед сидированием в IndexedDB (только при смене версии раздела, не при каждом запуске).
    ========================================================================== */
 const WordMarks = (() => {
   'use strict';
@@ -46,6 +47,11 @@ const WordMarks = (() => {
     // Ударение: первая гласная после ˈ
     let pending = false;
     out.forEach((t) => { if (t.stressMark) pending = true; if (pending && t.v) { t.s = true; pending = false; } });
+    // ɚ/ɝ перед гласной: в CMU r «съедена» гласной (correct /kɚˈɛkt/, worry /ˈwɝi/), а на письме и в слогах она
+    // есть (cor·rect, wor·ry). Добавляем необязательный звук r: буква r найдётся — встанет на него, нет — пропуск даром.
+    for (let k = out.length - 2; k >= 0; k--) {
+      if ((out[k].p === 'ɚ' || out[k].p === 'ɝ') && out[k + 1].v) out.splice(k + 1, 0, { p: 'r', v: false, s: false, opt: true });
+    }
     return out;
   }
 
@@ -147,7 +153,7 @@ const WordMarks = (() => {
           if (c < dp[i + 1][j]) { dp[i + 1][j] = c; from[i + 1][j] = [i, j, 'silent']; }
         }
         if (j < P) {                                   // звук без буквы (вставная ə)
-          const c = cur + (ph[j].p === 'ə' ? 2 : 3.5);
+          const c = cur + (ph[j].opt ? 0 : ph[j].p === 'ə' ? 2 : 3.5);
           if (c < dp[i][j + 1]) { dp[i][j + 1] = c; from[i][j + 1] = [i, j, 'epenthesis']; }
         }
         for (let k = 1; k <= MAXG && i + k <= L; k++) {
@@ -198,7 +204,7 @@ const WordMarks = (() => {
   // согласные уходят в начало следующего слога, сколько допускает английское начало слога
   // (ho·tel, ba·na·na, ques·tion); удвоенная буква делится (hap·py, cof·fee, to·mor·row);
   // ударный краткий гласный (ɪ ɛ æ ʌ ʊ) слог не заканчивает — забирает согласный (lis·ten, sev·en, ba·nan·a).
-  const ONSETS = new Set(['pl', 'pr', 'pj', 'bl', 'br', 'bj', 'tr', 'tw', 'dr', 'dw', 'kl', 'kr', 'kw', 'kj', 'ɡl', 'ɡr', 'ɡw',
+  const ONSETS = new Set(['pl', 'pr', 'pj', 'bl', 'br', 'bj', 'tr', 'tw', 'dr', 'dw', 'kl', 'kr', 'kw', 'kj', 'ɡl', 'ɡr', 'ɡw', 'ɡj',
     'fl', 'fr', 'fj', 'θr', 'θw', 'ʃr', 'sl', 'sw', 'sp', 'st', 'sk', 'sm', 'sn', 'mj', 'nj', 'hj', 'vj', 'spl', 'spr', 'str', 'skr', 'skw', 'spj', 'skj']);
   const LAX = new Set(['ɪ', 'ɛ', 'æ', 'ʌ', 'ʊ']);
   const legalOnset = (seq) => seq.length === 0 || (seq.length === 1 ? seq[0] !== 'ŋ' : ONSETS.has(seq.join('')));
@@ -281,7 +287,7 @@ const WordMarks = (() => {
     that: 'THAT', this: 'DEM', these: 'DEM', those: 'DEM', no: 'NO', much: 'MUCH', like: 'LIKE', since: 'SINCE', as: 'AS',
     when: 'WHEN', over: 'OVER', around: 'OVER', outside: 'OVER', inside: 'OVER', behind: 'OVER', above: 'OVER', below: 'OVER',
     across: 'OVER', through: 'OVER', along: 'OVER', near: 'OVER', underneath: 'OVER', one: 'ONE', after: 'AFTER', before: 'AFTER', right: 'RIGHT', past: 'PAST',
-    okay: 'OKAY', ok: 'OKAY', may: 'MAY', well: 'WELL', other: 'OTHER' });
+    okay: 'OKAY', ok: 'OKAY', may: 'MAY', well: 'WELL', other: 'OTHER', second: 'ORD' });
 
   const SUBJ = new Set(['i', 'you', 'we', 'they', 'he', 'she', 'it', 'who', 'people', 'everyone', 'everybody', 'nobody',
     'someone', 'somebody', 'kids', 'ya']);
@@ -291,8 +297,10 @@ const WordMarks = (() => {
     "he's", "she's", "it's", "that's", "isn't", "aren't", "wasn't", "weren't", "what's", "who's", "there's", "here's"]);
   const LINKING = new Set(['feel', 'feels', 'felt', 'feeling', 'look', 'looks', 'looked', 'seem', 'seems', 'seemed',
     'get', 'gets', 'got', 'getting', 'become', 'becomes', 'became', 'stay', 'stays', 'stayed', 'sound', 'sounds', 'sounded',
-    'smell', 'smells', 'taste', 'tastes', 'keep', 'keeps', 'turn', 'turned', 'grow', 'grew', 'gets', 'make', 'makes', 'made']);
+    'smell', 'smells', 'taste', 'tastes', 'keep', 'keeps', 'turn', 'turned', 'grow', 'grew', 'gets', 'make', 'makes', 'made',
+    'feelin', 'lookin', 'gettin', 'soundin', 'seemin']);
   const DEGREE = new Set(['so', 'too', 'very', 'really', 'pretty', 'quite', 'more', 'most', 'less', 'least', 'super', 'kinda',
+    'much', 'even', 'far', 'slightly', 'way',
     'sorta', 'totally', 'extremely', 'how', 'as', 'incredibly', 'surprisingly', 'absolutely', 'completely']);
   const VERB_AFTER = new Set(["let's", 'gonna', 'wanna', 'gotta', 'hafta', 'tryna', 'useta', "'ll", "'d", 'i', 'you', 'we',
     'they', 'he', 'she', 'it', 'who', 'please', 'lemme', 'cannot', 'kids', 'people', 'everyone', 'nobody', 'someone']);
@@ -320,12 +328,37 @@ const WordMarks = (() => {
     'believe', 'mean', 'means', 'meant', 'guess', 'realize', 'realized', 'glad', 'afraid', 'sorry', 'tell', 'told', 'feel',
     'show', 'shows', 'remember', 'forget', 'promise', 'promised', 'notice', 'noticed', 'heard', 'hear', 'see', 'saw', 'happy',
     'proud', 'agree', 'admit', 'explain', 'explained', 'decide', 'decided', 'understand', 'worried', 'imagine']);
+  // the idea that…, the fact that… — после этих существительных that — союз, а не относительное местоимение
+  const THAT_NOUN = new Set(['idea', 'fact', 'news', 'feeling', 'hope', 'chance', 'sign', 'proof', 'rumor', 'belief', 'truth',
+    'possibility', 'impression', 'sense', 'point', 'thought', 'promise', 'risk', 'evidence', 'message', 'claim']);
   const IRREG_PP = new Set(['done', 'gone', 'seen', 'eaten', 'taken', 'given', 'written', 'spoken', 'broken', 'chosen',
     'driven', 'forgotten', 'gotten', 'known', 'shown', 'thrown', 'grown', 'flown', 'drawn', 'worn', 'born', 'fallen',
     'stolen', 'woken', 'hidden', 'ridden', 'risen', 'begun', 'drunk', 'sung', 'swum', 'become', 'made', 'had',
     'heard', 'left', 'lost', 'met', 'paid', 'put', 'read', 'said', 'sent', 'sold', 'told', 'thought', 'bought', 'brought',
     'caught', 'taught', 'found', 'kept', 'slept', 'felt', 'built', 'spent', 'understood', 'stood', 'won', 'set', 'cut', 'hit',
-    'hurt', 'let', 'shut', 'quit', 'cost', 'held', 'led', 'fed', 'fled', 'meant', 'dealt', 'come', 'run', 'got']);
+    'hurt', 'let', 'shut', 'quit', 'cost', 'held', 'led', 'fed', 'fled', 'meant', 'dealt', 'come', 'run', 'got', 'torn',
+    'sworn', 'beaten', 'bitten', 'frozen', 'shaken', 'forgiven', 'proven', 'blown', 'sunk', 'struck', 'hung', 'shot',
+    'fought', 'sought', 'stuck', 'spun', 'sewn', 'mistaken', 'overtaken', 'withdrawn', 'undertaken', 'awoken']);
+  // Прошедшее время неправильных глаголов → начальная форма (для фразовых глаголов: took over → take over)
+  const IRREG_PAST = { took: 'take', taken: 'take', came: 'come', went: 'go', gone: 'go', got: 'get', gotten: 'get',
+    gave: 'give', given: 'give', ran: 'run', brought: 'bring', made: 'make', broke: 'break', broken: 'break', fell: 'fall',
+    fallen: 'fall', held: 'hold', kept: 'keep', left: 'leave', stood: 'stand', threw: 'throw', thrown: 'throw', wore: 'wear',
+    worn: 'wear', woke: 'wake', woken: 'wake', wrote: 'write', rode: 'ride', drove: 'drive', ate: 'eat', saw: 'see',
+    seen: 'see', told: 'tell', sold: 'sell', sent: 'send', spent: 'spend', found: 'find', thought: 'think', caught: 'catch',
+    bought: 'buy', paid: 'pay', said: 'say', shook: 'shake', tore: 'tear', torn: 'tear', grew: 'grow', grown: 'grow',
+    blew: 'blow', drew: 'draw', did: 'do', done: 'do', had: 'have', has: 'have', was: 'be', were: 'be', hung: 'hang',
+    shot: 'shoot', fought: 'fight', stuck: 'stick', dug: 'dig', hid: 'hide', hidden: 'hide', lit: 'light', sat: 'sit',
+    sang: 'sing', swam: 'swim', began: 'begin', begun: 'begin', set: 'set', put: 'put', cut: 'cut', let: 'let',
+    shut: 'shut', hit: 'hit', led: 'lead', met: 'meet', heard: 'hear', felt: 'feel', meant: 'mean', dealt: 'deal',
+    lost: 'lose', won: 'win', understood: 'understand', flew: 'fly', flown: 'fly', chose: 'choose', chosen: 'choose',
+    froze: 'freeze', frozen: 'freeze', spoke: 'speak', spoken: 'speak', stole: 'steal', stolen: 'steal', bit: 'bite',
+    bitten: 'bite', slept: 'sleep', built: 'build', taught: 'teach', fed: 'feed', fled: 'flee', sank: 'sink', sunk: 'sink',
+    struck: 'strike', wound: 'wind', swept: 'sweep', crept: 'creep', laid: 'lay', lay: 'lie', bent: 'bend', lent: 'lend' };
+  // Частицы фразовых глаголов: в take over the project, came across a photo, turn the light on — наречие (условность
+  // курса, как up/out/back), если пара «глагол + частица» есть среди карточек фразовых глаголов
+  const PARTICLES = new Set(['on', 'off', 'in', 'over', 'around', 'across', 'through', 'down', 'up', 'out', 'back', 'away',
+    'along', 'about', 'by', 'after', 'ahead', 'apart', 'aside', 'behind', 'forward', 'together', 'into', 'round']);
+  const PHRASAL = new Map();   // глагол → частицы (из карточек «Фразовые глаголы»)
   // Причастия, которые после be — прилагательные (I'm tired), а не страдательный залог (it was built)
   const ADJ_PP = new Set(['tired', 'bored', 'excited', 'interested', 'worried', 'scared', 'surprised', 'married', 'closed',
     'confused', 'amazed', 'pleased', 'satisfied', 'disappointed', 'embarrassed', 'relaxed', 'stressed', 'exhausted', 'annoyed',
@@ -380,7 +413,8 @@ const WordMarks = (() => {
   }
 
   // Предложение (массив parts) → части речи. Ручная разметка (p.pos) не меняется и служит контекстом соседям;
-  // p.posHint — варианты от карточки «Слов» для её целевого слова.
+  // p.posHint — варианты от карточки «Слов» для её целевого слова; p.posSoft — тег словаря LEX файла контента:
+  // он не знает контекста (have — всегда aux), поэтому только первый кандидат, а решают правила.
   function tagParts(parts) {
     const n = parts.length;
     const raw = (i) => String(parts[i] && parts[i].word || '');
@@ -393,7 +427,7 @@ const WordMarks = (() => {
         poss: false };
       // Притяжательное: Maggie's bag, the kids' room (но не let's, it's, that's — это сокращения)
       t.poss = /[a-z]('s|s')$/i.test(word.replace(/[^A-Za-z']+$/, '')) && !CLOSED[b] && !CTX[b] && !/^(let|it|he|she|that|what|who|where|how|there|here|when)'s$/.test(b);
-      if (!b || !/[a-z]/.test(b)) { t.fixed = t.fixed || (/[0-9]/.test(word) ? 'num' : null); t.skip = !t.fixed; return t; }
+      if (!b || !/[a-z]/.test(b) || /^[^A-Za-z0-9]*[0-9]/.test(word)) { t.fixed = t.fixed || (/[0-9]/.test(word) ? 'num' : null); t.skip = !t.fixed; return t; }   // 21A, 10:00, 5th
       if (t.fixed) return t;
       if (p.posHint) {
         t.cand = String(p.posHint).split(',').filter(Boolean);
@@ -402,13 +436,15 @@ const WordMarks = (() => {
       }
       if (CTX[b]) { t.ctx = CTX[b]; return t; }
       if (CLOSED[b]) { t.cand = [CLOSED[b]]; return t; }
+      if (/'s$/.test(b) && CLOSED[b.slice(0, -2)]) { t.poss = false; t.beContr = true; t.cand = [CLOSED[b.slice(0, -2)]]; return t; }   // Everything's, nobody's
+      const soft = p.posSoft || null;
+      const done = (cand) => { t.lex0 = cand[0]; t.cand = soft ? [soft, ...cand.filter((x) => x !== soft)] : cand; return t; };
       const lx = lexTags(b) || (t.poss ? lexTags(b.replace(/'s$|'$/, '')) : null);
-      if (!lx && /in'$/i.test(word.replace(/[^A-Za-z']+$/, ''))) { t.cand = ['verb']; return t; }   // comin', doin'
+      if (!lx && /in'$/i.test(word.replace(/[^A-Za-z']+$/, ''))) return done(['verb']);   // comin', doin'
       // Имена, названия, дни и месяцы посреди предложения: Maggie, Brooklyn, Monday; English/Japanese — прил. или сущ.
-      if (t.cap && !t.start) { t.cand = lx && lx.includes('adj') ? ['noun', 'adj'] : ['noun']; return t; }
-      t.cand = lx || (t.cap ? ['noun'] : guessTags(b, word));
-      if (/:$/.test(word) && t.cand.includes('noun')) t.cand = ['noun'];   // Email: …, Note: …
-      return t;
+      if (t.cap && !t.start) return done(lx && lx.includes('adj') ? ['noun', 'adj'] : ['noun']);
+      const cand = lx || (t.cap ? ['noun'] : guessTags(b, word));
+      return done(/:$/.test(word) && cand.includes('noun') ? ['noun'] : cand);   // Email: …, Note: …
     });
     const sentEnd = new Array(n).fill('');
     for (let i = n - 1, end = ''; i >= 0; i--) { const m = raw(i).match(/[.!?]+["”»)]*$/); if (m) end = m[0][0]; sentEnd[i] = end; if (i > 0 && tok[i].start && i > 0) end = sentEnd[i]; }
@@ -423,13 +459,15 @@ const WordMarks = (() => {
     const nextA = (i) => { for (let k = i + 1; k < n; k++) { const t = tok[k]; if (t.skip) continue; if (ADVERB_SKIP.has(t.b)) continue; return t; } return null; };
     const isDetLike = (t) => !!t && (only(t, 'art') || only(t, 'det') || POSS.has(t.b) || t.ctx === 'DEM' || t.ctx === 'THAT' || t.ctx === 'NO');
     const startsNP = (t) => !!t && !t.start && (isDetLike(t) || ((has(t, 'noun') || has(t, 'adj') || has(t, 'num')) && !only(t, 'verb') && !t.ctx && !has(t, 'aux') && !has(t, 'modal') && !SUBJ.has(t.b)));
-    const isBase = (t) => !!t && !/(ing|ed|[^s]s)$/.test(t.b);
+    // -ing — окончание, только если до него есть гласная: going, doing; ring, bring, thing — начальная форма
+    const isIng = (b) => /ing$/.test(b) && /[aeiouy]/.test(b.slice(0, -3));
+    const isBase = (t) => !!t && !/(ed|[^s]s)$/.test(t.b) && !isIng(t.b);
     const isParticiple = (t) => !!t && (IRREG_PP.has(t.b) || (/ed$/.test(t.b) && has(t, 'verb')));
     // Имя персонажа или место (нет в словаре, с заглавной) — даже в начале предложения: Jess drinks…, Maggie works…
     const isName = (t) => !!t && t.cap && tagOf(t) === 'noun' && !t.poss && (!t.start || !lexTags(t.b));
     const subjectBefore = (t) => !!t && (SUBJ.has(t.b) || isName(t));
     // Связка перед словом: is/feel/look… или вопрос с инверсией (Are you okay? Is Maggie ready?)
-    const afterBe = (pa) => !!pa && (BE_FORMS.has(pa.b) || LINKING.has(pa.b) ||
+    const afterBe = (pa) => !!pa && (BE_FORMS.has(pa.b) || pa.beContr || LINKING.has(pa.b) ||
       ((SUBJ.has(pa.b) || (pa.cap && !pa.start)) && (() => {
         const q = prev(pa.i);
         if (!q || !BE_FORMS.has(q.b)) return false;
@@ -437,11 +475,96 @@ const WordMarks = (() => {
         return q.start || (!!qq && /^(what|where|when|why|how|who|which)$/.test(qq.b));
       })()));
     const passive = (pa) => !!pa && BE_FORMS.has(pa.b) && tagOf(pa) === 'aux';
+    // Dinner's ready, Tony's late, Mom's cooking, Dad's in the kitchen: 's после существительного — is, а не притяжательное
+    tok.forEach((t) => {
+      if (!t.poss || !/'s$/.test(t.b)) return;
+      const nx = next(t.i);
+      if (!nx || nx.start) return;
+      const nn = next(nx.i);
+      const c0 = nx.fixed || (nx.cand && nx.cand[0]);
+      const closed = CLOSED[nx.b];
+      const be = nx.ctx === 'BE' || nx.ctx === 'BEEN' || closed === 'art' || (closed === 'prep' && nx.b !== 'of') ||
+        (closed === 'adv' && !['up', 'out', 'down', 'off', 'back', 'away', 'more', 'most', 'less', 'least'].includes(nx.b)) ||
+        (/ing$/.test(nx.b) && has(nx, 'verb')) ||
+        ((c0 === 'adj' || c0 === 'adv') && (!nn || nn.start || /[.!?,;:]$/.test(nx.word) || !has(nn, 'noun')));
+      if (be) { t.poss = false; t.beContr = true; }
+    });
+    const isBeLike = (x) => !!x && (BE_FORMS.has(x.b) || !!x.beContr);
+    // Подлежащее после вспомогательного: What does this word mean? Can your brother swim? Does Maggie like jazz?
+    const NPISH = new Set(['noun', 'pron', 'det', 'art', 'adj', 'num']);
+    function auxSubjBefore(i) {
+      let seen = 0;
+      for (let k = i - 1; k >= 0; k--) {
+        const q = tok[k];
+        if (q.skip) continue;
+        if (ADVERB_SKIP.has(q.b) && seen === 0) continue;
+        const tg = tagOf(q);
+        if (seen > 0 && (q.ctx === 'DO' || tg === 'modal' || (tg === 'aux' && !BE_FORMS.has(q.b)))) return tg === 'aux' || tg === 'modal';
+        if (!NPISH.has(tg) || OBJ.has(q.b) || q.start && seen > 0) return false;
+        seen++;
+        if (q.start) return false;
+      }
+      return false;
+    }
+    // Начало именной группы перед словом: let [the dog] sleep, heard [the phone] ring
+    function beforeNP(i) {
+      for (let k = i - 1; k >= 0; k--) {
+        const q = tok[k];
+        if (q.skip) continue;
+        if (!NPISH.has(tagOf(q)) || q.start) return NPISH.has(tagOf(q)) ? null : q;
+      }
+      return null;
+    }
+    const CAUSATIVE = new Set(['let', 'make', 'help', 'have', 'watch', 'see', 'hear', 'feel', 'notice', 'bid']);
+    const lemmaOf = (b) => {
+      if (IRREG_PAST[b]) return [IRREG_PAST[b]];
+      const out = [b];
+      if (/ies$/.test(b)) out.push(b.slice(0, -3) + 'y');
+      if (/ied$/.test(b)) out.push(b.slice(0, -3) + 'y');
+      if (/es$/.test(b)) out.push(b.slice(0, -2));
+      if (/s$/.test(b)) out.push(b.slice(0, -1));
+      if (/ed$/.test(b)) out.push(b.slice(0, -2), b.slice(0, -1), b.slice(0, -3));
+      if (/ing$/.test(b)) out.push(b.slice(0, -3), b.slice(0, -3) + 'e', b.slice(0, -4));
+      if (/in$/.test(b)) out.push(b.slice(0, -2), b.slice(0, -2) + 'e', b.slice(0, -3));   // goin', comin'
+      return out;
+    };
+    const phrasalPair = (verb, prt) => lemmaOf(verb).some((l) => PHRASAL.has(l) && PHRASAL.get(l).has(prt));
+    // Частица фразового глагола — наречие: went on talking, Come in!, take over the project, turn the light on.
+    // on/in перед существительным остаются предлогами (go on a trip, come in the house) — как в словарях курса.
+    const ADVERBIAL = new Set(['off', 'over', 'around', 'across', 'through', 'down', 'up', 'out', 'back', 'away', 'along',
+      'ahead', 'apart', 'aside', 'behind', 'forward', 'together', 'round']);
+    // Переходные с on/in: частица и перед дополнением (turn on the light, try on the jacket, fill in the form)
+    const SEP_ON_IN = new Set(['turn on', 'put on', 'try on', 'switch on', 'hand in', 'let in', 'fill in', 'take in', 'pass on',
+      'plug in', 'bring in', 'turn in', 'throw on', 'pull on', 'check in']);
+    function particle(t, i) {
+      if (!PHRASAL.size || !PARTICLES.has(t.b) || t.start) return false;
+      const p = prev(i), nx = next(i);
+      if (!p) return false;
+      const endish = !nx || nx.start || /[.!?,;:—–]$/.test(t.word) || (/ing$/.test(nx.b) && has(nx, 'verb')) ||
+        only(nx, 'adv') || only(nx, 'conj') || nx.ctx === 'TO' || PARTICLES.has(nx.b) && !isDetLike(next(nx.i));
+      if (tagOf(p) === 'verb' && phrasalPair(p.b, t.b)) return endish || ADVERBIAL.has(t.b) || lemmaOf(p.b).some((l) => SEP_ON_IN.has(l + ' ' + t.b));
+      if (!endish) return false;
+      for (let k = p.i, steps = 0; k >= 0 && steps < 4; k--) {   // глагол + дополнение + частица: turn the light on
+        const q = tok[k];
+        if (q.skip) continue;
+        steps++;
+        if (tagOf(q) === 'verb') return steps > 1 && phrasalPair(q.b, t.b);
+        if (!(OBJ.has(q.b) || isDetLike(q) || ['noun', 'adj', 'num'].includes(tagOf(q)) || (tagOf(q) === 'pron' && /^(it|this|that|them|him|her|me|us|you|everything|something|anything)$/.test(q.b))) || q.start) return false;
+      }
+      return false;
+    }
 
     for (let i = 0; i < n; i++) {
       const t = tok[i];
       if (t.skip || t.fixed) continue;
+      if (particle(t, i)) { t.tag = 'adv'; continue; }
+      if (t.b === 'used' && next(i) && next(i).b === 'to') {   // used to + глагол — привычка в прошлом; be/get used to — прил.
+        const pa = prevA(i);
+        t.tag = pa && (isBeLike(pa) || /^(get|gets|got|getting|gotten)$/.test(pa.b)) ? 'adj' : 'verb';
+        continue;
+      }
       if (t.ctx) { t.tag = resolveCtx(t, i); continue; }
+      if (ADJ_PP.has(t.b) && isBeLike(prevA(i)) && tagOf(prevA(i)) !== 'aux') { t.tag = 'adj'; continue; }   // was canceled, I'm fed up
       t.tag = t.cand.length === 1 ? t.cand[0] : chooseOpen(t, i);
     }
     return tok.map((t) => (t.skip ? null : tagOf(t)));
@@ -449,13 +572,23 @@ const WordMarks = (() => {
     function resolveCtx(t, i) {
       const p = prev(i), nx = next(i), pa = prevA(i), na = nextA(i);
       switch (t.ctx) {
-        case 'BE':      // страдательный залог (is spoken, was built) — aux; иначе — глагол-связка (author)
+        case 'BE': {    // страдательный залог (is spoken, was built) — aux; иначе — глагол-связка (author)
+          const nb = na && next(na.i);
+          if (na && nb && nb.b === 'by' && (isParticiple(na) || IRREG_PP.has(na.b)) && !ADJ_PP.has(na.b)) return 'aux';   // was torn apart by
           return na && isParticiple(na) && !ADJ_PP.has(na.b) && !(has(na, 'adj') && !/ed$/.test(na.b) && !IRREG_PP.has(na.b)) ? 'aux' : 'verb';
-        case 'BEEN':
-          return 'verb';
+        }
+        case 'BEEN':    // have you been vaccinated — страдательный (aux), have been working / been late — глагол
+          return na && isParticiple(na) && !ADJ_PP.has(na.b) && !(has(na, 'adj') && !/ed$/.test(na.b) && !IRREG_PP.has(na.b)) ? 'aux' : 'verb';
         case 'DO':
           if (!nx) return 'verb';
           if (nx.b === 'not' || nx.b === "n't") return 'aux';
+          // После модального, to, let's, вспомогательного и подлежащего — смысловой глагол: let's do this, can do it,
+          // Did you do it?, I do my homework
+          if (pa && !t.start && (["let's", 'to', 'gonna', 'wanna', 'gotta', 'please'].includes(pa.b) || /'ll$/.test(pa.b) ||
+            tagOf(pa) === 'modal' || (tagOf(pa) === 'aux' && !BE_FORMS.has(pa.b)))) return 'verb';
+          if (pa && /^(who|what|where|when|why|how|which)$/.test(pa.b) && nx && SUBJ.has(nx.b)) return 'aux';   // Who do you look up to?
+          if (pa && !t.start && subjectBefore(pa)) return na && has(na, 'verb') && isBase(na) && !has(na, 'noun') && !OBJ.has(na.b) && !SUBJ.has(na.b) ? 'aux' : 'verb';
+          if (t.start && sentEnd[i] === '?') return 'aux';                                             // Does 1987 ring a bell?
           if (SUBJ.has(nx.b) || (nx.cap && !nx.start && !has(nx, 'verb'))) return 'aux';            // Do you…? Does Maggie…?
           if (isDetLike(nx)) return subjectBefore(pa) ? 'verb' : 'aux';                              // I do my homework / Does your…?
           if (na && has(na, 'verb') && isBase(na) && !has(na, 'noun') && subjectBefore(pa)) return 'aux'; // I do like it
@@ -473,6 +606,13 @@ const WordMarks = (() => {
           return 'part';
         }
         case 'THAT': {
+          // that + подлежащее + сказуемое: союз (She pointed out that we were late), после существительного —
+          // относительное местоимение (any diet that you abandon), кроме the idea / the fact that…
+          const n2 = nx && next(nx.i);
+          if (nx && SUBJ.has(nx.b) && !OBJ.has(nx.b) && n2 && (n2.ctx === 'BE' || n2.ctx === 'HAVE' || n2.ctx === 'DO' ||
+            has(n2, 'verb') || has(n2, 'modal') || has(n2, 'aux') || isBeLike(n2))) {
+            return p && tagOf(p) === 'noun' && !THAT_NOUN.has(p.b) ? 'pron' : 'conj';
+          }
           if (p && THINK.has(p.b) && nx && (SUBJ.has(nx.b) || isDetLike(nx) || (nx.cap && !nx.start))) return 'conj';
           // …что + подлежащее + сказуемое: It's clear that we…, The point is that Maggie…
           const nn = nx && next(nx.i);
@@ -489,6 +629,8 @@ const WordMarks = (() => {
         case 'MUCH':
           return nx && has(nx, 'noun') && !only(nx, 'adv') && !only(nx, 'adj') && !/er$/.test(nx.b) ? 'det' : 'adv';
         case 'LIKE': {
+          if (/,$/.test(t.word) && (t.start || (p && /,$/.test(p.word)))) return 'adv';   // It was, like, two hours — слово-паразит
+          if (auxSubjBefore(i)) return 'verb';                                              // Does your brother like jazz?
           if (!pa) return 'verb';
           if (BE_FORMS.has(pa.b) || LIKE_PREP.has(pa.b)) return 'prep';
           if (SUBJ.has(pa.b) || pa.b === 'to' || ['would', "'d", 'do', 'does', 'did', "don't", "doesn't", "didn't", 'really'].includes(pa.b) || tagOf(pa) === 'modal' || tagOf(pa) === 'aux' || (pa.cap && !pa.start && tagOf(pa) === 'noun') || /s$/.test(pa.b) && tagOf(pa) === 'noun') return 'verb';
@@ -498,8 +640,12 @@ const WordMarks = (() => {
           return nx && (SUBJ.has(nx.b) || (nx.cap && !nx.start)) ? 'conj' : 'prep';
         case 'AS':
           return nx && (only(nx, 'art') || POSS.has(nx.b) || only(nx, 'noun')) ? 'prep' : 'conj';
-        case 'WHEN':
+        case 'WHEN': {
+          const n2 = nx && next(nx.i);   // when are you off?, when can you pay — вопросительное наречие
+          if (nx && (nx.ctx === 'BE' || nx.ctx === 'DO' || nx.ctx === 'HAVE' || only(nx, 'modal') || only(nx, 'aux')) &&
+            (sentEnd[i] === '?' || (n2 && SUBJ.has(n2.b)))) return 'adv';
           return t.start ? (sentEnd[i] === '?' ? 'adv' : 'conj') : (p && /^(know|ask|asked|tell|wonder|sure|idea|remember|decide)$/.test(p.b) ? 'adv' : 'conj');
+        }
         case 'OVER':
           return nx && !nx.start && (isDetLike(nx) || only(nx, 'noun') || OBJ.has(nx.b) || has(nx, 'num')) ? 'prep' : 'adv';
         case 'ONE':
@@ -516,11 +662,13 @@ const WordMarks = (() => {
           if (p && tagOf(p) === 'verb') return 'adv';
           return 'adj';
         case 'PAST':
-          return nx && (isDetLike(nx) || has(nx, 'num') || /^\d/.test(nx.word)) ? 'prep' : (p && isDetLike(p) ? 'noun' : 'adj');
+          return nx && (isDetLike(nx) || has(nx, 'num') || /^\d/.test(nx.word)) ? 'prep' : (p && (isDetLike(p) || tagOf(p) === 'adj') ? 'noun' : 'adj');
         case 'OKAY':
           return pa && (afterBe(pa) || pa.b === "you're" || pa.b === "i'm") ? 'adj' : 'adv';
         case 'MAY':
           return t.cap && !t.start ? 'noun' : 'modal';
+        case 'ORD':     // wait a second, for a second — сущ.; the second day, a second brain — числ.
+          return p && (p.b === 'a' || p.b === 'one') && (!nx || nx.start || /[.!?,;:]$/.test(t.word) || has(nx, 'prep') || has(nx, 'conj')) ? 'noun' : 'num';
         case 'WELL':
           return pa && (BE_FORMS.has(pa.b) || LINKING.has(pa.b)) && !/,$/.test(t.word) ? 'adj' : 'adv';
         default:
@@ -531,26 +679,45 @@ const WordMarks = (() => {
     function chooseOpen(t, i) {
       const c = t.cand;
       const pick = (...order) => order.find((x) => c.includes(x)) || c[0];
-      const p = prev(i), nx = next(i), pa = prevA(i);
+      // Предыдущее предложение не в счёт: It's late — go to bed!
+      const p = t.start ? null : prev(i), nx = next(i), pa = t.start ? null : prevA(i);
       const pt = tagOf(p);
-      const ing = /ing$/.test(t.b), ed = /(ed|en)$/.test(t.b) || IRREG_PP.has(t.b);
-      const nounNext = nx && !nx.start && has(nx, 'noun') && !nx.ctx && !has(nx, 'aux') && !has(nx, 'modal') && !SUBJ.has(nx.b) && !isDetLike(nx);
+      const ing = isIng(t.b), ed = /(ed|en)$/.test(t.b) || IRREG_PP.has(t.b);
+      // Следующее слово — сказуемое с дополнением (The bright light hurt my eyes): тогда текущее — подлежащее, не определение
+      const verbish = (x) => has(x, 'verb') && (/ed$/.test(x.b) || IRREG_PAST[x.b] || IRREG_PP.has(x.b)) && !/[,;:.!?]$/.test(x.word) &&
+        (() => { const nn = next(x.i); return !!nn && !nn.start && (POSS.has(nn.b) || OBJ.has(nn.b) || only(nn, 'art')); })();
+      // one / past в конце группы — существительное: the black one, a dark past
+      const headish = (x) => (x.ctx === 'ONE' || x.ctx === 'PAST') && (() => { const nn = next(x.i); return !nn || nn.start || /[.!?,;:]$/.test(x.word) || has(nn, 'prep') || has(nn, 'adv') || has(nn, 'conj'); })();
+      const nounNext = nx && !nx.start && ((has(nx, 'noun') && !nx.ctx && !has(nx, 'aux') && !has(nx, 'modal') && !SUBJ.has(nx.b) && !isDetLike(nx) && !verbish(nx)) || headish(nx));
+      // Начало предложения после наречий: Always warm up…, Just call me
+      const lead = !t.start && (() => {
+        for (let k = i - 1; k >= 0; k--) {
+          const q = tok[k];
+          if (q.skip) continue;
+          if (!(ADVERB_SKIP.has(q.b) || q.b === 'please')) return false;
+          if (q.start) return true;
+        }
+        return false;
+      })();
       const adjNext = nx && !nx.start && has(nx, 'adj') && !nx.ctx && (() => { const nn = next(nx.i); return !!nn && has(nn, 'noun'); })();
       // 0. Перфект и страдательный залог: had finished, will have cooked, was built, is spoken
       if (pa && c.includes('verb') && (ed || ing) && ((tagOf(pa) === 'aux' && !BE_FORMS.has(pa.b) && /^(have|has|had|'ve|'d|i've|you've|we've|they've)$/.test(pa.b)) || passive(pa))) return 'verb';
+      // 0b. Вопрос: вспомогательный + подлежащее + глагол (Does 1987 ring a bell? What does this word mean?)
+      if (p && (pt === 'noun' || pt === 'num' || pt === 'pron') && c.includes('verb') && isBase(t) && auxSubjBefore(i)) return 'verb';
       // 1. После артикля, определителя, притяжательного, числа, прилагательного: прил. перед существительным, иначе сущ.
       if (p && (pt === 'art' || pt === 'det' || pt === 'num' || POSS.has(p.b) || (p.poss && !ing) || (pt === 'adj' && !BE_FORMS.has(p.b)))) {
         if (c.includes('adj') && (nounNext || adjNext)) return 'adj';
         return pick('noun', 'adj', 'verb');
       }
       // 2. После связки (is, feel, look, Are you…) и слов степени (so, very): прилагательное; -ing после be — глагол
-      if (pa && (afterBe(pa) || DEGREE.has(p && p.b))) {
+      if (pa && (afterBe(pa) || (DEGREE.has(p && p.b) && (c.includes('adj') || c.includes('adv'))))) {
         if (DEGREE.has(p && p.b) && c.includes('adv')) {
-          const before = prev(p.i);
+          let before = prev(p.i);
+          while (before && tagOf(before) === 'adv' && PARTICLES.has(before.b)) before = prev(before.i);   // stand up too fast
           if (before && tagOf(before) === 'verb' && !BE_FORMS.has(before.b) && !LINKING.has(before.b)) return 'adv';   // drives too fast
         }
         if (ing) return ING_ADJ.has(t.b) && c.includes('adj') ? 'adj' : (c.includes('verb') ? 'verb' : pick('adj', 'noun'));
-        if (c.includes('adj')) return 'adj';
+        if (c.includes('adj') || ADJ_PP.has(t.b)) return 'adj';                                     // I'm fed up, I'm stuck
         if (ed && c.includes('verb')) return 'verb';
         if (nounNext) return pick('adj', 'noun');
         return pick('noun', 'adv', 'verb');
@@ -558,13 +725,15 @@ const WordMarks = (() => {
       // 3. Прилагательное перед существительным (Cold weather, last year, a really good idea)
       if (c.includes('adj') && (nounNext || adjNext) && !(pa && (SUBJ.has(pa.b) || tagOf(pa) === 'modal' || tagOf(pa) === 'part'))) return 'adj';
       // 4. После подлежащего, модального, do/don't, to, let's — глагол (-ing после имени — не сказуемое)
-      if (pa && c.includes('verb') && (VERB_AFTER.has(pa.b) || tagOf(pa) === 'modal' || tagOf(pa) === 'part'
+      if (pa && c.includes('verb') && (VERB_AFTER.has(pa.b) || /'(ll|d|ve)$/.test(pa.b) || tagOf(pa) === 'modal' || tagOf(pa) === 'part'
         || (tagOf(pa) === 'aux' && !BE_FORMS.has(pa.b)) || (isName(pa) && !ing && !(p && p.poss)))) {
         if (OBJ.has(pa.b)) return pick('noun', 'adj', 'verb');
         if (pa.b === 'please' && !pa.start) return pick('noun', 'verb');
         return 'verb';
       }
       if (pa && tagOf(pa) === 'aux' && c.includes('verb') && (ing || ed)) return 'verb';             // is working, has finished
+      // 4b. Вопрос: вспомогательный + подлежащее + глагол (What does this word mean? Can your brother swim?)
+      if (c.includes('verb') && isBase(t) && auxSubjBefore(i)) return 'verb';
       // 5. После предлога — существительное (герундий -ing — глагол)
       if (p && pt === 'prep') {
         if (ing && c.includes('verb')) return 'verb';
@@ -573,10 +742,16 @@ const WordMarks = (() => {
       }
       // 6. Начало предложения: повелительное наклонение (Call me, Wait here) — только начальная форма и если дальше
       //    не сказуемое (Water boils…, Work is…)
-      if (t.start) {
-        const predicateNext = nx && (nx.ctx === 'BE' || nx.ctx === 'HAVE' || has(nx, 'aux') || has(nx, 'modal') || only(nx, 'verb')
+      if (t.start || (lead && isBase(t))) {
+        // Предложение из одного слова: Ready? Stop! Thanks. Rent. — прил., иначе первое прочтение словаря
+        if (/[.!?]["”»)]*$/.test(t.word) && t.start) return /[^s]s$/.test(t.b) || t.lex0 === 'noun' ? pick('adj', 'noun', 'verb', 'adv') : pick('adj', 'verb', 'noun', 'adv');
+        if (nx && nx.b === 'to' && t.b === 'time') return 'noun';                                      // Time to go
+        if (nx && /^\d/.test(nx.word) && c.includes('noun') && (!next(nx.i) || /[,.;:!?]$/.test(nx.word))) return 'noun';   // Seat 21A, …
+        const predicateNext = nx && (nx.ctx === 'BE' || nx.ctx === 'HAVE' || has(nx, 'aux') || has(nx, 'modal') || (only(nx, 'verb') && !/ing$/.test(nx.b))
           || (has(nx, 'verb') && (/[^s]s$/.test(nx.b) || /ed$/.test(nx.b)) && !isDetLike(nx)));
-        if (c.includes('verb') && isBase(t) && !predicateNext) return 'verb';
+        const ofNext = nx && nx.b === 'of';                                                             // Rent of 850 EUR…
+        if (c.includes('verb') && isBase(t) && !predicateNext && !ofNext) return 'verb';
+        if (ing && c.includes('verb') && !predicateNext && !ofNext) return 'verb';                      // Speaking of…, Paying by card?
         return pick('noun', 'adj', 'verb');
       }
       // 7. После существительного-подлежащего: Kids love it, Maggie works, the bus stops here
@@ -584,6 +759,12 @@ const WordMarks = (() => {
         const singularPrev = !/s$/.test(p.b) || /ss$/.test(p.b);
         const agree = (p.cap && !p.start) || (singularPrev ? /(s|ed)$/.test(t.b) || IRREG_PP.has(t.b) : !/[^s]s$/.test(t.b));
         if (agree && !ing && (!nx || /[.!?,]$/.test(t.word) || isDetLike(nx) || OBJ.has(nx.b) || has(nx, 'prep') || has(nx, 'adv') || has(nx, 'num') || (isName(p) && startsNP(nx)))) return 'verb';
+      }
+      // 7b. Второе существительное группы в её конце: a wool vest, the group chat at night (но let the dog sleep — глагол)
+      if (p && pt === 'noun' && !p.poss && c.includes('noun') && !c.includes('adj') && !ing && (!nx || nx.start || /[.!?,;:]$/.test(t.word) || (has(nx, 'prep') && !has(nx, 'noun')) || only(nx, 'conj'))) {
+        const q = beforeNP(i);
+        if (q && c.includes('verb') && isBase(t) && lemmaOf(q.b).some((l) => CAUSATIVE.has(l))) return 'verb';
+        if (!/^(i|you|we|they|he|she|it)$/.test(p.b)) return 'noun';
       }
       // 8. Перед артиклем, притяжательным, объектным местоимением — глагол (open the door, tell me)
       if (c.includes('verb') && nx && (only(nx, 'art') || POSS.has(nx.b) || OBJ.has(nx.b)) && pt !== 'prep' && isBase(t)) return 'verb';
@@ -597,14 +778,24 @@ const WordMarks = (() => {
           if (tagOf(q) === 'noun' || tagOf(q) === 'adj' || tagOf(q) === 'pron' && !OBJ.has(q.b)) break;
         }
       }
+      // 8a'. Однородные существительные: into photography and travel
+      if (p && pt === 'conj' && /^(and|or)$/.test(p.b) && c.includes('noun')) {
+        const q = prev(p.i);
+        if (q && tagOf(q) === 'noun' && !isName(q)) return 'noun';
+      }
+      // 8a''. После частицы фразового глагола: checked in late, came back early — наречие
+      if (p && pt === 'adv' && PARTICLES.has(p.b) && c.includes('adv') && !nounNext) return 'adv';
       // 8b. Последнее слово после сказуемого с дополнением: I missed your call earlier, she sings well — наречие
       if (c.includes('adv') && c.includes('adj') && /[.!?]["”»)]*$/.test(t.word) && p && pt !== 'art' && pt !== 'det' && !afterBe(pa)) return 'adv';
+      // 8c. Перед наречием: Let's do this again sometime soon, come early tomorrow — наречие
+      if (c.includes('adv') && nx && !nx.start && only(nx, 'adv') && !afterBe(pa) && !nounNext && !/[,;:]$/.test(t.word)) return 'adv';
       // 9. После глагола: герундий (enjoy reading) — глагол, дополнение — существительное, иначе наречие
       if (p && pt === 'verb') {
         if (ing && c.includes('verb')) return 'verb';
         if (c.includes('noun')) return 'noun';
         if (c.includes('adv')) return 'adv';
       }
+      if (ing && c.includes('verb') && t.lex0 === 'verb') return 'verb';   // причастие без подсказки контекста
       return c[0];
     }
   }
@@ -617,19 +808,51 @@ const WordMarks = (() => {
     let started = false;
     for (let k = 0; k < low.length; k++) {
       const ch = low[k];
-      if (/[a-z]/.test(ch) || (ch === "'" && started)) { map.push(k); started = true; }
+      if (/[a-zà-öø-ÿ]/.test(ch) || (ch === "'" && started)) { map.push(k); started = true; }
     }
     // Хвостовые апострофы в «голое» слово не входят
     while (map.length && low[map[map.length - 1]] === "'") map.pop();
     return map;
   }
-  const stats = { words: 0, aligned: 0, failed: 0, silent: 0, stress: 0, pos: 0, guessed: 0, failedWords: new Map(), guessedWords: new Map() };
+  const stats = { words: 0, aligned: 0, failed: 0, silent: 0, stress: 0, stressFrom: { ipa: 0, lexUs: 0, index: 0 }, pos: 0, softChanged: 0,
+    guessed: 0, failedWords: new Map(), guessedWords: new Map() };
+
+  // У ручной IPA лексиконов content_*.js нет знака ударения — номер ударного слога там отдельным полем (p.stress).
+  // Тогда ударный слог — из словаря lex_us.js, если у слова те же согласные и столько же слогов (today /tədeɪ/ →
+  // /təˈdeɪ/, advice /ədvaɪs/ → /ædˈvaɪs/), иначе — по номеру слога. Немые буквы — по IPA, которую видит ученик.
+  const lexUs = () => (typeof window !== 'undefined' && window.LEX_US) || (typeof globalThis !== 'undefined' && globalThis.LEX_US) || {};
+  function withStress(w, a, p) {
+    if (a.nuclei.some((x) => x.s)) { stats.stressFrom.ipa++; return a; }
+    const vowelAt = a.ph.map((t, j) => (t.v ? j : -1)).filter((j) => j >= 0);   // номер слога → звук
+    const mark = (k) => {
+      const nu = a.nuclei.find((x) => x.k === vowelAt[k]);
+      return nu ? { ...a, nuclei: a.nuclei.map((x) => ({ ...x, s: x === nu })) } : null;
+    };
+    const rec = lexUs()[w];
+    const alt = rec ? String(rec).split('|')[0] : '';
+    if (alt.includes('ˈ')) {
+      const A = phonemes(alt);
+      const cons = (x) => x.filter((t) => !t.v && !t.opt).map((t) => t.p).join('');
+      const vs = A.filter((t) => t.v);
+      if (cons(A) === cons(a.ph) && vs.length === vowelAt.length) {
+        const b = mark(vs.findIndex((t) => t.s));
+        if (b) { stats.stressFrom.lexUs++; return b; }
+      }
+    }
+    const k = Number(p.stress);
+    if (p.stress !== undefined && p.stress !== null && Number.isInteger(k) && k >= 0 && k < vowelAt.length) {
+      const b = mark(k);
+      if (b) { stats.stressFrom.index++; return b; }
+    }
+    return a;
+  }
 
   function markWord(p) {
     if (!p || !p.word || !p.ipa) return;
     const map = bareMap(p.word);
     if (!map.length) return;
-    const full = map.map((k) => String(p.word)[k]).join('').toLowerCase();
+    // café → cafe: буквы с диакритикой выравниваются как обычные (длина слова не меняется)
+    const full = map.map((k) => String(p.word)[k].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')[0] || "'").join('');
     // Сокращения: IPA бывает у основы (where's → where), тогда хвост после апострофа не размечаем
     const cands = [full];
     const ap = full.indexOf("'");
@@ -647,6 +870,7 @@ const WordMarks = (() => {
     }
     stats.aligned++;
     const w = full.slice(0, bestLen);
+    best = withStress(w, best, p);
     const sil = silentOf(w, best).map((k) => map[k]);
     p.silent = sil;
     if (sil.length) stats.silent++;
@@ -657,22 +881,34 @@ const WordMarks = (() => {
     }
   }
 
-  function markParts(parts) {
+  // soft — часть речи в parts из словаря LEX (одна на слово, без контекста): решают правила, она — первый кандидат.
+  // Без soft (грамматика: автор размечал каждое слово в предложении) ручная часть речи не меняется.
+  function markParts(parts, soft) {
     if (!Array.isArray(parts) || !parts.length) return parts;
+    if (soft) parts.forEach((p) => { if (p && p.pos) { p.posSoft = p.pos; delete p.pos; } });
     const tags = tagParts(parts);
     parts.forEach((p, i) => {
       if (!p) return;
-      if (!p.pos && tags[i]) { p.pos = tags[i]; stats.pos++; }
+      if (!p.pos && tags[i]) { p.pos = tags[i]; stats.pos++; if (p.posSoft && p.posSoft !== tags[i]) stats.softChanged++; }
+      if (!p.pos && p.posSoft) p.pos = p.posSoft;
+      delete p.posSoft;
       if (p.posHint !== undefined) delete p.posHint;
       markWord(p);
     });
     return parts;
   }
 
-  // Часть речи целевых слов карточек «Слов» — словарь для их словоформ в других примерах
+  // Часть речи целевых слов карточек «Слов» — словарь для их словоформ в других примерах;
+  // у фразовых глаголов (take over, put off) — пары «глагол + частица»
   function learnWordCards(cards) {
     (cards || []).forEach((c) => {
       const pl = c && c.payload;
+      const fr = pl && pl.front ? String(pl.front).toLowerCase().trim() : '';
+      const two = fr.match(/^([a-z]+)\s+(?:(?:sb|sth|someone|something|smb|smth)\s+)?([a-z]+)\b/);
+      if (two && PARTICLES.has(two[2])) {
+        if (!PHRASAL.has(two[1])) PHRASAL.set(two[1], new Set());
+        PHRASAL.get(two[1]).add(two[2]);
+      }
       if (!pl || !pl.front || !pl.pos) return;
       const f = String(pl.front).toLowerCase();
       if (/\s/.test(f)) return;
@@ -682,35 +918,51 @@ const WordMarks = (() => {
     });
   }
 
-  function walk(o, depth) {
+  function walk(o, depth, soft) {
     if (!o || typeof o !== 'object' || depth > 6) return;
-    if (Array.isArray(o.parts)) markParts(o.parts);
-    for (const v of Object.values(o)) if (v && typeof v === 'object') walk(v, depth + 1);
+    if (Array.isArray(o.parts)) markParts(o.parts, soft);
+    for (const v of Object.values(o)) if (v && typeof v === 'object') walk(v, depth + 1, soft);
   }
-  function markAll(lists) {
+  // hard — списки с пословной ручной разметкой (грамматика): их часть речи не трогаем
+  function markAll(lists, { hard = [] } = {}) {
     const t0 = Date.now();
-    new Set(lists).forEach((arr) => (arr || []).forEach((card) => walk(card && card.payload, 0)));
+    const keep = new Set(hard);
+    new Set(lists).forEach((arr) => (arr || []).forEach((card) => walk(card && card.payload, 0, !keep.has(arr))));
     stats.ms = Date.now() - t0;
     return stats;
   }
 
-  return { phonemes, align, silentOf, stressSpanOf, tagParts, markParts, markWord, markAll, learnWordCards, bareOf, stats, RU_POS, CLOSED, CTX_WORDS: Object.keys(CTX) };
+  // Весь курс — один раз и только перед записью карточек в IndexedDB: app.js и gamify.js зовут markCourse(), когда
+  // версия раздела изменилась. При обычном запуске карточки читаются из базы уже размеченными, и ~0,5 с работы
+  // (замер на сервере; на телефоне — в разы дольше) при каждом открытии приложения не тратятся.
+  let courseMarked = false;
+  function markCourse() {
+    if (courseMarked || typeof window === 'undefined') return stats;
+    courseMarked = true;
+    const lists = [];
+    /* global GRAMMAR_CARDS */
+    const grammar = typeof GRAMMAR_CARDS !== 'undefined' ? GRAMMAR_CARDS : null;
+    if (grammar) lists.push(grammar);
+    ['WORD_CARDS', 'PHRASAL_CARDS', 'COLLOCATION_CARDS', 'IDIOM_CARDS', 'CONVERSATION_CARDS', 'SLANG_CARDS',
+      'MINIMAL_PAIR_CARDS', 'READING_CARDS', 'PRO_READINGS']
+      .forEach((n) => { if (Array.isArray(window[n])) lists.push(window[n]); });
+    if (window.PRO_CONTENT) Object.values(window.PRO_CONTENT).forEach((a) => { if (Array.isArray(a)) lists.push(a); });
+    window.WORD_MARKS_STATS = markAll(lists, { hard: grammar ? [grammar] : [] });
+    return stats;
+  }
+
+  return { phonemes, align, silentOf, stressSpanOf, tagParts, markParts, markWord, markAll, markCourse, learnWordCards, bareOf,
+    stats, RU_POS, CLOSED, CTX_WORDS: Object.keys(CTX) };
 })();
 
 // Экспорт для юнит-тестов (vitest): в браузере ничего не меняет.
 if (typeof globalThis !== 'undefined') globalThis.WordMarks = WordMarks;
 
-// Разметка всего курса при загрузке — те же списки, что у lex_us.js
+// При загрузке — только словари из карточек (части речи «Слов», пары фразовых глаголов): они нужны и лестнице
+// (ladder_ui.js размечает фразы на лету). Сама разметка курса — WordMarks.markCourse() перед сидированием.
 (() => {
   if (typeof window === 'undefined') return;
-  const lists = [];
-  /* global GRAMMAR_CARDS */
-  if (typeof GRAMMAR_CARDS !== 'undefined') lists.push(GRAMMAR_CARDS);
-  ['WORD_CARDS', 'PHRASAL_CARDS', 'COLLOCATION_CARDS', 'IDIOM_CARDS', 'CONVERSATION_CARDS', 'SLANG_CARDS',
-    'MINIMAL_PAIR_CARDS', 'READING_CARDS', 'PRO_READINGS']
-    .forEach((n) => { if (Array.isArray(window[n])) lists.push(window[n]); });
-  if (window.PRO_CONTENT) Object.values(window.PRO_CONTENT).forEach((a) => { if (Array.isArray(a)) lists.push(a); });
   WordMarks.learnWordCards(window.WORD_CARDS);
   WordMarks.learnWordCards(window.PHRASAL_CARDS);
-  window.WORD_MARKS_STATS = WordMarks.markAll(lists);
+  if (window.PRO_CONTENT) Object.values(window.PRO_CONTENT).forEach((a) => WordMarks.learnWordCards(a));   // фразовые PRO
 })();

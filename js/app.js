@@ -418,6 +418,7 @@
 
   async function seedJobs(jobs, metaKey, version) {
     showSeedProgress();
+    if (window.WordMarks) WordMarks.markCourse();   // части речи, ударение, немые буквы — один раз перед записью
     let okAll = true;
     for (const [label, arr, store] of jobs) {
       updateSeedProgress(0, arr.length, 'Загрузка: ' + label);
@@ -439,6 +440,7 @@
     const current = meta.success && meta.data ? Number(meta.data.value) : 0;
     if (current >= CONTENT_VERSION) return;
     showSeedProgress();
+    if (window.WordMarks) WordMarks.markCourse();
     updateSeedProgress(0, GRAMMAR_CARDS.length, 'Загрузка грамматики…');
     const res = await DB.seedContent(GRAMMAR_CARDS, 'grammar_cards', (d, t) => updateSeedProgress(d, t, 'Загрузка грамматики…'));
     if (res.success) {

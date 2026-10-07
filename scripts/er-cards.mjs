@@ -23,6 +23,8 @@ export function loadCards(source) {
   vm.runInContext(code.map(([, t]) => t).join('\n;\n') +
     ';this.__G = typeof GRAMMAR_CARDS !== "undefined" ? GRAMMAR_CARDS : [];' +
     'this.__IMP = typeof IMPROV_CARDS !== "undefined" ? IMPROV_CARDS : [];', ctx);
+  // Разметка слов — как перед сидированием в приложении (в старых копиях word_marks.js размечал при загрузке)
+  if (ctx.WordMarks && typeof ctx.WordMarks.markCourse === 'function') ctx.WordMarks.markCourse();
   const out = new Map();
   const put = (group, arr) => (Array.isArray(arr) ? arr : []).forEach((c) => { if (c && c.id && !out.has(c.id)) out.set(c.id, { group, card: c }); });
   // Сначала PRO: его карточки сидирует gamify.js по PRO_VERSION

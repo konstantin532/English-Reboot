@@ -608,6 +608,7 @@ const Gamify = (() => {
     if (meta.success && meta.data && meta.data.value === PRO_VERSION) { buildPatternMap(); return; }
 
     ER.toast('Загрузка PRO-контента B2 (~120 карточек)…');
+    if (window.WordMarks) WordMarks.markCourse();   // разметка слов — один раз перед записью в IndexedDB
     const jobs = [
       ['grammar_cards', P.grammar], ['phrasal_verbs', P.phrasal], ['collocations', P.colloc],
       ['idioms', P.idioms], ['minimal_pairs', P.minimal], ['readings', P.readings],

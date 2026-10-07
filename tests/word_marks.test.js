@@ -15,6 +15,7 @@ vm.createContext(ctx);
 vm.runInContext(FILES.map((f) => fs.readFileSync(path.resolve(process.cwd(), 'js', f + '.js'), 'utf8')).join('\n;\n') +
   ';this.__G = GRAMMAR_CARDS; this.__WM = WordMarks;', ctx);
 const WM = ctx.__WM;
+WM.markCourse();   // в приложении — перед сидированием (app.js, gamify.js)
 const ALL = [ctx.__G, ctx.WORD_CARDS, ctx.PHRASAL_CARDS, ctx.COLLOCATION_CARDS, ctx.IDIOM_CARDS, ctx.CONVERSATION_CARDS,
   ctx.SLANG_CARDS, ctx.MINIMAL_PAIR_CARDS, ctx.READING_CARDS, ...Object.values(ctx.PRO_CONTENT || {})].filter(Array.isArray).flat();
 const partsOf = (cards) => {
@@ -77,6 +78,28 @@ describe('Ударный слог — по знаку ˈ в IPA, слоги ка
     expect(marks('cat', 'kæt').stress).toBe('');
     expect(marks('our', 'ˈaʊɚ').stress).toBe('');
   });
+  it('r, «съеденная» в CMU гласной ɚ/ɝ, остаётся в слоге: cor·rect, wor·ry, cur·rent; ɡj — начало слога: ar·gu·ment', () => {
+    expect(marks('correct', 'kɚˈɛkt')).toEqual({ silent: '', stress: 'rect' });
+    expect(marks('worry', 'ˈwɝi')).toEqual({ silent: '', stress: 'wor' });
+    expect(marks('current', 'ˈkɝənt')).toEqual({ silent: '', stress: 'cur' });
+    expect(marks('interesting', 'ˈɪntɚɛstɪŋ').stress).toBe('in');
+    expect(marks('argument', 'ˈɑrɡjəmənt').stress).toBe('ar');
+    expect(marks('regular', 'ˈrɛɡjəlɚ').stress).toBe('reg');
+  });
+  it('ручная IPA без ˈ (лексиконы content_*.js): слог из lex_us.js, иначе по номеру слога', () => {
+    const at = (p) => { WM.markWord(p); return p.stressAt ? p.word.slice(...p.stressAt) : ''; };
+    expect(at({ word: 'today.', ipa: '/tədeɪ/', stress: 1 })).toBe('day');
+    expect(at({ word: 'family', ipa: '/fæməli/', stress: 0 })).toBe('fam');
+    // неверный ручной номер (advice|0) уступает словарю: ad·VICE
+    expect(at({ word: 'advice?', ipa: '/ədvaɪs/', stress: 0 })).toBe('vice');
+    expect(at({ word: 'prediction', ipa: '/prɪdɪkʃən/', stress: 1 })).toBe('dic');
+  });
+  it('буквы с диакритикой: café', () => {
+    const p = { word: 'café', ipa: '/kæˈfeɪ/' };
+    WM.markWord(p);
+    expect(p.word.slice(...p.stressAt)).toBe('fé');
+    expect(p.silent).toEqual([]);
+  });
 });
 
 describe('Разметка токена: кавычки, сокращения, рендер', () => {
@@ -112,6 +135,45 @@ describe('Части речи — по словарю и соседним сло
     expect(tag('The film was really boring.').boring).toBe('adj');
     expect(tag('She is working today.').working).toBe('verb');
   });
+  it('вопрос с do/модальным: глагол после подлежащего; do после модального и подлежащего — смысловой', () => {
+    expect(tag('What does this word mean?')).toMatchObject({ does: 'aux', word: 'noun', mean: 'verb' });
+    expect(tag('Does your brother like jazz?')).toMatchObject({ does: 'aux', like: 'verb' });
+    expect(tag('Did you do it?')).toMatchObject({ did: 'aux', do: 'verb' });
+    expect(tag("Let's do this again sometime soon.")).toMatchObject({ do: 'verb', sometime: 'adv' });
+    expect(tag("I'll text you the address.").text).toBe('verb');
+  });
+  it("'s после существительного — is: Dinner's ready; притяжательное — Maggie's bag", () => {
+    expect(tag("Come down, dinner's ready.").ready).toBe('adj');
+    expect(tag("Everything's 30% off.")["everything's"]).toBe('pron');
+    expect(tag("Don't pull the cat's tail.").tail).toBe('noun');
+  });
+  it('частица фразового глагола — наречие; on/in перед дополнением у непереходных — предлог', () => {
+    expect(tag('A new team will take over the project.').over).toBe('adv');
+    expect(tag('Turn on the light, please.').on).toBe('adv');
+    expect(tag('Turn the light on.').on).toBe('adv');
+    expect(tag("What's going on here?").on).toBe('adv');
+    expect(tag('Go on a trip.').on).toBe('prep');
+    expect(tag('We looked at the map.').at).toBe('prep');
+  });
+  it('конец именной группы, страдательный с by, that-союз и that-местоимение', () => {
+    expect(tag('He wore a wool vest.').vest).toBe('noun');
+    expect(tag("Don't let the dog sleep.").sleep).toBe('verb');
+    expect(tag('The family was torn apart by the quarrel.')).toMatchObject({ was: 'aux', torn: 'verb', apart: 'adv' });
+    expect(tag('We were surprised by the news.')).toMatchObject({ were: 'verb', surprised: 'adj' });
+    expect(tag('She pointed out that we were late.').that).toBe('conj');
+    expect(tag('Small changes beat any diet that you abandon.').that).toBe('pron');
+    expect(tag("It's late — go to bed!").go).toBe('verb');
+    expect(tag('Wait a second.').second).toBe('noun');
+    expect(tag('The second day was fun.').second).toBe('num');
+  });
+  it('словарь LEX файла контента (одна часть речи на слово) — подсказка, решает контекст; ручная грамматика — закон', () => {
+    const lexParts = () => [{ word: 'I', pos: 'pron' }, { word: 'have', pos: 'aux' }, { word: 'an', pos: 'art' }, { word: 'idea!', pos: 'noun' }];
+    expect(WM.markParts(lexParts(), true).map((p) => p.pos)).toEqual(['pron', 'verb', 'art', 'noun']);
+    expect(WM.markParts(lexParts()).map((p) => p.pos)).toEqual(['pron', 'aux', 'art', 'noun']);
+    // в курсе: «I have an idea» в коллокациях — глагол (красный), а не вспомогательный (серый)
+    const cl = ctx.COLLOCATION_CARDS.flatMap((c) => c.payload.examples).find((e) => /^Wait — I have an idea!/.test(e.text));
+    expect(cl.parts.find((p) => p.word === 'have').pos).toBe('verb');
+  });
   it('вопросы, имена, прилагательные', () => {
     expect(tag('Do you like coffee?')).toMatchObject({ do: 'aux', like: 'verb', coffee: 'noun' });
     expect(tag('I do my homework.').do).toBe('verb');
@@ -128,9 +190,11 @@ describe('Весь курс размечен', () => {
     const bad = all.filter((p) => !p.pos).map((p) => p.word);
     expect(bad.slice(0, 10)).toEqual([]);
   });
-  it('у многосложных слов есть ударный слог (кроме аббревиатур без выравнивания)', () => {
-    const multi = all.filter((p) => /ˈ/.test(p.ipa || '') && (String(p.word).match(/[aeiouy]+/gi) || []).length >= 2);
-    const missing = multi.filter((p) => !p.stressAt && (p.stress === undefined || p.stress === null));
+  it('у многосложных слов есть ударный слог — и при ручной IPA без ˈ (кроме аббревиатур без выравнивания)', () => {
+    const multi = all.filter((p) => p.ipa && WM.phonemes(p.ipa).filter((t) => t.v).length >= 2 &&
+      (/ˈ/.test(p.ipa) || Number.isInteger(p.stress)) && (String(p.word).match(/[aeiouy]+/gi) || []).length >= 2);
+    const missing = multi.filter((p) => !p.stressAt);
+    expect(multi.length).toBeGreaterThan(7000);
     expect(missing.length / multi.length).toBeLessThan(0.01);
   });
   it('выравнивание букв и IPA не сходится меньше чем у 0,5% слов (это аббревиатуры: TV, Mr, ATM)', () => {
@@ -152,6 +216,21 @@ describe('Весь курс размечен', () => {
       });
     });
     expect(bad.slice(0, 10)).toEqual([]);
+  });
+  it('курс размечается перед каждым сидированием в IndexedDB (app.js, gamify.js), а не при каждой загрузке', () => {
+    const src = { app: fs.readFileSync('js/app.js', 'utf8'), gamify: fs.readFileSync('js/gamify.js', 'utf8') };
+    for (const [file, fn] of [['app', 'async function seedJobs('], ['app', 'async function checkAndSeedContent('], ['gamify', 'async function seedPro(']]) {
+      const s = src[file], i = s.indexOf(fn), body = s.slice(i, s.indexOf('\n  }\n', i));
+      expect(i, fn).toBeGreaterThan(-1);
+      expect(body.indexOf('WordMarks.markCourse()'), fn).toBeGreaterThan(-1);
+      expect(body.indexOf('WordMarks.markCourse()'), fn).toBeLessThan(body.indexOf('seedContent('));
+    }
+    const c2 = { console: { log() {}, warn() {}, error() {} } };
+    c2.window = c2;
+    vm.createContext(c2);
+    vm.runInContext(FILES.map((f) => fs.readFileSync(path.resolve(process.cwd(), 'js', f + '.js'), 'utf8')).join('\n;\n'), c2);
+    expect(c2.WORD_MARKS_STATS).toBeUndefined();
+    expect(c2.WORD_CARDS[0].payload.examples[0].parts.some((p) => p.stressAt)).toBe(false);
   });
   it('в примерах ученику не видны служебные {скобки} (minimal pairs)', () => {
     const bad = all.filter((p) => /[{}]/.test(p.word)).map((p) => p.word);
