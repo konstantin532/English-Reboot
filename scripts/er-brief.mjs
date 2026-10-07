@@ -16,8 +16,10 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseBaseline } from './er-health.mjs';
+import { loadCards } from './er-cards.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// ER_ROOT — проверить другую рабочую копию (git worktree) теми же скриптами
+const ROOT = process.env.ER_ROOT ? path.resolve(process.env.ER_ROOT) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => { try { return fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { return ''; } };
 const sh = (cmd, args) => { const r = spawnSync(cmd, args, { cwd: ROOT, encoding: 'utf8', timeout: 30000 }); return r.status === 0 ? r.stdout.trim() : null; };
 const cut = (s, n = 110) => { const t = String(s).replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
@@ -147,10 +149,30 @@ function brief(opts) {
   const items = [...un.matchAll(/^- \*\*(.+?)\*\*/gm)].map((m) => m[1]);
   L.push(`CHANGELOG Unreleased: ${items.length} записей, ${un.split('\n').length} строк; последние: ${items.slice(0, 3).map((t) => cut(t, 60)).join(' | ') || '—'}`);
 
+  // Следующие свободные номера карточек — новые карточки только в конец (правило 11)
+  const next = nextIds();
+  if (next) L.push(`НОВЫЕ ID (в конец): ${next}`);
+
   // размеры того, что раньше читалось целиком
   const kb = (f) => (fs.existsSync(path.join(ROOT, f)) ? (fs.statSync(path.join(ROOT, f)).size / 1024).toFixed(0) + ' КБ' : 'нет');
   L.push(`Полные файлы (читать по необходимости): EVOLUTION.md ${kb('docs/EVOLUTION.md')}, CHANGELOG.md ${kb('CHANGELOG.md')}, README.md ${kb('README.md')}`);
   return L.join('\n');
+}
+
+/** id карточек → следующий номер для каждого префикса с номером (wd_0551, pv_239, cv_2301…) */
+export function nextIdsOf(ids) {
+  const max = new Map();
+  for (const id of ids) {
+    const m = String(id).match(/^([a-z]+_?)(\d+)$/i);
+    if (!m) continue;
+    const [, pre, num] = m;
+    const cur = max.get(pre);
+    if (!cur || Number(num) > cur.n) max.set(pre, { n: Number(num), w: num.length });
+  }
+  return [...max.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([pre, { n, w }]) => pre + String(n + 1).padStart(w, '0'));
+}
+function nextIds() {
+  try { return nextIdsOf(loadCards(ROOT).cards.keys()).join(' · '); } catch { return ''; }
 }
 
 function main() {
