@@ -65,7 +65,7 @@ dinner:'ˈdɪnɚ|n|0',lunch:'lʌntʃ|n',breakfast:'brɛkfəst|n|0',medicine:'mɛ
 birthday:'ˈbɝθdeɪ|n|0',holiday:'hɒlədeɪ|n|0',trip:'trɪp|n',rest:'rɛst|n',break2:'breɪk|n',walk2:'wɔːk|n|0|3',
 chat:'tʃæt|n',talk2:'tɔːk|n',look2:'lʊk|n',breath:'brɛθ|n',seat:'sit|n',shower:'ˈʃaʊɚ|n|0',nap:'næp|n',
 photo:'ˈfoʊtoʊ|n|0',notes:'noʊts|n',risk:'rɪsk|n',chance:'tʃæns|n|0',choice:'tʃɔɪs|n',decision:'dɪsɪʒən|n|1',
-mistake:'mɪsteɪk|n|1',progress:'proʊˈɡrɛs|n|0',effort:'ˈɛfɚt|n|0',promise:'ˈprɑməs|n|0',suggestion:'sədʒɛstʃən|n|1',
+mistake:'mɪsteɪk|n|1',progress:'ˈprɑɡrɛs|n|0',effort:'ˈɛfɚt|n|0',promise:'ˈprɑməs|n|0',suggestion:'sədʒɛstʃən|n|1',
 noise:'nɔɪz|n',call2:'kɔːl|n',comment:'ˈkɑmɛnt|n|0',difference:'dɪfrəns|n|0',mess:'mɛs|n',wish:'wɪʃ|n',
 list:'lɪst|n',excuse:'ɪkˈskjus|n|1',fortune:'ˈfɔrtʃun|n|0',living:'lɪvɪŋ|n|0',sense:'sɛns|n',sure:'ʃʊr|a',
 attempt:'ətɛmpt|n|0',discovery:'dɪskʌvəri|n|1',complaint:'kəmpleɪnt|n|1',enquiry:'ɪnˈkwaɪri|n|1',
