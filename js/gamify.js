@@ -12,7 +12,7 @@ const Gamify = (() => {
 
   let ER = null;
   let effectsOn = true;
-  const PRO_VERSION = '1.3.0'; // 1.3.0: омографы в IPA (lex_us.js)
+  const PRO_VERSION = '1.4.0'; // 1.4.0: разметка слов word_marks.js (часть речи, ударение, немые буквы)
 
   const XP_RULES = {
     newCardKnow: 15, newCardHard: 5,

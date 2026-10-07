@@ -15,10 +15,10 @@
 (() => {
   'use strict';
 
-  const CONTENT_VERSION = 5; // 5: омографы в IPA (live /lɪv/, close /kloʊz/, read /rid/…)
-  const VOCAB_VERSION = '1.5.0'; // 1.5.0: +30 фразовых глаголов A1+ (pv_209–238)
-  const EXTRA_VERSION = '2.0.0'; // 2.0.0: +75 фраз A1+ «Первый месяц»
-  const WORDS_VERSION = '1.2.0'; // раздел «Слова»: 1.2.0 — пакет A1+, часть 1 (550 слов)
+  const CONTENT_VERSION = 6; // 6: разметка слов по IPA — часть речи, ударный слог, немые буквы (word_marks.js)
+  const VOCAB_VERSION = '1.6.0'; // 1.6.0: разметка слов word_marks.js (часть речи, ударение, немые буквы)
+  const EXTRA_VERSION = '2.1.0'; // 2.1.0: разметка слов word_marks.js; minimal pairs — без {скобок} в примерах
+  const WORDS_VERSION = '1.3.0'; // раздел «Слова»: 1.3.0 — разметка слов (часть речи, ударение, немые буквы)
   const APP_VERSION = '1.1.0';
 
   // Каждый раздел — «линия метро»: цвет и буква значка (цвета линий нью-йоркского метро).

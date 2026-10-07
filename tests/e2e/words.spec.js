@@ -30,6 +30,21 @@ test('раздел «Слова»: 550 слов A1–A1+, перевод при�
   await expect(page.locator('#test-progress')).toHaveText('Отвечено 0/5');
 });
 
+test('новые слова размечены: часть речи цветом, ударный слог, немые буквы (word_marks.js)', async ({ page }) => {
+  await onboard(page);
+  await page.locator('.nav-link[data-tab="words"]').click();
+  await page.locator('.vocab-tile').first().click();                                   // water: Can I get some water?
+  const ex = page.locator('.example-text').first();
+  await expect(ex.locator('.word-token[data-w="water?"] .word-text.pos-noun')).toBeVisible();
+  await expect(ex.locator('.word-token[data-w="water?"] .stress')).toHaveText('wa');
+  await expect(ex.locator('.word-token[data-w="get"] .word-text.pos-verb')).toBeVisible();
+  await page.locator('.back-btn').click();
+  await page.locator('.vocab-tile').nth(6).click();                                    // egg: Two eggs, please.
+  const ex2 = page.locator('.example-text').first();
+  await expect(ex2.locator('.word-token[data-w="Two"] .silent-letter')).toHaveText('w');
+  await expect(ex2.locator('.word-token[data-w="eggs,"] .word-text.pos-noun')).toBeVisible();
+});
+
 test('обновление базы v1 → v2: прогресс на месте, раздел «Слова» загрузился', async ({ page }) => {
   // Состояние «до обновления»: база версии 1 со старыми 18 хранилищами и прогрессом по фразе
   await page.goto('/manifest.json');
@@ -60,7 +75,7 @@ test('обновление базы v1 → v2: прогресс на месте,
   expect(st.words).toBe(550);
   expect(st.kept.reps).toBe(3);
   expect(st.kept.ladder.step).toBe(3);
-  expect(st.version).toBe('1.2.0');
+  expect(st.version).toBe('1.3.0');   // WORDS_VERSION: 1.3.0 — разметка слов word_marks.js
 });
 
 test('«Сегодня» → слова урока: неверный ответ показывает правильный, урок можно прервать и продолжить со слов', async ({ page }) => {
