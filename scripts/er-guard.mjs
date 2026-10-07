@@ -13,14 +13,19 @@
  *   node scripts/er-guard.mjs --out <файл>    # ещё и записать отчёт в файл (путь — ревизору)
  *
  * Метки: ✗ — нарушение правила (код выхода 1), ? — проверить глазами, ! — напоминание.
+ * Версии разделов проверяются по самим карточкам: какие изменились (текст или разметка) — те *_VERSION
+ * и нужно поднять (er-cards.mjs). Сгенерированные словари (lex_us.js, pos_us.js) в текстовых проверках не участвуют.
  */
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { loadCards, cardDiff, GROUP_VERSION } from './er-cards.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// ER_ROOT — проверить другую рабочую копию (git worktree) теми же скриптами
+const ROOT = process.env.ER_ROOT ? path.resolve(process.env.ER_ROOT) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const git = (args, opts = {}) => {
   const r = spawnSync('git', args, { cwd: ROOT, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, ...opts });
   return r.status === 0 ? r.stdout : null;
@@ -135,13 +140,33 @@ export function check(ctx) {
   const newDev = devB.filter((d) => !devA.includes(d));
   if (newDev.length) note(1, `новые devDependencies: ${newDev.join(', ')} — в облаке npm закрыт, нужен шим`);
 
-  // Правило 11: контент — версии разделов, номера карточек, миграция
-  const contentChanged = changed.filter((f) => /^js\/(content_(?!migrate)\w+|lex_us|improv_us|scenes_us)\.js$/.test(f));
-  if (contentChanged.length) {
-    const vA = { ...versionsOf(base.app), ...versionsOf(base.gamify) }, vB = { ...versionsOf(head.app), ...versionsOf(head.gamify) };
+  // Правило 11: контент — версии разделов (по изменённым карточкам), номера карточек, миграция
+  const contentChanged = changed.filter((f) => /^js\/(content_(?!migrate)\w+|lex_us|pos_us|word_marks|improv_us|scenes_us)\.js$/.test(f));
+  const vA = { ...versionsOf(base.app), ...versionsOf(base.gamify) }, vB = { ...versionsOf(head.app), ...versionsOf(head.gamify) };
+  if (ctx.cardDiff) {
+    const d = ctx.cardDiff;
+    const byGroup = {};
+    for (const [kind, ids] of [['новых', d.added], ['изменённых', d.changed], ['с новой разметкой', d.partsOnly], ['удалённых', d.removed]]) {
+      for (const id of ids) {
+        const g = ctx.cardGroups.get(id);
+        if (!GROUP_VERSION[g]) continue;
+        (byGroup[g] = byGroup[g] || { n: 0, ids: [], kinds: new Set() }).n++;
+        byGroup[g].kinds.add(kind);
+        if (byGroup[g].ids.length < 3) byGroup[g].ids.push(id);
+      }
+    }
+    for (const [g, x] of Object.entries(byGroup)) {
+      const v = GROUP_VERSION[g];
+      if (vA[v] !== undefined && vA[v] === vB[v]) bad(11, `${x.n} карточек раздела ${g} (${[...x.kinds].join(', ')}: ${x.ids.join(', ')}…) — а ${v} тот же (${vB[v]}): у учеников в IndexedDB останутся старые`);
+      else if (vA[v] !== vB[v]) note(11, `${v} ${vA[v]} → ${vB[v]}: ${x.n} карточек ${g} (${[...x.kinds].join(', ')})`);
+    }
+    const extra = Object.keys(GROUP_VERSION).filter((g) => !byGroup[g] && vA[GROUP_VERSION[g]] !== vB[GROUP_VERSION[g]]);
+    for (const g of extra) look(11, `${GROUP_VERSION[g]} поднята, а карточки раздела ${g} не менялись — лишнее пересидирование`);
+  } else if (contentChanged.length) {
     const bumped = Object.keys(vB).filter((k) => k !== 'APP_VERSION' && vA[k] !== undefined && vA[k] !== vB[k]);
     if (!bumped.length) bad(11, `менялся контент (${contentChanged.join(', ')}), а ни одна *_VERSION в js/app.js и js/gamify.js не поднята`);
-    else note(11, `подняты: ${bumped.map((k) => `${k} ${vA[k]} → ${vB[k]}`).join(', ')} — сверить, что это версии изменённых разделов`);
+  }
+  if (contentChanged.length) {
     if (ctx.cards) {
       const { removed: rm, changed: ch, added: ad } = ctx.cards;
       if (ad.length) note(11, `новых карточек: ${ad.length} (${ad.slice(0, 3).join(', ')}${ad.length > 3 ? '…' : ''})`);
@@ -149,6 +174,12 @@ export function check(ctx) {
         bad(11, `карточки удалены или стали другой фразой (${[...rm, ...ch].slice(0, 3).join('; ')}${rm.length + ch.length > 3 ? '…' : ''}), а js/content_migrate.js не менялся — нужна миграция прогресса`);
       } else if (rm.length || ch.length) look(11, `удалено ${rm.length}, другой фразой ${ch.length} — миграция в content_migrate.js есть, проверить её тестом`);
     } else look(11, 'карточки «до/после» сравнить не удалось — номера и миграцию проверить вручную');
+  }
+
+  // Новые слова без IPA или без словаря частей речи (если в копии есть word_marks.js)
+  if (ctx.words && (ctx.words.noIpa.length || ctx.words.noPos.length)) {
+    if (ctx.words.noIpa.length) look(8, `слова без IPA в новых карточках: ${ctx.words.noIpa.slice(0, 12).join(', ')}${ctx.words.noIpa.length > 12 ? '…' : ''} → node scripts/fill_lex_us.mjs путь/к/cmudict.dict`);
+    if (ctx.words.noPos.length) look(11, `слов нет в словаре частей речи (угаданы по окончанию): ${ctx.words.noPos.slice(0, 12).join(', ')}${ctx.words.noPos.length > 12 ? '…' : ''} → node scripts/fill_pos_us.mjs путь/к/english-wordnet`);
   }
 
   // Правило 12: база
@@ -189,19 +220,19 @@ export function check(ctx) {
     if (/location\.(href|search|hash)\s*=|history\.(push|replace)State/.test(t)) look(13, `${l.f}:${l.line} запись в URL — не попадает ли туда ввод ученика?`);
   }
 
-  // Правило 8: только американское написание (полный аудит — в er-health)
-  for (const l of addIn(/^js\/.+\.js$/)) {
+  // Правило 8: только американское написание (полный аудит — в er-health); словари-данные не смотрим
+  for (const l of addIn(/^js\/(?!(lex_us|pos_us)\.js$).+\.js$/)) {
     const m = l.text.match(BRIT);
     if (m) look(8, `${l.f}:${l.line} «${m[0]}» — британское? ${l.text.trim().slice(0, 80)}`);
   }
 
   // Правило 7: реплики коуча и похвала — только в js/coach.js
-  for (const l of addIn(/^js\/(?!coach\.js$).+\.js$/)) {
+  for (const l of addIn(/^js\/(?!(coach|lex_us|pos_us)\.js$).+\.js$/)) {
     if (PRAISE.test(l.text)) look(7, `${l.f}:${l.line} похвала вне js/coach.js? ${l.text.trim().slice(0, 80)}`);
   }
 
   // Правило 10: реплики ученика нейтральны по роду
-  for (const l of addIn(/^js\/.+\.js$/)) {
+  for (const l of addIn(/^js\/(?!(lex_us|pos_us)\.js$).+\.js$/)) {
     const m = l.text.match(GENDER);
     if (m) look(10, `${l.f}:${l.line} «Я ${m[2]}» — реплика ученика с родом? ${l.text.trim().slice(0, 80)}`);
   }
@@ -265,31 +296,53 @@ function collectContext(baseRef) {
     base: { sw: show('sw.js'), app: show('js/app.js'), gamify: show('js/gamify.js'), db: show('js/db.js'), pkg: json(show('package.json')) },
     head: { sw: cur('sw.js'), index: cur('index.html'), app: cur('js/app.js'), gamify: cur('js/gamify.js'), db: cur('js/db.js'), pkg: json(cur('package.json')), exists: (p) => fs.existsSync(path.join(ROOT, p)) },
   };
-  // Карточки «до/после» — только если контент менялся
-  if (files.some((f) => /^js\/(content_\w+|improv_us)\.js$/.test(f.path))) {
+  // Карточки «до/после» — если менялся контент или то, из чего строится разметка слов
+  if (files.some((f) => /^js\/(content_\w+|improv_us|lex_us|pos_us|word_marks)\.js$/.test(f.path))) {
     try {
-      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'er-guard-'));
-      fs.mkdirSync(path.join(tmp, 'js'));
-      for (const f of ['content_grammar', 'content_vocab', 'content_extra', 'content_pro', 'content_us', 'content_words', 'improv_us']) {
-        fs.writeFileSync(path.join(tmp, 'js', f + '.js'), show(`js/${f}.js`) || '');
-      }
-      ctx.cardsLoader = tmp;
-    } catch { /* сравнение карточек пропустим */ }
+      const A = loadCards((f) => show(`js/${f}.js`));
+      const B = loadCards(ROOT);
+      ctx.cardDiff = cardDiff(A.cards, B.cards);
+      ctx.cardGroups = new Map([...A.cards].map(([id, x]) => [id, x.group]).concat([...B.cards].map(([id, x]) => [id, x.group])));
+      const sig = (m) => ({ sections: { all: [...m.values()].map((x) => x.card) } });
+      ctx.cards = compareCards(sig(A.cards), sig(B.cards));
+      ctx.words = wordsWithoutMarks(B.cards, new Set([...ctx.cardDiff.added, ...ctx.cardDiff.changed]));
+    } catch { ctx.cardDiff = null; }
   }
   return ctx;
+}
+
+// Слова новых и изменённых карточек без IPA / без записи в pos_us.js (если в копии есть word_marks.js)
+function wordsWithoutMarks(cards, ids) {
+  const noIpa = new Set(), noPos = new Set();
+  const hasWM = fs.existsSync(path.join(ROOT, 'js', 'word_marks.js'));
+  let POS = {}, closed = () => false;
+  if (hasWM) {
+    const c = { console: { log() {}, warn() {}, error() {} } };
+    c.window = c;
+    vm.createContext(c);
+    vm.runInContext(['pos_us', 'word_marks'].map((f) => { try { return fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'); } catch { return ''; } }).join('\n;\n') + ';this.__WM = typeof WordMarks !== "undefined" ? WordMarks : null;', c);
+    POS = c.POS_US || {};
+    if (c.__WM) closed = (b) => !!(c.__WM.CLOSED[b] || c.__WM.CTX_WORDS.includes(b));
+  }
+  const known = (b) => POS[b] || [b.replace(/'s$/, ''), b.replace(/(ies)$/, 'y'), b.replace(/e?s$/, ''), b.replace(/e?d$/, ''), b.replace(/ing$/, ''), b.replace(/ing$/, 'e')].some((x) => POS[x]);
+  const walk = (o, d, fn) => { if (!o || typeof o !== 'object' || d > 7) return; if (Array.isArray(o.parts)) o.parts.forEach(fn); for (const v of Object.values(o)) if (v && typeof v === 'object') walk(v, d + 1, fn); };
+  for (const id of ids) {
+    const x = cards.get(id);
+    if (!x) continue;
+    walk(x.card.payload, 0, (p) => {
+      const b = String(p && p.word || '').toLowerCase().replace(/[^a-z']/g, '').replace(/^'+|'+$/g, '');
+      if (!b || /^[A-Z]/.test(String(p.word).replace(/^[^A-Za-z]+/, '')) && !/^(i|i'm|i'll|i've|i'd)$/.test(b)) return;   // имена и начало предложения — не считаем
+      if (!p.ipa) noIpa.add(b);
+      if (hasWM && !closed(b) && !known(b)) noPos.add(b);
+    });
+  }
+  return { noIpa: [...noIpa].sort(), noPos: [...noPos].sort() };
 }
 
 async function main() {
   const argv = process.argv.slice(2);
   const bi = argv.indexOf('--base'), oi = argv.indexOf('--out');
   const ctx = collectContext(bi >= 0 ? argv[bi + 1] : null);
-  if (ctx.cardsLoader) {
-    try {
-      const { loadContent } = await import(pathToFileURL(path.join(ROOT, 'scripts', 'content_stats.mjs')).href);
-      ctx.cards = compareCards(loadContent(ctx.cardsLoader), loadContent(ROOT));
-    } catch (e) { ctx.cards = null; }
-    fs.rmSync(ctx.cardsLoader, { recursive: true, force: true });
-  }
   const R = check(ctx);
   const text = format(R, ctx);
   console.log(text);
