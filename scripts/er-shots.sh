@@ -9,7 +9,8 @@
 # Не запускать одновременно с E2E: оба поднимают сервер на порту 8123.
 # Папка: $ER_SHOTS или /tmp/er-shots. Код выхода: 0 — снято (и сравнено), 2 — не снято.
 set -uo pipefail
-cd "$(dirname "$0")/.."
+HERE="$(cd "$(dirname "$0")" && pwd)"
+cd "${ER_ROOT:-$HERE/..}"   # ER_ROOT — другая рабочая копия (git worktree)
 
 LABEL=${1:-}
 case "$LABEL" in before|after) ;; *) echo "использование: bash scripts/er-shots.sh before|after" >&2; exit 2;; esac
@@ -19,7 +20,7 @@ LOG="$BASE/$LABEL.log"
 mkdir -p "$BASE"
 rm -rf "$DEST" && mkdir -p "$DEST"
 
-[ -d node_modules/@playwright/test ] || bash scripts/er-test-env.sh >/dev/null
+[ -d node_modules/@playwright/test ] || bash "$HERE/er-test-env.sh" >/dev/null
 
 if ! npm run test:screenshots >"$LOG" 2>&1; then
   git checkout -- docs/screenshots 2>/dev/null

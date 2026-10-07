@@ -24,7 +24,8 @@ import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// ER_ROOT — проверить другую рабочую копию (git worktree) теми же скриптами
+const ROOT = process.env.ER_ROOT ? path.resolve(process.env.ER_ROOT) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const EVOLUTION = path.join(ROOT, 'docs', 'EVOLUTION.md');
 const OUT_BASE = process.env.ER_OUT || '/tmp/er/health';
 const BASELINE_TAG = 'er-baseline';
@@ -256,7 +257,7 @@ const git = (...a) => { const r = spawnSync('git', a, { cwd: ROOT, encoding: 'ut
 function ensureEnv() {
   const shim = path.join(ROOT, 'node_modules', 'vitest', 'package.json');
   if (fs.existsSync(shim) && fs.existsSync(path.join(ROOT, 'node_modules', '@playwright', 'test'))) return;
-  const r = spawnSync('bash', [path.join(ROOT, 'scripts', 'er-test-env.sh')], { cwd: ROOT, encoding: 'utf8' });
+  const r = spawnSync('bash', [path.join(path.dirname(fileURLToPath(import.meta.url)), 'er-test-env.sh')], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ER_ROOT: ROOT } });
   if (r.status !== 0) throw new Error('er-test-env.sh не отработал: ' + oneLine(r.stderr || r.stdout, 300));
 }
 
