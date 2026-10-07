@@ -5,6 +5,10 @@ import {
 import { addedLines, removedLines, check, compareCards, isAppFile, swAssets, indexRefs } from '../scripts/er-guard.mjs';
 import { sections, checkboxes, scoutAge, versions } from '../scripts/er-brief.mjs';
 import { summarizeRuns, slugFromUrl } from '../scripts/er-ci.mjs';
+import { formatUnit, formatE2e } from '../scripts/er.mjs';
+import { codeDiff, isDataHunk, collapseData, similarity, cardText } from '../scripts/er-review.mjs';
+import { cardDiff, stripParts } from '../scripts/er-cards.mjs';
+import { nextIdsOf } from '../scripts/er-brief.mjs';
 
 /* Скрипты скилла english-reboot-evolve: модель верит их сводкам вместо логов, поэтому разбор и
    решения «красное/зелёное» стерегутся тестами. */
@@ -261,5 +265,78 @@ describe('er-ci: состояние проверок одной строкой',
   it('slug репозитория из адреса remote', () => {
     expect(slugFromUrl('https://github.com/konstantin532/english-reboot')).toBe('konstantin532/english-reboot');
     expect(slugFromUrl('git@github.com:konstantin532/English-Reboot.git')).toBe('konstantin532/English-Reboot');
+  });
+});
+
+describe('er test / er e2e: одна строка вместо лога', () => {
+  it('зелёный прогон — одна строка, красный — упавшие с сообщением', () => {
+    expect(formatUnit({ total: 280, passed: 280, failed: 0, skipped: 0, failures: [] }, 8500, '/l')).toBe('юнит 280/280 ✓ (8,5 с)');
+    const red = formatUnit({ total: 3, passed: 2, failed: 1, skipped: 0, failures: [{ name: 'today.test.js: урок', message: 'expected 1 to be 2' }] }, 900, '/tmp/u.log');
+    expect(red).toMatch(/упало 1 из 3/);
+    expect(red).toMatch(/today\.test\.js: урок/);
+    expect(red).toMatch(/лог: \/tmp\/u\.log/);
+    expect(formatE2e({ total: 5, passed: 4, failed: 0, flaky: 1, flakyNames: ['a.spec.js:3 › t'], failures: [] }, 47000, '/l')).toBe('E2E 5/5 ✓ · flaky 1: a.spec.js:3 › t (47 с)');
+  });
+});
+
+describe('er-review: каждому ревизору — свой срез', () => {
+  it('сгенерированные словари выпадают из диффа кода, строки данных сворачиваются', () => {
+    const diff = 'diff --git a/js/lex_us.js b/js/lex_us.js\n--- a/js/lex_us.js\n+++ b/js/lex_us.js\n@@ -1 +1 @@\n-x\n+y\n' +
+      "diff --git a/js/content_words.js b/js/content_words.js\n--- a/js/content_words.js\n+++ b/js/content_words.js\n@@ -10,2 +10,4 @@\n+  const PHRASAL_DATA = [\n+    ['come over', 'фраз. глаг.', 'зайти'],\n+    ['lie down', 'фраз. глаг.', 'прилечь'],\n+  ];\n" +
+      'diff --git a/js/today.js b/js/today.js\n--- a/js/today.js\n+++ b/js/today.js\n@@ -1 +1 @@\n-a()\n+b()\n';
+    const r = codeDiff(diff);
+    expect(r.generated).toEqual(['js/lex_us.js']);
+    expect(r.text).toContain('const PHRASAL_DATA = [');
+    expect(r.text).not.toContain('come over');
+    expect(r.text).toContain('строк данных');
+    expect(r.text).toContain('+b()');
+  });
+  it('хунк из одних данных распознаётся, хунк с кодом — нет', () => {
+    expect(isDataHunk(['@@', "+    ['a', 'b'],", "+    w('I','pron','/aɪ/'),"])).toBe(true);
+    expect(isDataHunk(['@@', "+    ['a', 'b'],", '+  const x = f(y);'])).toBe(false);
+    expect(collapseData("@@\n+  const A = [\n+    ['a'],\n+    ['b'],\n+  ];").dropped).toBe(3);
+  });
+  it('похожие варианты теста: общие значимые слова или две короткие реакции', () => {
+    expect(similarity('Мне надо прилечь.', 'Мне надо наряжаться?')).toBeGreaterThanOrEqual(0.5);
+    expect(similarity('Yeah, sure', 'Okay')).toBeGreaterThanOrEqual(0.5);
+    expect(similarity('Где касса?', 'Что случилось?')).toBe(0);
+    expect(similarity('Free shipping', 'Yeah, sure')).toBe(0);
+  });
+  it('карточка педагогу: примеры с переводом, тесты с пропуском и рискованные, остальные числом', () => {
+    const t = cardText('wd_0001', { group: 'words', card: { level: 'A1', sublevel: 'A1', payload: { front: 'water', translation: 'вода',
+      examples: [{ text: 'Can I get some water?', ru: 'Можно воды?', parts: [{ word: 'water' }] }],
+      test: [{ q: 'Что значит «water»?', options: ['вода', 'еда'], correct: 0 }, { q: 'Can I get some ___?', options: ['water', 'bread'], correct: 0 }] } } }, 'новая');
+    expect(t).toMatch(/water — вода/);
+    expect(t).toMatch(/- Can I get some water\? — Можно воды\?/);
+    expect(t).toMatch(/тест: Can I get some ___\? → ✓water · ✗bread/);
+    expect(t).toMatch(/ещё тестов: 1/);
+    expect(t).not.toMatch(/parts/);
+  });
+});
+
+describe('er-cards: что изменилось в карточках', () => {
+  it('новые, удалённые, изменённые по тексту и только разметкой', () => {
+    const m = (arr) => new Map(arr.map((c) => [c.id, { group: 'words', card: c }]));
+    const A = m([{ id: 'a', payload: { front: 'x', examples: [{ text: 't', parts: [{ word: 't' }] }] } }, { id: 'b', payload: { front: 'y' } }, { id: 'c', payload: { front: 'z' } }]);
+    const B = m([{ id: 'a', payload: { front: 'x', examples: [{ text: 't', parts: [{ word: 't', pos: 'noun' }] }] } }, { id: 'b', payload: { front: 'Y' } }, { id: 'd', payload: { front: 'w' } }]);
+    expect(cardDiff(A, B)).toEqual({ added: ['d'], removed: ['c'], changed: ['b'], partsOnly: ['a'] });
+    expect(stripParts({ examples: [{ text: 't', parts: [1] }] })).toEqual({ examples: [{ text: 't' }] });
+  });
+  it('сторож требует версию именно того раздела, чьи карточки изменились', () => {
+    const c = ctxOf({ files: [{ status: 'M', path: 'js/content_words.js' }] });
+    c.head.sw = c.head.sw.replace('er-v34', 'er-v35');
+    c.base.app = "const WORDS_VERSION = '1.2.0'; const VOCAB_VERSION = '1.0.0';";
+    c.head.app = "const WORDS_VERSION = '1.2.0'; const VOCAB_VERSION = '1.1.0';";
+    c.cardDiff = { added: ['wd_0551'], removed: [], changed: [], partsOnly: [] };
+    c.cardGroups = new Map([['wd_0551', 'words']]);
+    const out = check(c);
+    expect(out.filter((r) => r.level === '✗').map((r) => r.text).join()).toMatch(/WORDS_VERSION тот же/);
+    expect(out.filter((r) => r.level === '?').map((r) => r.text).join()).toMatch(/VOCAB_VERSION поднята, а карточки раздела vocab не менялись/);
+  });
+});
+
+describe('er-brief: следующие номера карточек', () => {
+  it('для каждого префикса — максимум + 1 с той же шириной', () => {
+    expect(nextIdsOf(['wd_0001', 'wd_0550', 'pv_208', 'pv_238', 'g067', 'cafe-order'])).toEqual(['g068', 'pv_239', 'wd_0551']);
   });
 });
