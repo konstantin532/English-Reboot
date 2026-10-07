@@ -6,7 +6,7 @@ import { addedLines, removedLines, check, compareCards, isAppFile, swAssets, ind
 import { sections, checkboxes, scoutAge, versions } from '../scripts/er-brief.mjs';
 import { summarizeRuns, slugFromUrl } from '../scripts/er-ci.mjs';
 import { formatUnit, formatE2e } from '../scripts/er.mjs';
-import { codeDiff, isDataHunk, collapseData, similarity, cardText } from '../scripts/er-review.mjs';
+import { codeDiff, isDataHunk, collapseData, similarity, cardText, markedLine, marksSample, ipaChanges } from '../scripts/er-review.mjs';
 import { cardDiff, stripParts } from '../scripts/er-cards.mjs';
 import { nextIdsOf } from '../scripts/er-brief.mjs';
 
@@ -311,6 +311,24 @@ describe('er-review: каждому ревизору — свой срез', () 
     expect(t).toMatch(/тест: Can I get some ___\? → ✓water · ✗bread/);
     expect(t).toMatch(/ещё тестов: 1/);
     expect(t).not.toMatch(/parts/);
+  });
+  it('разметка слов педагогу строкой: ЗАГЛАВНЫЕ — ударный слог, (буква) — немая, после / — часть речи', () => {
+    expect(markedLine([{ word: 'Listen', pos: 'verb', stressAt: [0, 3], silent: [3] }, { word: 'up!', pos: 'adv' }, { word: '—' }]))
+      .toBe('LIS(t)en/глаг up!/нар —/?');
+  });
+  it('выборка разметки: сначала новые карточки, затем (если менялся движок) — случайно по курсу, без повторов', () => {
+    const card = (id, words) => [id, { group: 'words', card: { id, payload: { examples: [{ text: words, parts: words.split(' ').map((w) => ({ word: w, pos: 'noun' })) }] } } }];
+    const cards = new Map([card('a', 'new one'), card('b', 'old one'), card('c', 'old two'), card('d', 'new one')]);
+    expect(marksSample(cards, ['a'], { random: false })).toEqual(['a: new/сущ one/сущ']);
+    const r = marksSample(cards, ['a'], { random: true, seed: 1, max: 3 });
+    expect(r[0]).toBe('a: new/сущ one/сущ');
+    expect(r.filter((l) => /new\/сущ one/.test(l))).toHaveLength(1);       // d повторяет a — не дублируется
+    expect(r.length).toBeGreaterThan(1);
+  });
+  it('IPA, изменившаяся в примерах, видна педагогу (в тексте карточек её нет)', () => {
+    const m = (ipa) => new Map([['x', { group: 'words', card: { payload: { examples: [{ parts: [{ word: 'Engineer.', ipa }] }] } } }]]);
+    expect(ipaChanges(m('/ˈɛndʒənɪr/'), m('/ˌɛndʒəˈnɪr/'))).toEqual(['engineer: /ˈɛndʒənɪr/ → /ˌɛndʒəˈnɪr/']);
+    expect(ipaChanges(m('/a/'), m('/a/'))).toEqual([]);
   });
 });
 
