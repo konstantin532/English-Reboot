@@ -43,7 +43,7 @@ mushroom:"ˈmʌʃrʊm|n|0",small:"smɔl|a",large:"lɑrdʒ|a",cash:"kæʃ|n",numb
 name:"neɪm|n",taxi:"ˈtæksi|n|0",bus:"bʌs|n",ticket:"ˈtɪkɪt|n|0",train:"treɪn|n",station:"ˈsteɪʃən|n|0|34",
 airport:"ˈɛəpɔːt|n|0",park:"pɑrk|n",rule:"rul|n",rules:"rulz|n",allowed:"əˈlaʊd|a|1",fire:"faɪr|n|0",
 smoking:"ˈsmoʊkɪŋ|n|0",guests:"ɡɛsts|n",door:"dɔr|n",floor:"flɔr|n",window:"ˈwɪndoʊ|n|0",bed:"bɛd|n",
-view:"vju|n",air:"ɛr|n",cold:"koʊld|a",hot:"hɑt|a",warm:"wɔrm|a",engineer:"ˈɛndʒənɪr|n|2",junior:"ˈdʒunjɚ|n|0",
+view:"vju|n",air:"ɛr|n",cold:"koʊld|a",hot:"hɑt|a",warm:"wɔrm|a",engineer:"ˌɛndʒəˈnɪr|n|2",junior:"ˈdʒunjɚ|n|0",
 test:"tɛst|n",bug:"bʌɡ|n",report:"riˈpɔrt|v|1",experience:"ɪkˈspɪriəns|n|1",English:"ˈɪŋɡlɪʃ|n|0",team:"tim|n",
 salary:"ˈsæləri|n|0",remote:"rɪˈmoʊt|a|1",office:"ˈɔfɪs|n|0",email:"iˈmeɪl|n|0",meeting:"ˈmitɪŋ|n|0",
 city:"ˈsɪti|n|0",museum:"mjuˈziəm|n|1",old:"oʊld|a",beautiful:"ˈbjutəfəl|a|0",sunny:"ˈsʌni|a|0",tram:"træm|n",
@@ -488,9 +488,11 @@ function mangleIpa(ipa, sound, bad) {
 function MP(w1, i1, w2, i2, level, ph1, ph2, artic, ex1, ex2) {
   const id = "mp_" + String(++_mp).padStart(3, "0");
   const k = idxOf(id);
+  // {слово} в примере — только для автора: ученику фигурные скобки не показываем (и TTS их не читает)
+  const c1 = ex1.replace(/[{}]/g, ""), c2 = ex2.replace(/[{}]/g, "");
   const examples = [
-    { text: ex1, parts: partsOf(ex1), connected: "" },
-    { text: ex2, parts: partsOf(ex2), connected: "" },
+    { text: c1, parts: partsOf(c1), connected: "" },
+    { text: c2, parts: partsOf(c2), connected: "" },
   ];
 
   // Транскрипционные дистракторы: чужая IPA + два искажения с РАЗНЫми звуками —
