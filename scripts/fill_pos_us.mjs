@@ -128,6 +128,10 @@ export function buildLexicon({ words, author, labels, lower, closed }, oewn, opt
       if (!rec) continue;
       for (const t of 'nvad') if (allowed.includes(t) && rec[t]) bump(t, k * Math.min(rec[t], 20));
     }
+    // Прочтение с 3+ значениями в WordNet не вычёркивается, даже если ручная разметка курса подняла другое
+    // (show: сущ. 3 значения, глаг. 12 + ручные метки — сущ. остаётся: the show); редкие (to dog, to bread) — да.
+    // Кроме прилагательного у причастий: made, paid — глаголы (Experts made bold predictions)
+    const wn = { ...score };
     // Ручная разметка курса: подтверждает часть речи, но не перевешивает WordNet (многие ручные метки — из
     // контекстно-свободных лексиконов content_*.js)
     if (!opt.noAuthor) for (const [t, cnt] of Object.entries(author.get(w) || {})) if ('nvad'.includes(t)) bump(t, Math.min(10 * cnt, 30));
@@ -136,7 +140,7 @@ export function buildLexicon({ words, author, labels, lower, closed }, oewn, opt
     const label = [...(labels.get(w) || '')].filter((t) => 'nvad'.includes(t));
     label.forEach((t, k) => bump(t, 1000 - k));
     if (!base && !label.length) { if (lower.has(w)) unknown.push(w); continue; }
-    const tags = Object.keys(score).filter((t) => label.includes(t) || score[t] >= 0.08 * base)
+    const tags = Object.keys(score).filter((t) => label.includes(t) || score[t] >= 0.08 * base || (wn[t] >= 3 && t !== 'a'))
       .sort((a, b) => score[b] - score[a] || ORDER.indexOf(a) - ORDER.indexOf(b)).slice(0, 3).join('');
     lex.set(w, tags);
   }
