@@ -23,6 +23,7 @@ import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadCards, cardDiff, GROUP_VERSION } from './er-cards.mjs';
+import { resolveBase as resolveBaseOf } from './er-git.mjs';
 
 // ER_ROOT — проверить другую рабочую копию (git worktree) теми же скриптами
 const ROOT = process.env.ER_ROOT ? path.resolve(process.env.ER_ROOT) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -264,14 +265,7 @@ export function format(R, ctx) {
 
 /* ───────────── сбор данных из git ───────────── */
 
-function resolveBase(ref) {
-  if (ref) return ref;
-  for (const r of ['origin/main', 'main']) {
-    const mb = git(['merge-base', 'HEAD', r]);
-    if (mb) return mb.trim();
-  }
-  return 'main';
-}
+const resolveBase = (ref) => resolveBaseOf(ROOT, ref);
 
 function collectContext(baseRef) {
   const base = resolveBase(baseRef);

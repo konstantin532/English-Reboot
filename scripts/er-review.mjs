@@ -17,6 +17,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadCards, cardDiff, stripParts, body } from './er-cards.mjs';
+import { resolveBase } from './er-git.mjs';
 
 const ROOT = process.env.ER_ROOT ? path.resolve(process.env.ER_ROOT) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = process.env.ER_OUT_REVIEW || '/tmp/er/review';
@@ -146,7 +147,7 @@ function main() {
   const argv = process.argv.slice(2);
   const bi = argv.indexOf('--base');
   let base = bi >= 0 ? argv[bi + 1] : null;
-  if (!base) for (const r of ['origin/main', 'main']) { const mb = git(['merge-base', 'HEAD', r]).trim(); if (mb) { base = mb; break; } }
+  base = resolveBase(ROOT, base);   // PR поверх другого PR — его ветка-основа, иначе origin/main
   fs.mkdirSync(OUT, { recursive: true });
   const full = git(['diff', base]);
   const cd = codeDiff(full);
