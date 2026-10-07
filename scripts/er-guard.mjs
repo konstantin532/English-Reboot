@@ -161,8 +161,9 @@ export function check(ctx) {
 
   // «Не покупать зелёные тесты»
   for (const l of addIn(/^tests\//)) {
-    if (/\b(it|test|describe)\.(skip|only|fixme|todo)\s*\(|\btest\.fail\s*\(|\bxit\s*\(/.test(l.text)) bad(5, `${l.f}:${l.line} skip/only/fixme в тестах`);
-    if (/\btest\.(setTimeout|slow)\s*\(|\bretries\s*:/.test(l.text)) look(5, `${l.f}:${l.line} таймаут/повторы в тесте — не «покупка» ли зелёного?`);
+    // Только вызовы в начале строки — строки-примеры внутри тестов сторожа не в счёт
+    if (/^\s*((it|test|describe)\.(skip|only|fixme|todo)|test\.fail|xit|xdescribe)\s*\(/.test(l.text)) bad(5, `${l.f}:${l.line} skip/only/fixme в тестах`);
+    if (/^\s*(test\.(setTimeout|slow)\s*\(|retries\s*:)/.test(l.text)) look(5, `${l.f}:${l.line} таймаут/повторы в тесте — не «покупка» ли зелёного?`);
   }
   for (const cfg of ['playwright.config.js', 'vitest.config.js']) {
     for (const l of added[cfg] || []) if (/retries|timeout|testIgnore|exclude|grepInvert/.test(l.text)) bad(5, `${cfg}:${l.line} меняются retries/таймауты/исключения: ${l.text.trim()}`);
@@ -207,7 +208,7 @@ export function check(ctx) {
 
   // Правило 9 и авторское право
   for (const [f, ls] of Object.entries(added)) {
-    if (/^(docs|scripts\/er-)/.test(f)) continue;
+    if (/^(docs\/|scripts\/er-|tests\/er_tools\.test\.js$)/.test(f)) continue; // сам сторож и его примеры
     for (const l of ls) {
       if (/englishbad/i.test(l.text)) bad(9, `${f}:${l.line} название englishbad`);
       if (/\d\d:\d\d:\d\d[,.]\d{3}\s*-->/.test(l.text)) bad('©', `${f}:${l.line} похоже на субтитры (таймкод SRT/VTT) — чужие тексты в репозиторий нельзя`);
