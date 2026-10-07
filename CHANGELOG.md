@@ -235,11 +235,14 @@
   have, had, is, was — всегда «вспомогательный» (серый), to — всегда частица, work — всегда глагол. Теперь это
   подсказка, а решает контекст: «I **have** an idea», «We **had** a long chat» — глагол (красный), «I look forward
   **to** your reply» — предлог, «this kind of **work**» — существительное. Пословная ручная разметка грамматики
-  не меняется. Изменилась часть речи у 884 слов в примерах.
-- **Ударный слог у слов с ручной IPA без знака ударения** (today, family, money, prediction, advice — 629 слов):
+  не меняется. Изменилась часть речи у 945 слов в примерах.
+- **Ударный слог у слов с ручной IPA без знака ударения** (today, family, money, prediction, advice — 564 слова):
   слог берётся из словаря `lex_us.js`, иначе по номеру слога из лексикона.
 - **Minimal Pairs**: в 41 карточке пример показывался со служебными скобками — «The {ship} is in the harbor.»
-- IPA с неверным ударением: engineer /ˌɛndʒəˈnɪr/, yourself /jɔrˈsɛlf/, sometimes /ˈsʌmtaɪmz/; британское
+  Британское и неестественное заменено: «Canned tin tomatoes» (tin = банка) → «The old toy is made of tin»,
+  «moved house», «collect your keys at reception», «Speak low — the baby sleeps»; в чтении «В отеле» — Mr.
+  и ocean view; «terrible strong coffee» → «really strong coffee».
+- IPA с неверным ударением: engineer /ˌɛndʒəˈnɪr/, yourself /jɔrˈsɛlf/, sometimes /ˈsʌmtaɪmz/, progress (сущ.) /ˈprɑɡrɛs/; британское
   flatmate → roommate.
 
 - Опечатка в счётчике вопросов карточки: «Ответлено» → «Отвечено».
