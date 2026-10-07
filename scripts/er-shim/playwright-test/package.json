@@ -1,0 +1,8 @@
+{
+  "name": "@playwright/test",
+  "version": "0.0.0-er-shim",
+  "private": true,
+  "description": "Шим @playwright/test → playwright из /opt/npm-tools (scripts/er-test-env.sh)",
+  "main": "index.js",
+  "exports": { ".": { "import": "./index.mjs", "require": "./index.js" } }
+}

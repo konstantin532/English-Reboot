@@ -1,0 +1,9 @@
+{
+  "name": "vitest",
+  "version": "0.0.0-er-shim",
+  "private": true,
+  "description": "Шим vitest на node:test для облачной сессии без реестра npm (scripts/er-test-env.sh)",
+  "type": "module",
+  "exports": { ".": "./index.js", "./config": "./config.js" },
+  "bin": { "vitest": "bin.js" }
+}
