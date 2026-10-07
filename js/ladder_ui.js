@@ -230,18 +230,20 @@ const LadderUI = (() => {
     st.wordParts = map;
     return map;
   }
+  // IPA — из примеров курса или LEX_US; часть речи (по соседям в этой фразе), ударный слог и немые буквы — word_marks.js
   function partsFor(text) {
     const idx = wordIndex();
     const lex = window.LEX_US || {};
-    return String(text).split(/\s+/).filter(Boolean).map((tok) => {
+    const parts = String(text).split(/\s+/).filter(Boolean).map((tok) => {
       const b = bareOf(tok);
       const known = idx.get(b);
-      if (known) return { ...known, word: tok };
+      if (known) return window.WordMarks ? { word: tok, ipa: known.ipa } : { ...known, word: tok };
       const rec = lex[b] || lex[b.replace(/'s$/, '')];
       if (!rec) return { word: tok };
       const [ipa, stress] = rec.split('|');
       return stress !== undefined ? { word: tok, ipa: '/' + ipa + '/', stress: Number(stress) } : { word: tok, ipa: '/' + ipa + '/' };
     });
+    return window.WordMarks ? WordMarks.markParts(parts) : parts;
   }
 
   function phraseHtml(text) {

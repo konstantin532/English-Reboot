@@ -152,10 +152,17 @@ const Annotate = (() => {
     const surpriseSet = new Set(p.surprise || []);
     surpriseSet.forEach((i) => silentSet.delete(i)); // surprise > silent
 
-    // Внутренность word-text: слоги (для stress) × посимвольные обёртки
+    // Внутренность word-text: ударный слог × посимвольные обёртки. stressAt — точные буквы ударного слога
+    // (word_marks.js, по IPA); stress — номер слога эвристической разбивки (старая ручная разметка)
     let inner;
-    const syl = (p.stress !== undefined && p.stress !== null) ? splitSyllables(word) : null;
-    if (syl) {
+    const at = Array.isArray(p.stressAt) && p.stressAt[1] > p.stressAt[0] && p.stressAt[1] <= word.length ? p.stressAt : null;
+    const syl = !at && (p.stress !== undefined && p.stress !== null) ? splitSyllables(word) : null;
+    if (at) {
+      const [a, b] = at;
+      inner = wrapChars(word.slice(0, a), 0, silentSet, surpriseSet) +
+        `<span class="stress">${wrapChars(word.slice(a, b), a, silentSet, surpriseSet)}</span>` +
+        wrapChars(word.slice(b), b, silentSet, surpriseSet);
+    } else if (syl) {
       inner = syl.map((seg, si) => {
         const chunk = wrapChars(seg.text, seg.start, silentSet, surpriseSet);
         return si === Number(p.stress)
