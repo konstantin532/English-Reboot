@@ -748,10 +748,28 @@
     return { q: text, options, correct: p };
   }
 
-  // Разметка слов — общая partsOf (части речи, немые буквы); IPA остальным допишет lex_us.js
+  // Разметка слов — общая partsOf (части речи, немые буквы); IPA остальным допишет lex_us.js,
+  // часть речи, ударный слог и немые буквы — word_marks.js
   /* global partsOf */
   const parts = (text) => (typeof partsOf === 'function' ? partsOf(text)
     : String(text).split(/\s+/).filter(Boolean).map((w) => ({ word: w })));
+  // Целевое слово примера ({water}) получает часть речи из поля pos карточки — подсказка для word_marks.js
+  const POS_HINT = { 'сущ.': 'noun', 'глаг.': 'verb', 'прил.': 'adj', 'нареч.': 'adv', 'предл.': 'prep', 'местоим.': 'pron',
+    'союз': 'conj', 'числ.': 'num', 'частица': 'part', 'фраз. глаг.': 'verb' };
+  function exampleParts(raw, pos) {
+    const ps = parts(clean(raw));
+    const m = String(raw).match(/\{([^}]+)\}/);
+    if (!m) return ps;
+    const at = clean(String(raw).slice(0, m.index)).split(/\s+/).filter(Boolean).length;
+    const len = m[1].split(/\s+/).filter(Boolean).length;
+    const hint = String(pos).split(/,\s*/).map((x) => POS_HINT[x.trim()]).filter(Boolean);
+    const target = ps[at];
+    if (!target || target.pos || !hint.length) return ps;
+    // Фразовый глагол (come over): глагол — первое слово, частицу решит словарь; иначе — только однословная цель
+    if (pos === 'фраз. глаг.') target.posHint = 'verb';
+    else if (len === 1) target.posHint = hint.join(',');
+    return ps;
+  }
 
   // Регистр вариантов в «вставь слово» — как у правильного ответа, иначе заглавная буква
   // подсказывает ответ (в начале предложения — с заглавной, в середине — со строчной).
@@ -797,7 +815,7 @@
         translation: it.ru,
         pos: it.pos,
         category: it.topic,
-        examples: it.ex.map((e) => ({ text: clean(e.raw), ru: e.ru, parts: parts(clean(e.raw)), connected: '' })),
+        examples: it.ex.map((e) => ({ text: clean(e.raw), ru: e.ru, parts: exampleParts(e.raw, it.pos), connected: '' })),
         test: tests,
       },
     };
