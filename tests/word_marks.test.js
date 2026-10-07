@@ -194,6 +194,12 @@ describe('Части речи — по словарю и соседним сло
     expect(tag("I'm sorry.").sorry).toBe('adj');
     expect(tag("Go knock 'em dead!")).toMatchObject({ knock: 'verb', dead: 'adj' });
     expect(tag('I called, but no one answered.').no).toBe('det');
+    expect(tag('Listen and repeat: this, that, mother.')).toMatchObject({ repeat: 'verb', that: 'pron', mother: 'noun' });
+    expect(tag('Yes — the X2 removes that fear completely.')).toMatchObject({ x: 'noun', removes: 'verb', that: 'det', fear: 'noun' });
+    expect(tag('For everyone in between, this is it.').between).toBe('adv');
+    expect(tag('We are in between jobs.').between).toBe('prep');
+    expect(tag("Wear a hat, it's freezing out there.").freezing).toBe('adj');
+    expect(tag('Let me get this one.').this).toBe('det');
   });
   it('в примерах карточки фразового глагола его частица — наречие (stand by you, stood by his friend)', () => {
     const all = [...ctx.PHRASAL_CARDS, ...Object.values(ctx.PRO_CONTENT).flat()];

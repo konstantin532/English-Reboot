@@ -290,7 +290,8 @@ const WordMarks = (() => {
   Object.assign(CTX, { been: 'BEEN', do: 'DO', does: 'DO', did: 'DO', have: 'HAVE', has: 'HAVE', had: 'HAVE', to: 'TO',
     that: 'THAT', this: 'DEM', these: 'DEM', those: 'DEM', no: 'NO', much: 'MUCH', like: 'LIKE', since: 'SINCE', as: 'AS',
     when: 'WHEN', over: 'OVER', around: 'OVER', outside: 'OVER', inside: 'OVER', behind: 'OVER', above: 'OVER', below: 'OVER',
-    across: 'OVER', through: 'OVER', along: 'OVER', near: 'OVER', underneath: 'OVER', one: 'ONE', after: 'AFTER', before: 'AFTER', right: 'RIGHT', past: 'PAST',
+    across: 'OVER', through: 'OVER', along: 'OVER', near: 'OVER', underneath: 'OVER', between: 'OVER', beyond: 'OVER',
+    beneath: 'OVER', one: 'ONE', after: 'AFTER', before: 'AFTER', right: 'RIGHT', past: 'PAST',
     okay: 'OKAY', ok: 'OKAY', may: 'MAY', well: 'WELL', other: 'OTHER', second: 'ORD', first: 'ORD' });
 
   const SUBJ = new Set(['i', 'you', 'we', 'they', 'he', 'she', 'it', 'who', 'people', 'everyone', 'everybody', 'nobody',
@@ -443,12 +444,13 @@ const WordMarks = (() => {
       if (/'s$/.test(b) && CLOSED[b.slice(0, -2)] === 'pron') { t.poss = false; t.beContr = true; t.cand = ['pron']; return t; }   // Everything's, nobody's (но today's — притяжательное)
       const soft = p.posSoft || null;
       const done = (cand) => { t.lex0 = cand[0]; t.cand = soft ? [soft, ...cand.filter((x) => x !== soft)] : cand; return t; };
+      if (/[0-9]/.test(word)) return done(['noun']);   // x2, B1, Q1, MP3 — название, модель, уровень
       const lx = lexTags(b) || (t.poss ? lexTags(b.replace(/'s$|'$/, '')) : null);
       if (!lx && /in'$/i.test(word.replace(/[^A-Za-z']+$/, ''))) return done(['verb']);   // comin', doin'
       // Имена, названия, дни и месяцы посреди предложения: Maggie, Brooklyn, Monday; English/Japanese — прил. или сущ.
       if (t.cap && !t.start) return done(lx && lx.includes('adj') ? ['noun', 'adj'] : ['noun']);
       const cand = lx || (t.cap ? ['noun'] : guessTags(b, word));
-      return done(/:$/.test(word) && cand.includes('noun') ? ['noun'] : cand);   // Email: …, Note: …
+      return done(/:$/.test(word) && t.start && cand.includes('noun') ? ['noun'] : cand);   // Email: …, Note: … (но Listen and repeat: — глагол)
     });
     const sentEnd = new Array(n).fill('');
     // Знак конца предложения для каждого слова; на границе (в т. ч. после тире) — сброс: Do it now — are you ready?
@@ -649,12 +651,16 @@ const WordMarks = (() => {
           // …что + подлежащее + сказуемое: It's clear that we…, The point is that Maggie…
           const nn = nx && next(nx.i);
           if (p && (tagOf(p) === 'verb' || tagOf(p) === 'adj' || tagOf(p) === 'noun') && nx && SUBJ.has(nx.b) && !OBJ.has(nx.b) && nn && (nn.ctx === 'BE' || nn.ctx === 'HAVE' || nn.ctx === 'DO' || has(nn, 'verb') || has(nn, 'modal') || has(nn, 'aux'))) return 'conj';
+          if (/[,;:.!?]$/.test(t.word)) return 'pron';
+          if (nx && nx.ctx === 'ONE' && !nx.start) return 'det';
           if (nx && startsNP(nx) && !isDetLike(nx) && !SUBJ.has(nx.b)) return 'det';
           return 'pron';
         }
         case 'OTHER':
           return nx && !nx.start && (has(nx, 'noun') || has(nx, 'adj')) && !nx.ctx ? 'adj' : 'pron';
         case 'DEM':
+          if (/[,;:.!?]$/.test(t.word)) return 'pron';                                              // this, that, mother
+          if (nx && nx.ctx === 'ONE' && !nx.start) return 'det';                                   // this one, that one
           return nx && startsNP(nx) && !isDetLike(nx) && !SUBJ.has(nx.b) && !nx.start ? 'det' : 'pron';
         case 'NO':
           return nx && !nx.start && (has(nx, 'noun') || has(nx, 'adj') || has(nx, 'num') || nx.ctx === 'ONE') && !only(nx, 'adv') ? 'det' : 'adv';
@@ -679,6 +685,7 @@ const WordMarks = (() => {
           return t.start ? (sentEnd[i] === '?' ? 'adv' : 'conj') : (p && /^(know|ask|asked|tell|wonder|sure|idea|remember|decide)$/.test(p.b) ? 'adv' : 'conj');
         }
         case 'OVER':
+          if (/^(between|beyond|beneath)$/.test(t.b)) return !nx || nx.start || /[,;:.!?]$/.test(t.word) ? 'adv' : 'prep';   // in between, — нар.
           return nx && !nx.start && (isDetLike(nx) || only(nx, 'noun') || OBJ.has(nx.b) || has(nx, 'num')) ? 'prep' : 'adv';
         case 'ONE':
           return p && (['this', 'that', 'the', 'which', 'every', 'each', 'another', 'no', 'any', 'other', 'last', 'next', 'only'].includes(p.b) || tagOf(p) === 'adj') ? 'pron' : 'num';
@@ -751,17 +758,19 @@ const WordMarks = (() => {
           while (before && tagOf(before) === 'adv' && PARTICLES.has(before.b)) before = prev(before.i);   // stand up too fast
           if (before && tagOf(before) === 'verb' && !BE_FORMS.has(before.b) && !LINKING.has(before.b)) return 'adv';   // drives too fast
         }
-        if (ing) return ING_ADJ.has(t.b) && c.includes('adj') ? 'adj' : (c.includes('verb') ? 'verb' : pick('adj', 'noun'));
+        if (ing) return ING_ADJ.has(t.b) ? 'adj' : (c.includes('verb') ? 'verb' : pick('adj', 'noun'));
         if (c.includes('adj') && !(t.b === 'used' && !adjPP(t) && c.includes('verb')) || adjPP(t)) return 'adj';   // I'm fed up; are to be used — глаг.
         if (ed && c.includes('verb')) return 'verb';
         if (nounNext) return pick('adj', 'noun');
         return pick('noun', 'adv', 'verb');
       }
+      // 2b. Оценочное -ing без дополнения: not exciting, but…; so boring — прилагательное
+      if (ING_ADJ.has(t.b) && !(nx && !nx.start && (isDetLike(nx) || OBJ.has(nx.b) || POSS.has(nx.b))) && !(pa && tagOf(pa) === 'aux')) return 'adj';
       // 3. Прилагательное перед существительным (Cold weather, last year, a really good idea)
       if (c.includes('adj') && (nounNext || adjNext) && !(pa && (SUBJ.has(pa.b) || tagOf(pa) === 'modal' || tagOf(pa) === 'part'))) return 'adj';
       // 4. После подлежащего, модального, do/don't, to, let's — глагол (-ing после имени — не сказуемое)
       if (pa && c.includes('verb') && (VERB_AFTER.has(pa.b) || /'(ll|d|ve)$/.test(pa.b) || tagOf(pa) === 'modal' || tagOf(pa) === 'part'
-        || (/^(that|who|which)$/.test(pa.b) && tagOf(pa) === 'pron' && p === pa && !t.start)
+        || (/^(that|who|which)$/.test(pa.b) && tagOf(pa) === 'pron' && p === pa && !t.start && !/[,;:]$/.test(pa.word))
         || (tagOf(pa) === 'aux' && !BE_FORMS.has(pa.b)) || (isName(pa) && !ing && !(p && p.poss)))) {
         if (OBJ.has(pa.b)) return pick('noun', 'adj', 'verb');
         if (pa.b === 'please' && !pa.start) return pick('noun', 'verb');
