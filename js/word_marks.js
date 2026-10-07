@@ -597,6 +597,8 @@ const WordMarks = (() => {
           if (tagOf(q) === 'noun' || tagOf(q) === 'adj' || tagOf(q) === 'pron' && !OBJ.has(q.b)) break;
         }
       }
+      // 8b. Последнее слово после сказуемого с дополнением: I missed your call earlier, she sings well — наречие
+      if (c.includes('adv') && c.includes('adj') && /[.!?]["”»)]*$/.test(t.word) && p && pt !== 'art' && pt !== 'det' && !afterBe(pa)) return 'adv';
       // 9. После глагола: герундий (enjoy reading) — глагол, дополнение — существительное, иначе наречие
       if (p && pt === 'verb') {
         if (ing && c.includes('verb')) return 'verb';
