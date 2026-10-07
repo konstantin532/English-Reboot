@@ -94,6 +94,11 @@ describe('Ударный слог — по знаку ˈ в IPA, слоги ка
     expect(at({ word: 'advice?', ipa: '/ədvaɪs/', stress: 0 })).toBe('vice');
     expect(at({ word: 'prediction', ipa: '/prɪdɪkʃən/', stress: 1 })).toBe('dic');
   });
+  it('e перед n + гласной выпадает (evening /ˈivnɪŋ/), слоговой n остаётся без немой (listen, seven)', () => {
+    expect(marks('evening', 'ˈivnɪŋ')).toEqual({ silent: 'e', stress: 'eve' });
+    expect(marks('seven', 'ˈsɛvn')).toEqual({ silent: '', stress: 'sev' });
+    expect(marks('listen', 'ˈlɪsn').silent).toBe('t');
+  });
   it('буквы с диакритикой: café', () => {
     const p = { word: 'café', ipa: '/kæˈfeɪ/' };
     WM.markWord(p);
@@ -174,6 +179,30 @@ describe('Части речи — по словарю и соседним сло
     const cl = ctx.COLLOCATION_CARDS.flatMap((c) => c.payload.examples).find((e) => /^Wait — I have an idea!/.test(e.text));
     expect(cl.parts.find((p) => p.word === 'have').pos).toBe('verb');
   });
+  it('по замечаниям ревизоров: повелительное do, first, home, what + сущ., вопрос с that, междометия, go + глагол', () => {
+    expect(tag('Do your homework!').do).toBe('verb');
+    expect(tag('Do you like it?').do).toBe('aux');
+    expect(tag('Do you have any questions').do).toBe('aux');
+    expect(tag('Do it now — are you ready?').do).toBe('verb');
+    expect(tag('Could I see the room first?').first).toBe('adv');
+    expect(tag('The first day was fun.').first).toBe('num');
+    expect(tag('I stay home on Sundays.').home).toBe('adv');
+    expect(tag('What time is it?').what).toBe('det');
+    expect(tag('What do you want?').what).toBe('pron');
+    expect(tag('Is that okay now?').okay).toBe('adj');
+    expect(tag('Sorry, I was on mute.').sorry).toBe('adv');
+    expect(tag("I'm sorry.").sorry).toBe('adj');
+    expect(tag("Go knock 'em dead!")).toMatchObject({ knock: 'verb', dead: 'adj' });
+    expect(tag('I called, but no one answered.').no).toBe('det');
+  });
+  it('в примерах карточки фразового глагола его частица — наречие (stand by you, stood by his friend)', () => {
+    const all = [...ctx.PHRASAL_CARDS, ...Object.values(ctx.PRO_CONTENT).flat()];
+    const card = all.find((c) => c.payload && c.payload.front === 'stand by');
+    expect(card).toBeTruthy();
+    const bys = card.payload.examples.flatMap((e) => e.parts.filter((p) => WM.bareOf(p.word) === 'by'));
+    expect(bys.length).toBeGreaterThan(0);
+    expect(bys.map((p) => p.pos)).toEqual(bys.map(() => 'adv'));
+  });
   it('вопросы, имена, прилагательные', () => {
     expect(tag('Do you like coffee?')).toMatchObject({ do: 'aux', like: 'verb', coffee: 'noun' });
     expect(tag('I do my homework.').do).toBe('verb');
@@ -219,12 +248,14 @@ describe('Весь курс размечен', () => {
   });
   it('курс размечается перед каждым сидированием в IndexedDB (app.js, gamify.js), а не при каждой загрузке', () => {
     const src = { app: fs.readFileSync('js/app.js', 'utf8'), gamify: fs.readFileSync('js/gamify.js', 'utf8') };
-    for (const [file, fn] of [['app', 'async function seedJobs('], ['app', 'async function checkAndSeedContent('], ['gamify', 'async function seedPro(']]) {
+    for (const [file, fn, call] of [['app', 'async function seedJobs(', 'await markCourseOnce()'], ['app', 'async function checkAndSeedContent(', 'await markCourseOnce()'],
+      ['gamify', 'async function seedPro(', 'WordMarks.markCourse()']]) {
       const s = src[file], i = s.indexOf(fn), body = s.slice(i, s.indexOf('\n  }\n', i));
       expect(i, fn).toBeGreaterThan(-1);
-      expect(body.indexOf('WordMarks.markCourse()'), fn).toBeGreaterThan(-1);
-      expect(body.indexOf('WordMarks.markCourse()'), fn).toBeLessThan(body.indexOf('seedContent('));
+      expect(body.indexOf(call), fn).toBeGreaterThan(-1);
+      expect(body.indexOf(call), fn).toBeLessThan(body.indexOf('seedContent('));
     }
+    expect(src.app).toMatch(/async function markCourseOnce\(\) \{[\s\S]*?setTimeout[\s\S]*?try \{ WordMarks\.markCourse\(\); \} catch/);
     const c2 = { console: { log() {}, warn() {}, error() {} } };
     c2.window = c2;
     vm.createContext(c2);

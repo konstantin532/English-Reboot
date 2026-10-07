@@ -135,6 +135,7 @@ const RU_SHORT = { noun: 'сущ', verb: 'глаг', adj: 'прил', adv: 'на
 export function markedLine(parts) {
   return (parts || []).map((p) => {
     const w = String(p.word || '');
+    if (!/[A-Za-z0-9]/.test(w)) return w;   // тире, многоточие — не слова, ученику не размечаются
     const silent = new Set(p.silent || []);
     const at = Array.isArray(p.stressAt) ? p.stressAt : null;
     let s = '';

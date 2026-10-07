@@ -608,7 +608,11 @@ const Gamify = (() => {
     if (meta.success && meta.data && meta.data.value === PRO_VERSION) { buildPatternMap(); return; }
 
     ER.toast('Загрузка PRO-контента B2 (~120 карточек)…');
-    if (window.WordMarks) WordMarks.markCourse();   // разметка слов — один раз перед записью в IndexedDB
+    // Разметка слов — один раз перед записью в IndexedDB; сначала даём отрисоваться тосту, ошибка не мешает записи
+    if (window.WordMarks) {
+      await new Promise((r) => setTimeout(r, 0));
+      try { WordMarks.markCourse(); } catch (e) { console.warn('[ER] разметка слов не удалась:', e); }
+    }
     const jobs = [
       ['grammar_cards', P.grammar], ['phrasal_verbs', P.phrasal], ['collocations', P.colloc],
       ['idioms', P.idioms], ['minimal_pairs', P.minimal], ['readings', P.readings],

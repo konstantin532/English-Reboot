@@ -314,7 +314,7 @@ describe('er-review: каждому ревизору — свой срез', () 
   });
   it('разметка слов педагогу строкой: ЗАГЛАВНЫЕ — ударный слог, (буква) — немая, после / — часть речи', () => {
     expect(markedLine([{ word: 'Listen', pos: 'verb', stressAt: [0, 3], silent: [3] }, { word: 'up!', pos: 'adv' }, { word: '—' }]))
-      .toBe('LIS(t)en/глаг up!/нар —/?');
+      .toBe('LIS(t)en/глаг up!/нар —');
   });
   it('выборка разметки: сначала новые карточки, затем (если менялся движок) — случайно по курсу, без повторов', () => {
     const card = (id, words) => [id, { group: 'words', card: { id, payload: { examples: [{ text: words, parts: words.split(' ').map((w) => ({ word: w, pos: 'noun' })) }] } } }];

@@ -416,9 +416,17 @@
 
   /* ---------- Сидирование ---------- */
 
+  // Разметка слов (часть речи, ударение, немые буквы) — один раз перед записью карточек. Сначала даём отрисоваться
+  // окну загрузки (иначе экран замирает без индикатора); ошибка разметки не мешает записи карточек.
+  async function markCourseOnce() {
+    if (!window.WordMarks) return;
+    await new Promise((r) => setTimeout(r, 0));
+    try { WordMarks.markCourse(); } catch (e) { console.warn('[ER] разметка слов не удалась:', e); }
+  }
+
   async function seedJobs(jobs, metaKey, version) {
     showSeedProgress();
-    if (window.WordMarks) WordMarks.markCourse();   // части речи, ударение, немые буквы — один раз перед записью
+    await markCourseOnce();
     let okAll = true;
     for (const [label, arr, store] of jobs) {
       updateSeedProgress(0, arr.length, 'Загрузка: ' + label);
@@ -440,7 +448,7 @@
     const current = meta.success && meta.data ? Number(meta.data.value) : 0;
     if (current >= CONTENT_VERSION) return;
     showSeedProgress();
-    if (window.WordMarks) WordMarks.markCourse();
+    await markCourseOnce();
     updateSeedProgress(0, GRAMMAR_CARDS.length, 'Загрузка грамматики…');
     const res = await DB.seedContent(GRAMMAR_CARDS, 'grammar_cards', (d, t) => updateSeedProgress(d, t, 'Загрузка грамматики…'));
     if (res.success) {
