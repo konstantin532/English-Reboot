@@ -329,6 +329,8 @@ describe('er-review: каждому ревизору — свой срез', () 
     const m = (ipa) => new Map([['x', { group: 'words', card: { payload: { examples: [{ parts: [{ word: 'Engineer.', ipa }] }] } } }]]);
     expect(ipaChanges(m('/ˈɛndʒənɪr/'), m('/ˌɛndʒəˈnɪr/'))).toEqual(['engineer: /ˈɛndʒənɪr/ → /ˌɛndʒəˈnɪr/']);
     expect(ipaChanges(m('/a/'), m('/a/'))).toEqual([]);
+    const two = (i1, i2) => new Map([['x', { group: 'words', card: { payload: { examples: [{ parts: [{ word: 'progress', ipa: i1 }] }, { parts: [{ word: 'progress', ipa: i2 }] }] } } }]]);
+    expect(ipaChanges(two('/proʊˈɡrɛs/', '/ˈprɑɡrɛs/'), two('/ˈprɑɡrɛs/', '/ˈprɑɡrɛs/'))).toEqual(['progress: /proʊˈɡrɛs/ → везде /ˈprɑɡrɛs/']);
   });
 });
 

@@ -183,18 +183,28 @@ export function marksSample(cards, ids, { random = false, seed = 20261007, max =
 
 /** Слова, у которых IPA в примерах стала другой: педагог видит только текст, а IPA в разметке — его зона */
 export function ipaChanges(before, after) {
+  // Слово → все его IPA в примерах курса (у одного слова в разных лексиконах бывает разная — progress /ˈprɑɡrɛs/ и /proʊˈɡrɛs/)
+  const bare = (x) => String(x).replace(/^\/|\/$/g, '');
   const ipaOf = (cards) => {
     const m = new Map();
     for (const x of cards.values()) for (const parts of partsOf(body(x.card))) for (const p of parts) {
       const w = String(p.word || '').toLowerCase().replace(/[^a-z'-]/g, '');
-      if (w && p.ipa && !m.has(w)) m.set(w, String(p.ipa));
+      if (!w || !p.ipa) continue;
+      if (!m.has(w)) m.set(w, new Set());
+      m.get(w).add(bare(p.ipa));
     }
     return m;
   };
   const a = ipaOf(before), b = ipaOf(after);
   const out = [];
-  const bare = (x) => x.replace(/^\/|\/$/g, '');
-  for (const [w, ipa] of b) if (a.has(w) && a.get(w) !== ipa) out.push(`${w}: /${bare(a.get(w))}/ → /${bare(ipa)}/`);
+  const fmt = (set) => [...set].sort().map((x) => `/${x}/`).join(', ');
+  for (const [w, set] of b) {
+    if (!a.has(w)) continue;
+    const old = a.get(w);
+    if (fmt(old) === fmt(set)) continue;
+    const gone = [...old].filter((x) => !set.has(x)), added = [...set].filter((x) => !old.has(x));
+    out.push(`${w}: ${fmt(gone) || '—'} → ${added.length ? fmt(added) : 'везде ' + fmt(set)}`);
+  }
   return out.sort();
 }
 
