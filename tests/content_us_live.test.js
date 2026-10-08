@@ -46,11 +46,27 @@ describe('Первый месяц: полная форма живых сокра
     }
   });
 
-  it('can / can\'t: в пропуске варианты can, can\'t, do, don\'t', () => {
+  it('can / can\'t: в утверждении варианты can, can\'t, do, don\'t; в вопросе Can…? — невозможные в рамке are, does', () => {
     const cards = cv.filter((c) => c.payload.category === 'Первый месяц: могу и не могу' && fill(c)
       && ['can', "can't"].includes(fill(c).options[fill(c).correct].toLowerCase()));
     expect(cards.length).toBeGreaterThan(5);
-    for (const c of cards) expect(fill(c).options.map((o) => o.toLowerCase()).sort(), c.id).toEqual(["can", "can't", 'do', "don't"]);
+    for (const c of cards) {
+      const q = /^can\b/i.test(c.payload.front) && /\?$/.test(c.payload.front);
+      expect(fill(c).options.map((o) => o.toLowerCase()).sort(), c.id).toEqual(q ? ['are', 'can', "can't", 'does'] : ['can', "can't", 'do', "don't"]);
+    }
+  });
+
+  it('Gotta run: в начале фразы без gonna / wanna (тоже звучат естественно)', () => {
+    const t = fill(byFront('Gotta run'));
+    expect(t.options[t.correct]).toBe('Gotta');
+    expect(t.options.map((o) => o.toLowerCase())).not.toContain('gonna');
+    expect(t.options.map((o) => o.toLowerCase())).not.toContain('wanna');
+  });
+
+  it("неверные варианты, которые подходят по смыслу, исключены (I can't afford it, like tea)", () => {
+    const opts = (f) => byFront(f).payload.test.flatMap((t) => t.options.filter((_, j) => j !== t.correct)).map((o) => o.toLowerCase());
+    expect(opts("It's too expensive").some((o) => o.startsWith("i can't afford it"))).toBe(false);
+    expect(opts('I prefer tea')).not.toContain('like');
   });
 
   it('варианты не теряют дефис (carry-on, а не carryon)', () => {

@@ -357,7 +357,8 @@ const IMPROV_CARDS = [
     samples: ["Yep, that's me!", "Yep, that's me. Thanks!", "Oh! Yep, that's me."] },
   { id: 'a1p-everybody', level: 'A1+', place: 'Квартира', situation: 'Вечеринка у Сэма должна была начаться час назад, а в квартире пусто.', who: 'Sam (phone)', say: 'Hey! Are you at my place?',
     phrases: ["Where's everybody?"],
-    samples: ["Yes! Where's everybody?", "I'm here. Where's everybody?", "It's so quiet. Where's everybody?"] },  /* ---------- Пакет A1+, часть 2: «Первый месяц» — живая речь, вчера, могу и не могу, мнения, как часто ---------- */
+    samples: ["Yes! Where's everybody?", "I'm here. Where's everybody?", "It's so quiet. Where's everybody?"] },
+  /* ---------- Пакет A1+, часть 2: «Первый месяц» — живая речь, вчера, могу и не могу, мнения, как часто ---------- */
   { id: 'a1p-milk-run', level: 'A1+', place: 'Сообщения', situation: 'Мэгги просит купить молоко по дороге домой.', who: 'Maggie (text)', say: 'Can you grab some milk on the way home?',
     phrases: ['Yeah, no problem'],
     samples: ['Yeah, no problem!', 'Yeah, no problem. Anything else?', 'Milk? Yeah, no problem.'] },
