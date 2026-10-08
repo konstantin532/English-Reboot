@@ -125,6 +125,20 @@ describe('Разметка токена: кавычки, сокращения, �
 
 describe('Части речи — по словарю и соседним словам', () => {
   const tag = (s) => { const parts = s.split(/\s+/).map((word) => ({ word })); const t = WM.tagParts(parts); return Object.fromEntries(parts.map((p, i) => [p.word.replace(/[^A-Za-z']/g, '').toLowerCase(), t[i]])); };
+  it("живая речь A1+: 'til, 'bout, fer — предлоги, brr и uh-uh — междометия, а не существительные", () => {
+    expect(tag("Wait 'til Friday.")["'til"]).toBe('prep');
+    expect(tag("Let's talk 'bout it.")["'bout"]).toBe('prep');
+    expect(tag("What's fer dinner?").fer).toBe('prep');
+    expect(tag("Call 'em later.")["'em"]).toBe('pron');
+    expect(tag('Brr, so cold.').brr).toBe('adv');
+    expect(tag('Uh-uh, not this one.').uhuh).toBe('adv');
+  });
+  it('Go wash up! — go глагол; Is the TV plugged in? — страдательный, is вспомогательный', () => {
+    expect(tag("Go wash up, dinner's ready!").go).toBe('verb');
+    expect(tag('Is the TV plugged in?')).toMatchObject({ is: 'aux', plugged: 'verb' });
+    expect(tag('Is the store open?').is).toBe('verb');
+    expect(tag('Is your sister tired?').is).toBe('verb');
+  });
   it('work, call, rain: глагол или существительное по контексту', () => {
     expect(tag('I work from home.').work).toBe('verb');
     expect(tag('I usually walk to work.')).toMatchObject({ to: 'prep', work: 'noun' });

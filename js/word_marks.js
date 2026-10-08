@@ -269,7 +269,7 @@ const WordMarks = (() => {
   T('det', 'some any every each another all both either neither many few several such');
   T('prep', 'in on for of at with from by about into onto between under during across through without within behind ' +
     'beside besides near toward towards against along among above below beneath inside outside upon via per except till until ' +
-    'beyond despite unlike throughout amid underneath alongside aboard versus vs plus minus thru outta');
+    'beyond despite unlike throughout amid underneath alongside aboard versus vs plus minus thru outta til bout fer');
   T('conj', "and but or nor if than because while although though unless whether 'cause cuz whenever wherever");
   T('aux', "don't doesn't didn't haven't hasn't hadn't ain't didja doncha dontcha arencha will won't");
   T('modal', "can could would shall should might must ought cannot can't couldn't wouldn't shouldn't mustn't " +
@@ -282,7 +282,8 @@ const WordMarks = (() => {
     "hello hi hey bye goodbye yeah yes yep yup nope kay 'kay wow oh ah uh um hmm oops ouch huh how why where together " +
     'else even only twice anyway anymore instead forward lotsa lotta kinda sorta up out down off away back more ' +
     'most less least enough ahh aw aww ugh yay yikes whoa nah meh ew phew shh mhm mm ooh hooray congrats anytime however ' +
-    "prolly lol gosh wassup howya whereya whencha whycha how've there's here's where's how's when's lot");
+    "prolly lol gosh wassup howya whereya whencha whycha how've there's here's where's how's when's lot " +
+    'brr uhhuh uhuh mmhmm nuhuh uhoh');   // междометия живой речи (uh-huh → uhhuh после bareOf)
   T('verb', "let's gonna wanna gotta hafta lemme gimme dunno c'mon c'mere betcha gotcha tryna useta supposta needa s'pose");
   // Слова, часть речи которых решает контекст (resolveCtx)
   const CTX = Object.create(null);
@@ -377,7 +378,8 @@ const WordMarks = (() => {
   const RU_POS = { 'сущ.': 'noun', 'глаг.': 'verb', 'прил.': 'adj', 'нареч.': 'adv', 'предл.': 'prep', 'местоим.': 'pron',
     'союз': 'conj', 'числ.': 'num', 'частица': 'part', 'межд.': 'adv', 'фраз. глаг.': 'verb', 'мод.': 'modal', 'артикль': 'art' };
 
-  const bareOf = (w) => String(w || '').toLowerCase().replace(/[^a-z']/g, '').replace(/^'+(?!(em|cause|kay)$)|'+$/g, '');
+  const bareOf = (w) => String(w || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z']/g, '')   // café → cafe
+    .replace(/^'+(?!(em|cause|kay)$)|'+$/g, '');
   const lex = () => (typeof window !== 'undefined' && window.POS_US) || (typeof globalThis !== 'undefined' && globalThis.POS_US) || {};
   const extraLex = new Map();   // целевые слова карточек «Слов» с их частью речи (для словоформ в других примерах)
 
@@ -604,6 +606,11 @@ const WordMarks = (() => {
         case 'BE': {    // страдательный залог (is spoken, was built) — aux; иначе — глагол-связка (author)
           const nb = na && next(na.i);
           if (na && nb && nb.b === 'by' && (isParticiple(na) || IRREG_PP.has(na.b)) && !adjPP(na)) return 'aux';   // was torn apart by
+          if (t.start && sentEnd[i] === '?') {   // Is the TV plugged in? Was your bag stolen? — подлежащее между be и причастием
+            let x = na;
+            for (let k = 0; x && k < 4 && (isDetLike(x) || POSS.has(x.b) || OBJ.has(x.b) || SUBJ.has(x.b) || (has(x, 'noun') && !isParticiple(x))); k++) x = next(x.i);
+            if (x && x !== na && isParticiple(x) && !adjPP(x)) return 'aux';
+          }
           return na && isParticiple(na) && !adjPP(na) && !(has(na, 'adj') && !/ed$/.test(na.b) && !IRREG_PP.has(na.b)) ? 'aux' : 'verb';
         }
         case 'BEEN':    // have you been vaccinated — страдательный (aux), have been working / been late — глагол
@@ -793,6 +800,7 @@ const WordMarks = (() => {
         if (nx && nx.b === 'to' && t.b === 'time') return 'noun';                                      // Time to go
         if (/,$/.test(t.word) && t.start && c.includes('adj')) return 'adj';                            // Perfect, thank you.
         if (nx && /^\d/.test(nx.word) && c.includes('noun') && (!next(nx.i) || /[,.;:!?]$/.test(nx.word))) return 'noun';   // Seat 21A, …
+        if ((t.b === 'go' || t.b === 'come') && nx && !nx.start && only(nx, 'verb') && isBase(nx)) return 'verb';   // Go wash up! Come see this
         const predicateNext = nx && (nx.ctx === 'BE' || nx.ctx === 'HAVE' || has(nx, 'aux') || has(nx, 'modal') || (only(nx, 'verb') && !/ing$/.test(nx.b))
           || (has(nx, 'verb') && (/[^s]s$/.test(nx.b) || /ed$/.test(nx.b)) && !isDetLike(nx)));
         const ofNext = nx && nx.b === 'of';                                                             // Rent of 850 EUR…
