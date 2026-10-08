@@ -8,7 +8,7 @@ import { summarizeRuns, slugFromUrl, vitestTotal, countLine, ciVerdict, annotati
 import { formatUnit, formatE2e, jobLimitMin, jobStatus } from '../scripts/er.mjs';
 import { codeDiff, isDataHunk, collapseData, similarity, cardText, markedLine, marksSample, ipaChanges, dictStats, dictNote, codePrompt, pedagoguePrompt } from '../scripts/er-review.mjs';
 import { cardDiff, stripParts } from '../scripts/er-cards.mjs';
-import { nextIdsOf } from '../scripts/er-brief.mjs';
+import { nextIdsOf, retiredIds } from '../scripts/er-brief.mjs';
 
 /* Скрипты скилла english-reboot-evolve: модель верит их сводкам вместо логов, поэтому разбор и
    решения «красное/зелёное» стерегутся тестами. */
@@ -358,6 +358,12 @@ describe('er-cards: что изменилось в карточках', () => {
 describe('er-brief: следующие номера карточек', () => {
   it('для каждого префикса — максимум + 1 с той же шириной', () => {
     expect(nextIdsOf(['wd_0001', 'wd_0550', 'pv_208', 'pv_238', 'g067', 'cafe-order'])).toEqual(['g068', 'pv_239', 'wd_0551']);
+  });
+  it('номер, убранный миграцией (дубль), занят навсегда — его не выдаём снова', () => {
+    // sl_071 убран как дубль (content_migrate MERGE): новая карточка на нём исчезла бы при сборке
+    expect(nextIdsOf(['sl_069', 'sl_070'], ['sl_071', 'cv_029'])).toEqual(['sl_072']);
+    expect(nextIdsOf(new Map([['sl_070', 1], ['wd_0550', 1]]).keys(), ['sl_071'])).toEqual(['sl_072', 'wd_0551']);
+    expect(retiredIds()).toContain('sl_071');
   });
 });
 

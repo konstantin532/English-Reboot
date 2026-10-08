@@ -216,9 +216,13 @@ function brief(opts) {
 }
 
 /** id карточек → следующий номер для каждого префикса с номером (wd_0551, pv_239, cv_2301…) */
-export function nextIdsOf(ids) {
+export function nextIdsOf(ids, retired = []) {
   const max = new Map();
-  for (const id of ids) {
+  ids = [...ids]; // может прийти итератор (Map.keys()) — читаем один раз
+  const pre0 = new Set(ids.map((id) => (String(id).match(/^([a-z]+_?)\d+$/i) || [])[1]).filter(Boolean));
+  // Номера, убранные миграцией (дубли), заняты навсегда: только для префиксов, что есть в курсе
+  const retiredOwn = retired.filter((id) => pre0.has((String(id).match(/^([a-z]+_?)\d+$/i) || [])[1]));
+  for (const id of [...ids, ...retiredOwn]) {
     const m = String(id).match(/^([a-z]+_?)(\d+)$/i);
     if (!m) continue;
     const [, pre, num] = m;
@@ -227,8 +231,15 @@ export function nextIdsOf(ids) {
   }
   return [...max.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([pre, { n, w }]) => pre + String(n + 1).padStart(w, '0'));
 }
+/** Номера, которые миграция прогресса убрала из курса (content_migrate.js, MERGE.from) — их не переиспользуем */
+export function retiredIds(root = ROOT) {
+  try {
+    const src = fs.readFileSync(path.join(root, 'js', 'content_migrate.js'), 'utf8');
+    return [...src.matchAll(/from:\s*'([^']+)'/g)].map((m) => m[1]);
+  } catch { return []; }
+}
 function nextIds() {
-  try { return nextIdsOf(loadCards(ROOT).cards.keys()).join(' · '); } catch { return ''; }
+  try { return nextIdsOf(loadCards(ROOT).cards.keys(), retiredIds()).join(' · '); } catch { return ''; }
 }
 
 function main() {
