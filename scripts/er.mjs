@@ -7,18 +7,21 @@
  *   node scripts/er.mjs test [файлы…]   юнит-тесты тихо: одна строка или упавшие тесты с сообщением
  *   node scripts/er.mjs e2e [спеки…]    E2E тихо, только указанные спеки (подстрока имени файла: words, today)
  *   node scripts/er.mjs finish          шаг 7: в фоне здоровье «после», скриншоты «после», сторож, пакет ревизорам
- *   node scripts/er.mjs wait            дождаться фоновой задачи (до ~9 мин; код 3 — ещё идёт, вызвать снова)
+ *   node scripts/er.mjs wait            дождаться фоновой задачи (до ~9 мин за вызов; код 3 — ещё идёт, вызвать снова;
+ *                                       код 4 — идёт дольше предела от эталона, зависла; код 2 — прервалась без итога)
  *   node scripts/er.mjs review          пакет ревизорам (er-review.mjs)
+ *   node scripts/er.mjs archive [--keep 30] [--dry]   старые записи журнала EVOLUTION.md — в docs/evolution/archive-<год>.md
  *   node scripts/er.mjs brief|guard|ci|health|shots …   — scripts/er-<имя> с теми же аргументами
  *
- * Код выхода: 0 — зелёное, 1 — красное (упали тесты, нарушения сторожа), 2 — не запустилось, 3 — ещё идёт.
+ * Код выхода: 0 — зелёное, 1 — красное (упали тесты, нарушения сторожа), 2 — не запустилось или прервалось,
+ * 3 — ещё идёт, 4 — не ответило за предел (CI или фоновая задача): не красное и не зелёное, ждать дальше бесполезно.
  * ER_ROOT=<папка> — работать с другой рабочей копией (git worktree) этими же скриптами.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { summarizeVitest, summarizePlaywright } from './er-health.mjs';
+import { summarizeVitest, summarizePlaywright, parseBaseline } from './er-health.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.ER_ROOT ? path.resolve(process.env.ER_ROOT) : path.resolve(HERE, '..');
@@ -75,6 +78,12 @@ function unit(files) {
   const j = readJson(out);
   const s = j ? summarizeVitest(j) : null;
   console.log(formatUnit(s, r.ms, log));
+  // Полный прогон — запомнить число тестов коммита: er ci сверит его с CI (шим, запускающий не всё, виден сразу)
+  if (s && !files.length) {
+    const sha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).stdout.trim();
+    const dirty = !!spawnSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }).stdout.trim();
+    if (!dirty) fs.writeFileSync(path.join(TMP, 'test', 'last-full.json'), JSON.stringify({ sha, total: s.total, at: Date.now() }));
+  }
   return s && !s.failed ? 0 : 1;
 }
 
@@ -119,20 +128,61 @@ function background(name) {
   const fd = fs.openSync(path.join(JOBS, name + '.log'), 'w');
   const child = spawn(process.execPath, [fileURLToPath(import.meta.url), '_job', name], { cwd: ROOT, detached: true, stdio: ['ignore', fd, fd], env });
   child.unref();
+  fs.writeFileSync(path.join(JOBS, name + '.start.json'), JSON.stringify({ at: Date.now(), pid: child.pid }));
   fs.writeFileSync(path.join(JOBS, 'current'), name);
 }
+
+/** Предел фоновой задачи, минут: вдвое больше эталонной (E2E по эталону + ~2,5 мин юнит, аудит и скриншоты), не меньше 12 */
+export function jobLimitMin(base) {
+  if (!base || !base.e2eMin) return 25;
+  return Math.max(12, Math.ceil(2 * (base.e2eMin + 2.5)));
+}
+
+/** Состояние фоновой задачи: итог записан — done; процесса нет, итога нет — dead; дольше предела — stuck */
+export function jobStatus({ done, start, alive, now, limitMin }) {
+  if (done) return 'done';
+  if (alive === false) return 'dead';
+  if (start && start.at != null && (now - start.at) / 60000 > limitMin) return 'stuck';
+  return 'running';
+}
+
+const isAlive = (pid) => { if (!pid) return null; try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } };
+// Лог шага, который пишется сейчас: самый свежий в папке задачи
+const liveLog = (job) => {
+  const dir = path.join(JOBS, job);
+  try { return fs.readdirSync(dir).map((f) => path.join(dir, f)).sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs)[0] || path.join(JOBS, job + '.log'); }
+  catch { return path.join(JOBS, job + '.log'); }
+};
 
 async function wait(name) {
   const job = name || (() => { try { return fs.readFileSync(path.join(JOBS, 'current'), 'utf8').trim(); } catch { return ''; } })();
   if (!job) { console.log('er: фоновых задач нет'); return 2; }
   const done = path.join(JOBS, job + '.done.json');
+  const start = readJson(path.join(JOBS, job + '.start.json'));
+  const limitMin = Number(process.env.ER_WAIT_MAX_MIN) || jobLimitMin(parseBaseline(fs.existsSync(path.join(ROOT, 'docs', 'EVOLUTION.md')) ? fs.readFileSync(path.join(ROOT, 'docs', 'EVOLUTION.md'), 'utf8') : ''));
+  const mins = () => (start ? Math.round((Date.now() - start.at) / 60000) : null);
   const until = Date.now() + 9 * 60 * 1000 - 20000;
-  while (Date.now() < until) {
+  for (;;) {
     const d = readJson(done);
-    if (d) { console.log(`${job.toUpperCase()}: ${d.status === 0 ? 'готово' : d.status === 1 ? 'ЕСТЬ КРАСНОЕ' : 'не всё запустилось'}\n${d.summary}`); return d.status; }
+    const st = jobStatus({ done: d, start, alive: d ? null : isAlive(start && start.pid), now: Date.now(), limitMin });
+    if (st === 'done') {
+      const took = d.at && start ? ` (${Math.round((d.at - start.at) / 60000)} мин)` : '';
+      console.log(`${job.toUpperCase()}: ${d.status === 0 ? 'готово' : d.status === 1 ? 'ЕСТЬ КРАСНОЕ' : 'не всё запустилось'}${took}\n${d.summary}`);
+      return d.status;
+    }
+    if (st === 'dead') {
+      console.log(`er: «${job}» прервалась, не записав итог (процесса ${start.pid} нет — перезапуск контейнера?). Хвост лога:\n${tail(liveLog(job), 8)}\nПерезапустить: node scripts/er.mjs ${job}`);
+      return 2;
+    }
+    if (st === 'stuck') {
+      console.log(`er: «${job}» идёт ${mins()} мин при пределе ${limitMin} (вдвое больше эталона) — похоже, зависла. Хвост лога ${liveLog(job)}:\n${tail(liveLog(job), 8)}\n` +
+        'В отчёт; прогнать вручную (er test / er e2e) — только с пометкой в отчёте, что фоновая задача не дошла');
+      return 4;
+    }
+    if (Date.now() >= until) break;
     await new Promise((r) => setTimeout(r, 5000));
   }
-  console.log(`er: «${job}» ещё идёт — вызвать «node scripts/er.mjs wait» снова`);
+  console.log(`er: «${job}» ещё идёт${mins() != null ? ` (${mins()} мин из ${limitMin})` : ''} — вызвать «node scripts/er.mjs wait» снова`);
   return 3;
 }
 
@@ -161,6 +211,7 @@ async function main() {
     case 'wait': return wait(args[0]);
     case '_job': job(args[0]); return 0;
     case 'review': return passthrough('er-review.mjs', args);
+    case 'archive': return passthrough('er-brief.mjs', ['--archive', ...args]);
     case 'brief': case 'guard': case 'ci': case 'health': return passthrough(`er-${cmd}.mjs`, args);
     case 'shots': return passthrough('er-shots.sh', args);
     default:
