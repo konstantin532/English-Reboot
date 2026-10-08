@@ -26,7 +26,13 @@ jobs:
         run: npm ci
 
       - name: Unit tests (Vitest)
-        run: npm test
+        run: npm test -- --reporter=default --reporter=json --outputFile.json=vitest-report.json
+
+      # Число тестов — аннотацией: её читает scripts/er-ci.mjs через REST (лог задания из облачной сессии не скачать)
+      # и сверяет с локальным прогоном на шиме — шим, запускающий не все тесты, виден сразу
+      - name: Publish unit test count
+        if: always()
+        run: node -e "try { const r = require('./vitest-report.json'); console.log('::notice title=vitest-total::' + r.numTotalTests + ' tests, failed ' + r.numFailedTests); } catch (e) { console.log('::warning title=vitest-total::no vitest-report.json'); }"
 
       - name: Install Chromium with system dependencies
         run: npx playwright install --with-deps chromium
