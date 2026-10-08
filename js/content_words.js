@@ -705,7 +705,7 @@
     ['heart', 'сущ.', 'сердце', 'My {heart} is beating so fast!', 'Сердце так быстро бьётся!', 'Jess has a big {heart}.', 'У Джесс большое сердце.', 'Тело и здоровье', 'A1+'],
     ['shoulder', 'сущ.', 'плечо', 'My {shoulder} hurts.', 'У меня болит плечо.', 'Sam carries his bag on one {shoulder}.', 'Сэм носит сумку на одном плече.', 'Тело и здоровье', 'A1+'],
     ['knee', 'сущ.', 'колено', 'Ow, my {knee}!', 'Ой, колено!', 'Tony hurt his {knee} at the gym.', 'Тони повредил колено в спортзале.', 'Тело и здоровье', 'A1+'],
-    ['neck', 'сущ.', 'шея', 'My {neck} is stiff.', 'Шея затекла.', 'Jess wears a scarf on her {neck}.', 'Джесс носит шарф на шее.', 'Тело и здоровье', 'A1+'],
+    ['neck', 'сущ.', 'шея', 'My {neck} is stiff.', 'Шея затекла.', 'Sam has a tattoo on his {neck}.', 'У Сэма татуировка на шее.', 'Тело и здоровье', 'A1+'],
     ['throat', 'сущ.', 'горло', 'My {throat} hurts.', 'У меня болит горло.', 'Tea is good for your {throat}.', 'Чай полезен для горла.', 'Тело и здоровье', 'A1+'],
     ['skin', 'сущ.', 'кожа', 'My {skin} is so dry.', 'У меня такая сухая кожа.', 'Use sunscreen, protect your {skin}.', 'Пользуйся кремом от солнца, береги кожу.', 'Тело и здоровье', 'A1+'],
     ['flu', 'сущ.', 'грипп', 'I think I have the {flu}.', 'Кажется, у меня грипп.', 'Half the office has the {flu}.', 'Пол-офиса болеет гриппом.', 'Тело и здоровье', 'A1+'],
@@ -821,7 +821,7 @@
     ['check on', 'фраз. глаг.', 'проведать, проверить, как дела', 'Can you {check on} the cat?', 'Заглянешь проверить кота?', 'Maggie {checks on} Sam every day.', 'Мэгги каждый день проверяет, как там Сэм.', 'Первый месяц', 'A1+'],
     ['cool down', 'фраз. глаг.', 'остыть; остынуть (о человеке)', 'Let the soup {cool down}.', 'Дай супу остыть.', 'Go for a walk, {cool down}.', 'Сходи прогуляйся, остынь.', 'Первый месяц', 'A1+'],
     ['heat up', 'фраз. глаг.', 'разогреть', 'Can you {heat up} the soup?', 'Разогреешь суп?', 'Sam {heats up} pizza for breakfast.', 'Сэм разогревает пиццу на завтрак.', 'Первый месяц', 'A1+'],
-    ['back up', 'фраз. глаг.', 'сдать назад; сделать копию', 'Can you {back up} a little?', 'Можете чуть сдать назад?', '{Back up} your photos!', 'Сделай копию фотографий!', 'Первый месяц', 'A1+'],
+    ['back up', 'фраз. глаг.', 'сдать назад; сделать копию', 'Okay, {back up}... and stop!', 'Так, сдавай назад... и стоп!', '{Back up} your photos!', 'Сделай копию фотографий!', 'Первый месяц', 'A1+'],
     ['stay out', 'фраз. глаг.', 'гулять допоздна, не приходить домой', 'Don\'t {stay out} too late!', 'Не гуляй слишком поздно!', 'Sam {stays out} all night.', 'Сэм гуляет всю ночь.', 'Первый месяц', 'A1+'],
     ['plug in', 'фраз. глаг.', 'включить в розетку', 'Can I {plug in} my phone?', 'Можно поставить телефон на зарядку?', 'Is the TV {plugged in}?', 'Телевизор включён в розетку?', 'Первый месяц', 'A1+'],
     ['help out', 'фраз. глаг.', 'помочь, выручить', 'Can you {help out} tonight?', 'Сможешь помочь сегодня вечером?', 'Kim {helps out} at the clinic.', 'Ким помогает в клинике.', 'Первый месяц', 'A1+'],
@@ -830,7 +830,7 @@
     ['text back', 'фраз. глаг.', 'ответить на сообщение', '{Text back} when you can.', 'Ответь, когда сможешь.', 'Sam never {texts back}.', 'Сэм никогда не отвечает на сообщения.', 'Первый месяц', 'A1+'],
     ['write back', 'фраз. глаг.', 'ответить (письменно)', 'Please {write back} soon.', 'Пожалуйста, ответь поскорее.', 'Priya always {writes back} fast.', 'Прия всегда быстро отвечает.', 'Первый месяц', 'A1+'],
     ['fall off', 'фраз. глаг.', 'упасть (с чего-то)', 'Careful, don\'t {fall off}!', 'Осторожно, не свались!', 'Sam {fell off} his bike.', 'Сэм упал с велосипеда.', 'Первый месяц', 'A1+'],
-    ['move over', 'фраз. глаг.', 'подвинуться', 'Can you {move over} a little?', 'Можешь чуть подвинуться?', 'The cat never {moves over}.', 'Кот никогда не двигается.', 'Первый месяц', 'A1+'],
+    ['move over', 'фраз. глаг.', 'подвинуться', 'Can you {move over} a little?', 'Можешь чуть подвинуться?', 'The cat never {moves over}.', 'Кот никогда не подвинется.', 'Первый месяц', 'A1+'],
     ['wash up', 'фраз. глаг.', 'умыться, помыть руки (амер.)', 'Go {wash up}, dinner\'s ready!', 'Иди мой руки, ужин готов!', 'I gotta {wash up} first.', 'Мне сначала надо умыться.', 'Первый месяц', 'A1+'],
     ['order in', 'фраз. глаг.', 'заказать еду на дом', 'Let\'s just {order in} tonight.', 'Давай сегодня просто закажем еду.', 'Sam {orders in} every night.', 'Сэм каждый вечер заказывает еду.', 'Первый месяц', 'A1+'],
     ['clear up', 'фраз. глаг.', 'проясниться (о погоде)', 'It\'s gonna {clear up} later.', 'Позже прояснится.', 'The sky {clears up} by noon.', 'К полудню небо проясняется.', 'Первый месяц', 'A1+'],
@@ -868,7 +868,7 @@
     ['\'til', 'until', 'до (какого-то времени)', '/ənˈtɪl/', '/tɪl/', 'We\'re open {\'til} ten.', 'Мы работаем до десяти.', 'Wait {\'til} Friday.', 'Подожди до пятницы.', 'til'],
     ['\'bout', 'about', 'про, о; около', '/əˈbaʊt/', '/baʊt/', 'What {\'bout} you?', 'А ты?', 'Let\'s talk {\'bout} it later.', 'Давай поговорим об этом потом.', 'bout'],
     ['aw', 'how sweet', 'ой, как мило; эх (сочувствие)', '/haʊ swit/', '/ɔ/', '{Aw}, that\'s so sweet!', 'Ой, как мило!', '{Aw}, poor thing.', 'Эх, бедняжка.', 'aw'],
-    ['fer', 'for', 'for без ударения (звучит «фэр»)', '/fɔr/', '/fɚ/', 'Thanks {fer} coming!', 'Спасибо, что пришли!', 'What\'s {fer} dinner?', 'Что на ужин?', 'fer'],
+    ['fer', 'for', 'for без ударения (звучит коротко, почти «фр»)', '/fɔr/', '/fɚ/', 'Thanks {fer} coming!', 'Спасибо, что пришли!', 'What\'s {fer} dinner?', 'Что на ужин?', 'fer'],
     ['y\'know', 'you know', 'знаешь; ну, это (слово-связка)', '/ju noʊ/', '/jəˈnoʊ/', 'It\'s, {y\'know}, kinda weird.', 'Это, ну, как-то странно.', 'I like it here, {y\'know}?', 'Мне тут нравится, понимаешь?', 'know'],
   ];
   function buildLive(rows, firstNum) {
@@ -876,7 +876,12 @@
     const parts = (text) => (typeof partsOf === 'function' ? partsOf(text)
       : String(text).split(/\s+/).filter(Boolean).map((w) => ({ word: w })));
     const n = rows.length;
-    const APPROP = ['В разговоре с другом', 'В официальном письме', 'В новостном репортаже', 'В научной статье'];
+    // Регистр варианта — как у ответа; апостроф впереди пропускаем ('Til, 'Bout)
+    const likeCase = (ans, v) => {
+      const up = /^'?[A-Z]/.test(ans);
+      const at = v.charAt(0) === "'" ? 1 : 0;
+      return up ? v.slice(0, at) + v.charAt(at).toUpperCase() + v.slice(at + 1) : v;
+    };
     const clean = (raw) => String(raw).replace(/[{}]/g, '');
     // Неверные варианты — другие живые формы с другим смыслом (uh-huh и yup оба «да» — вместе не даём)
     const others = (i, key) => {
@@ -899,14 +904,14 @@
       const tests = [];
       tests.push({ q: 'Что значит «' + r[0] + '»?', ...mix(r[2], others(i, (x) => x[2]), i) });
       tests.push({ q: 'Как это звучит в живой речи: «' + r[2] + '»?', ...mix(r[0], others(i, (x) => x[0]), i + 1) });
-      const m = String(r[5]).match(/^(.*?)\{([^}]+)\}(.*)$/);
-      if (m) {
-        const up = /^[A-Z]/.test(m[2]);
-        const like = (v) => (up ? v.charAt(0).toUpperCase() + v.slice(1) : v);
-        tests.push({ q: clean(m[1]) + '___' + clean(m[3]) + ' (' + r[6] + ')', ...mix(m[2], others(i, word).map(like), i + 2) });
-      }
+      // Пропуск в обоих примерах: неверные варианты — другие живые формы, регистр — как у ответа
+      // (с апострофом впереди: 'Til → 'Bout)
+      [[r[5], r[6]], [r[7], r[8]]].forEach(([raw, ru], e) => {
+        const m = String(raw).match(/^(.*?)\{([^}]+)\}(.*)$/);
+        if (!m) return;
+        tests.push({ q: clean(m[1]) + '___' + clean(m[3]) + ' (' + ru + ')', ...mix(m[2], others(i, word).map((v) => likeCase(m[2], v)), i + 2 + e * 2) });
+      });
       tests.push({ q: '«' + r[0] + '» в обычной речи — это…', ...mix(r[1], others(i, (x) => x[1]), i + 3) });
-      tests.push({ q: 'Где уместно сказать «' + r[0] + '»?', ...mix(APPROP[0], APPROP.slice(1), i + 1) });
       return {
         id: 'sl_' + String(firstNum + i).padStart(3, '0'),
         type: 'slang', level: 'A1', sublevel: 'A1+', tags: ['живая речь'], audio: true,
