@@ -29,6 +29,30 @@ const git = (args) => { const r = spawnSync('git', args, { cwd: ROOT, encoding: 
 export const GENERATED = /^(js\/(lex_us|pos_us)\.js|docs\/screenshots\/|docs\/content-audit\.(md|json)$)/;
 // Движок разметки слов и его словари: их изменение меняет подчёркивания во всём курсе
 const ENGINE = /^js\/(word_marks|pos_us|lex_us)\.js$/;
+// Сгенерированные словари {"слово":"значение",…}: в дифф ревизору не идут, поэтому он получает их числа
+const DICTS = /^js\/(lex_us|pos_us)\.js$/;
+
+/** Записи словаря-объекта до и после: всего (после), добавлено, удалено, изменено значение */
+export function dictStats(before, after) {
+  const entries = (t) => {
+    const m = new Map();
+    for (const x of String(t || '').matchAll(/"((?:[^"\\]|\\.)*)"\s*:\s*"((?:[^"\\]|\\.)*)"/g)) m.set(x[1], x[2]);
+    return m;
+  };
+  const a = entries(before), b = entries(after);
+  let added = 0, removed = 0, changed = 0;
+  for (const [k, v] of b) { if (!a.has(k)) added++; else if (a.get(k) !== v) changed++; }
+  for (const k of a.keys()) if (!b.has(k)) removed++;
+  return { total: b.size, added, removed, changed };
+}
+
+/** Строка ревизору-код и флаг «проверь, почему»: изменилось больше 10% записей или словарь менялся без карточек */
+export function dictNote(file, st, cardsChanged) {
+  const n = st.added + st.removed + st.changed;
+  const share = n / Math.max(st.total, 1);
+  const why = share > 0.1 ? 'больше 10% записей' : (!cardsChanged && n ? 'словарь изменился, а карточки — нет' : '');
+  return { flag: Boolean(why), line: `${file}: +${st.added} −${st.removed}, изменено ${st.changed} из ${st.total} (${Math.round(share * 100)}%)${why ? ' — ' + why : ''}` };
+}
 // Строка данных: карточка, строка словаря, элемент массива, свойство с литералом; закрывающие скобки нейтральны
 const DATA = /^\s*(\[|["'`]|\{\s*(id|text|q|word|front)\b|(MP|card|ex|w|err|q|CV|PV|SL|RD)\(|[\w$'"-]+\s*:\s*["'][^"']*\||\/\/|\/\*|\*)/;
 const LITERAL_PROP = /^\s*[\w$]+\s*:\s*(\[.*\]|'[^']*'|"[^"]*"|`[^`]*`|-?\d+(\.\d+)?|true|false)\s*,?\s*$/;
@@ -208,13 +232,16 @@ export function ipaChanges(before, after) {
   return out.sort();
 }
 
-const PROMPT_CODE = (paths) => `Ты — ревизор кода English Reboot (офлайн-SPA на Vanilla JS: IndexedDB, Service Worker, FSRS). Ты не видел, как писалась работа.
+const PROMPT_CODE = (paths, dicts = []) => `Ты — ревизор кода English Reboot (офлайн-SPA на Vanilla JS: IndexedDB, Service Worker, FSRS). Ты не видел, как писалась работа.
 
 Прочитай только эти файлы:
 - ${paths.code} — дифф кода (без сгенерированных словарей и строк данных карточек; их проверяют тесты и педагог);
 - ${paths.guard} — отчёт сторожа: механику правил (CACHE_VERSION, sw.js/index.html, *_VERSION по изменённым карточкам, номера карточек и миграция, skip/retries, innerHTML с переменной, британское написание, род) он уже проверил. Не повторяй её; пункты «?» из отчёта — разбери.
 Исходники рядом в репозитории ${paths.root} — открывай точечно, если без контекста не понять.
-
+${dicts.length ? `
+Сгенерированные словари в дифф не вошли — их числа:
+${dicts.map((d) => '- ' + d.line).join('\n')}
+${dicts.some((d) => d.flag) ? `Помеченные «—» — выясни причину: записи дописал скрипт под новые карточки или их правили руками / заменили массово. Смотри точечно: git diff ${paths.base} -- <файл>.\n` : ''}` : ''}
 Смотри: правильность логики и крайние случаи; не сломаны ли офлайн, прогресс учеников, FSRS, экспорт/импорт; честность (похвала только после проверки, ничего не имитируется, отрицание не засчитано как согласие); тесты действительно проверяют заявленное и не ослаблены; чужой текст только через escapeHtml/textContent; цена при запуске на телефоне.
 
 Ответ — только список: «блокер / важно / мелочь — файл:строка — что не так — как исправить». Замечаний нет — одна строка «нарушений нет». Дифф не пересказывай. До 300 слов.`;
@@ -237,7 +264,7 @@ function main() {
   fs.mkdirSync(OUT, { recursive: true });
   const full = git(['diff', base]);
   const cd = codeDiff(full);
-  const paths = { code: path.join(OUT, 'code.diff'), content: path.join(OUT, 'content.md'), guard: path.join(OUT, 'guard.txt'), root: ROOT };
+  const paths = { code: path.join(OUT, 'code.diff'), content: path.join(OUT, 'content.md'), guard: path.join(OUT, 'guard.txt'), root: ROOT, base: base.slice(0, 12) };
   const skippedNote = Object.entries(cd.skipped).map(([f, n]) => `${f}: ${n}`).join(', ');
   fs.writeFileSync(paths.code, `# Дифф кода против ${base.slice(0, 7)}. Не включены: сгенерированные ${cd.generated.join(', ') || '—'}; строки данных карточек — ${skippedNote || '—'} (они в content.md)\n` + cd.text);
 
@@ -305,7 +332,14 @@ function main() {
   const HERE = path.dirname(fileURLToPath(import.meta.url));
   const g = spawnSync(process.execPath, [path.join(HERE, 'er-guard.mjs'), '--base', base, '--out', paths.guard], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ER_ROOT: ROOT } });
   if (!fs.existsSync(paths.guard)) fs.writeFileSync(paths.guard, g.stdout || 'сторож не отработал\n');
-  fs.writeFileSync(path.join(OUT, 'prompt-code.md'), PROMPT_CODE(paths) + '\n');
+  // Сгенерированные словари: ревизору-код — числа записей, раз сам дифф он не видит
+  const cardsChanged = counts.added + counts.changed + counts.removed > 0;
+  const dicts = git(['diff', '--name-only', base]).split('\n').map((f) => f.trim()).filter((f) => DICTS.test(f)).map((f) => {
+    let after = '';
+    try { after = fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { /* файл удалён */ }
+    return dictNote(f, dictStats(git(['show', `${base}:${f}`]), after), cardsChanged);
+  });
+  fs.writeFileSync(path.join(OUT, 'prompt-code.md'), PROMPT_CODE(paths, dicts) + '\n');
   fs.writeFileSync(path.join(OUT, 'prompt-pedagogue.md'), PROMPT_PED(paths, extra) + '\n');
   const kb = (n) => (n / 1024).toFixed(0) + ' КБ';
   const size = (f) => fs.statSync(f).size;
@@ -313,6 +347,7 @@ function main() {
   console.log(`РЕВИЗИЯ → ${OUT}/: полный дифф ${kb(full.length)}; ревизору кода ${kb(size(paths.code))} (без: ${cd.generated.join(', ') || '—'}${skippedNote ? '; строки данных ' + skippedNote : ''})` +
     `; педагогу ${kb(size(paths.content))} (карточек: новых ${counts.added}, изменённых ${counts.changed}, удалено ${counts.removed}${counts.partsOnly ? ', только разметка ' + counts.partsOnly : ''}` +
     `${extra.ipa ? `; IPA изменилась у ${extra.ipa} слов` : ''}${extra.marks ? `; разметка: ${extra.marks} фраз` : ''})`);
+  if (dicts.length) console.log(`Словари (ревизору-код — числами): ${dicts.map((d) => d.line).join('; ')}`);
   console.log(`Задания: ${OUT}/prompt-code.md${needPed ? ` и ${OUT}/prompt-pedagogue.md — оба субагента одним сообщением` : ' (педагог не нужен: текст карточек и разметка не менялись)'}`);
 }
 
