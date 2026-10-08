@@ -496,6 +496,14 @@ describe('er review: задания ревизорам — коротко, по-
     expect(p).toMatch(/\/repo\/docs\/PEDAGOGY\.md/);
     for (const re of [/one new thing/i, /calque/i, /full form/i, /Russian speakers/i, /synthes/i, /slang, rude words or AAVE/i]) expect(p).toMatch(re);
     expect(p).not.toMatch(/recognize.*field|пометка/i);            // поля «узнавать / говорить» в приложении нет — не проверять несуществующее
+    expect(p).toMatch(/respectfully/i);                                     // сленг и AAVE — с регистром и уважительно
+    expect(p).toMatch(/listening and pronunciation tasks the wrong options/i); // «ошибки русскоязычных» — не для заданий на смысл
+    expect(p).toMatch(/not checked/i);                                      // «одна новинка» без контекста — не гадать
+    // коротко и по-английски: кириллица — только в названиях разделов content.md, которые ревизор ищет как есть
+    const full = pedagoguePrompt(paths, { marks: 3, ipa: 2 });
+    expect(full.replace(/«[^»]*»|"(IPA изменилась|Разметка слов)"/g, '')).not.toMatch(/[а-яё]/i);
+    expect(p.length).toBeLessThan(3000);
+    expect(codePrompt(paths, []).replace(/«[^»]*»/g, '')).not.toMatch(/[а-яё]/i);
     expect(pedagoguePrompt(paths, { marks: 3 })).toMatch(/word markup/i);
     expect(pedagoguePrompt(paths, { ipa: 2 })).toMatch(/IPA changed/i);
   });
