@@ -10,6 +10,8 @@
  *   node scripts/er-brief.mjs --section Бэклог    # один раздел EVOLUTION.md целиком
  *   node scripts/er-brief.mjs --last 2            # две последние записи журнала итераций целиком
  *   node scripts/er-brief.mjs --no-net            # без запросов к GitHub
+ *   node scripts/er-brief.mjs --archive [--keep 30] [--dry]   # журнал длиннее keep — старшие записи
+ *                                                 # в docs/evolution/archive-<год>.md (остальные разделы не трогает)
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -47,6 +49,52 @@ export function scoutAge(md, today = new Date()) {
   const last = dates[dates.length - 1];
   const days = Math.floor((today - new Date(last + 'T00:00:00Z')) / 86400000);
   return { date: last, days, due: days > 30 };
+}
+
+/** Журнал итераций (## Итерации → ### записи по порядку): всё, кроме последних keep, — в архив по годам.
+ *  Меняется только раздел «Итерации»: остальные разделы — входные данные er start и er brief — остаются байт в байт. */
+export function archiveJournal(md, keep = 30) {
+  const src = String(md);
+  keep = Math.max(1, Number(keep) || 30);
+  const heads = [...src.matchAll(/^## (.+)$/gm)];
+  const i = heads.findIndex((h) => h[1].trim() === 'Итерации');
+  if (i < 0) return { md: src, moved: [], count: 0, total: 0, kept: 0 };
+  const start = heads[i].index + heads[i][0].length;
+  const end = i + 1 < heads.length ? heads[i + 1].index : src.length;
+  const body = src.slice(start, end);
+  const at = body.search(/^### /m);
+  const intro = at < 0 ? body : body.slice(0, at);
+  const entries = at < 0 ? [] : body.slice(at).split(/^(?=### )/m);
+  if (entries.length <= keep) return { md: src, moved: [], count: 0, total: entries.length, kept: entries.length };
+  const old = entries.slice(0, entries.length - keep), rest = entries.slice(entries.length - keep);
+  const byYear = new Map();
+  for (const e of old) {
+    const y = (e.match(/^### (\d{4})-/) || [])[1] || 'без-даты';
+    byYear.set(y, (byYear.get(y) || '') + e);
+  }
+  // Строка-указатель на архивы в начале раздела: прежние годы + новые
+  const POINTER = /^Старые записи: (.+)\.\n+/m;
+  const years = new Set([...(intro.match(POINTER) || ['', ''])[1].matchAll(/archive-([\wа-яё-]+)\.md/gi)].map((m) => m[1]));
+  for (const y of byYear.keys()) years.add(y);
+  const pointer = `Старые записи: ${[...years].sort().map((y) => `docs/evolution/archive-${y}.md`).join(', ')}.\n\n`;
+  const cleanIntro = intro.replace(POINTER, '');
+  const newIntro = cleanIntro.replace(/\n*$/, '\n\n') + pointer;
+  return {
+    md: src.slice(0, start) + newIntro + rest.join('') + src.slice(end),
+    moved: [...byYear.entries()].map(([year, text]) => ({ year, text })),
+    count: old.length, total: entries.length, kept: rest.length,
+  };
+}
+
+/** Последняя непустая строка самого нового файла docs/metrics/ (экспорт метрики автора: только числа по дням) */
+export function latestMetric(files) {
+  const ok = (files || []).filter((f) => /\.(csv|tsv|txt|json)$/i.test(f.name) && !/^readme/i.test(f.name))
+    .sort((a, b) => (a.name < b.name ? 1 : a.name > b.name ? -1 : 0));
+  for (const f of ok) {
+    const line = String(f.text || '').split('\n').map((l) => l.trim()).filter(Boolean).pop();
+    if (line) return { file: f.name, line };
+  }
+  return null;
 }
 
 /** Константы версий: *_VERSION в js/app.js, js/gamify.js, js/db.js и CACHE_VERSION в sw.js */
@@ -120,6 +168,13 @@ function brief(opts) {
   L.push(b ? `ЭТАЛОН (${b.date || '?'}, nproc ${b.nproc ?? '?'}): юнит ${b.unit ?? '?'}, E2E ${b.e2e ?? '?'} (${b.e2eMin ?? '?'} мин, flaky ${b.flaky ?? '?'}), IPA ${b.ipa ?? '?'}, брит. IPA ${b.looseIpa ?? '?'}, книжное ${b.bookish ?? '?'}, дубли ${b.duplicates ?? '?'}, карточек ${b.cards ?? '?'}`
     : 'ЭТАЛОН: нет — создаст er-health.mjs --baseline-update');
 
+  // метрика автора: его экспорт из приложения (фразы вслух по дням) — единственные данные об учёбе, доступные агенту
+  const mdir = path.join(ROOT, 'docs', 'metrics');
+  let mfiles = [];
+  try { mfiles = fs.readdirSync(mdir, { withFileTypes: true }).filter((d) => d.isFile()).map((d) => ({ name: d.name, text: fs.readFileSync(path.join(mdir, d.name), 'utf8') })); } catch { /* папки нет */ }
+  const met = latestMetric(mfiles);
+  L.push(met ? `МЕТРИКА АВТОРА (docs/metrics/${met.file}): ${cut(met.line, 100)}` : 'МЕТРИКА АВТОРА: нет (docs/metrics/ пуст)');
+
   // бэклог
   const bl = checkboxes(sec('Бэклог'));
   const open = bl.filter((c) => !c.done);
@@ -181,6 +236,26 @@ function main() {
   const si = argv.indexOf('--section');
   const li = argv.indexOf('--last');
   const evo = read('docs/EVOLUTION.md');
+  if (argv.includes('--archive')) {
+    const ki = argv.indexOf('--keep');
+    const keep = ki >= 0 ? Number(argv[ki + 1]) || 30 : 30;
+    const dry = argv.includes('--dry');
+    const r = archiveJournal(evo, keep);
+    if (!r.count) { console.log(`АРХИВ: записей в журнале ${r.total}, порог ${keep} — переносить нечего`); return; }
+    if (!dry) {
+      const dir = path.join(ROOT, 'docs', 'evolution');
+      fs.mkdirSync(dir, { recursive: true });
+      for (const m of r.moved) {
+        const f = path.join(dir, `archive-${m.year}.md`);
+        const head = fs.existsSync(f) ? '' : `# Журнал итераций — архив ${m.year}\n\nПеренесено из docs/EVOLUTION.md командой \`node scripts/er.mjs archive\`. Записи по порядку.\n\n`;
+        fs.appendFileSync(f, head + m.text.replace(/\n*$/, '\n\n'));
+      }
+      fs.writeFileSync(path.join(ROOT, 'docs', 'EVOLUTION.md'), r.md);
+    }
+    console.log(`АРХИВ${dry ? ' (проба, файлы не тронуты)' : ''}: перенесено ${r.count} записей → ${r.moved.map((m) => `docs/evolution/archive-${m.year}.md`).join(', ')}; в журнале осталось ${r.kept}. ` +
+      'Проверка: node scripts/er.mjs brief — выжимка та же, кроме числа итераций');
+    return;
+  }
   if (si >= 0) {
     const name = argv[si + 1] || '';
     const s = sections(evo, 2).find((x) => x.title.toLowerCase().startsWith(name.toLowerCase()));
