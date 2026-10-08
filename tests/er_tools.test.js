@@ -421,6 +421,11 @@ describe('er wait: фоновая задача готова, идёт, зави�
     expect(jobStatus({ done: null, start, alive: true, now: 5 * 60000, limitMin: 14 })).toBe('running');
     expect(jobStatus({ done: null, start: null, alive: null, now: 5 * 60000, limitMin: 14 })).toBe('running');
   });
+  it('дольше предела, но лог ещё пишется — не «зависла»: машина медленнее эталона', () => {
+    const start = { at: 0, pid: 123 };
+    expect(jobStatus({ done: null, start, alive: true, now: 20 * 60000, limitMin: 14, logIdleMin: 0.5 })).toBe('running');
+    expect(jobStatus({ done: null, start, alive: true, now: 20 * 60000, limitMin: 14, logIdleMin: 6 })).toBe('stuck');
+  });
 });
 
 describe('er archive: старые записи журнала — в docs/evolution/', () => {
@@ -442,6 +447,14 @@ describe('er archive: старые записи журнала — в docs/evolu
     expect(archiveJournal(r.md, 1).moved).toEqual([]);
   });
 
+  it('повторный перенос объединяет годы в строке «Старые записи» и не дублирует её', () => {
+    const once = archiveJournal(md, 2).md;                       // ушла 2025-12-30
+    expect(once).toMatch(/Старые записи: docs\/evolution\/archive-2025\.md\./);
+    const twice = archiveJournal(once, 1).md;                    // ушла 2026-01-02
+    expect(twice.match(/Старые записи:/g)).toHaveLength(1);
+    expect(twice).toMatch(/Старые записи: docs\/evolution\/archive-2025\.md, docs\/evolution\/archive-2026\.md\./);
+  });
+
   it('записей не больше keep — файл не меняется', () => {
     const r = archiveJournal(md, 30);
     expect(r.moved).toEqual([]);
@@ -454,7 +467,9 @@ describe('er start: метрика автора из docs/metrics/', () => {
     expect(latestMetric([{ name: '2026-09.csv', text: 'date,phrases\n2026-09-30,22\n' }, { name: '2026-10.csv', text: 'date,phrases\n2026-10-06,41\n2026-10-07,37\n\n' }]))
       .toEqual({ file: '2026-10.csv', line: '2026-10-07,37' });
     expect(latestMetric([])).toBe(null);
-    expect(latestMetric([{ name: 'README.md', text: '' }])).toBe(null);
+    expect(latestMetric([{ name: 'README.md', text: 'x' }])).toBe(null);
+    // файл без даты в имени не считается «самым новым» только потому, что по алфавиту дальше
+    expect(latestMetric([{ name: 'spoken.csv', text: 'old,1' }, { name: '2026-10.csv', text: '2026-10-07,37' }]).file).toBe('2026-10.csv');
   });
 });
 

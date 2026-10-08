@@ -106,7 +106,7 @@ function localCount(sha) {
   for (const [label, name] of [['after', 'здоровье «после»'], ['before', 'здоровье «до»']]) {
     const f = path.join(HEALTH, label, 'health.json');
     const h = readJson(f);
-    if (h && h.unit && !h.git.dirty && same(h.git.sha)) found.push({ total: h.unit.total, sha: h.git.sha, source: name, at: fs.statSync(f).mtimeMs });
+    if (h && h.unit && h.git && !h.git.dirty && same(h.git.sha)) found.push({ total: h.unit.total, sha: h.git.sha, source: name, at: fs.statSync(f).mtimeMs });
   }
   return found.sort((a, b) => b.at - a.at)[0] || null;
 }

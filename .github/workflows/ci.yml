@@ -94,6 +94,9 @@ jobs:
             --exclude 'test-results/' \
             --exclude 'playwright-report/' \
             --exclude 'dist/' \
+            --exclude 'docs/metrics/' \
+            --exclude 'docs/evolution/' \
+            --exclude 'vitest-report.json' \
             ./ dist/
           echo '--- dist/ ---'
           ls dist/

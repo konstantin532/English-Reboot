@@ -88,7 +88,8 @@ export function archiveJournal(md, keep = 30) {
 
 /** Последняя непустая строка самого нового файла docs/metrics/ (экспорт метрики автора: только числа по дням) */
 export function latestMetric(files) {
-  const ok = (files || []).filter((f) => /\.(csv|tsv|txt|json)$/i.test(f.name) && !/^readme/i.test(f.name))
+  // Только файлы с датой в имени (2026-10.csv, 2026-10-07.json): «новый» — по дате, а не по алфавиту
+  const ok = (files || []).filter((f) => /^\d{4}-\d{2}.*\.(csv|tsv|txt|json)$/i.test(f.name))
     .sort((a, b) => (a.name < b.name ? 1 : a.name > b.name ? -1 : 0));
   for (const f of ok) {
     const line = String(f.text || '').split('\n').map((l) => l.trim()).filter(Boolean).pop();
@@ -245,12 +246,18 @@ function main() {
     if (!dry) {
       const dir = path.join(ROOT, 'docs', 'evolution');
       fs.mkdirSync(dir, { recursive: true });
+      // Сначала новый EVOLUTION.md во временный файл, затем архив, затем подмена: падение посередине не задвоит
+      // записи — уже лежащие в архиве (по заголовку ###) повторно не дописываются
+      const evoPath = path.join(ROOT, 'docs', 'EVOLUTION.md');
+      fs.writeFileSync(evoPath + '.tmp', r.md);
       for (const m of r.moved) {
         const f = path.join(dir, `archive-${m.year}.md`);
-        const head = fs.existsSync(f) ? '' : `# Журнал итераций — архив ${m.year}\n\nПеренесено из docs/EVOLUTION.md командой \`node scripts/er.mjs archive\`. Записи по порядку.\n\n`;
-        fs.appendFileSync(f, head + m.text.replace(/\n*$/, '\n\n'));
+        const old = fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : '';
+        const head = old ? '' : `# Журнал итераций — архив ${m.year}\n\nПеренесено из docs/EVOLUTION.md командой \`node scripts/er.mjs archive\`. Записи по порядку.\n\n`;
+        const fresh = m.text.split(/^(?=### )/m).filter((e) => !old.includes(e.split('\n')[0] + '\n')).join('');
+        if (head || fresh) fs.appendFileSync(f, head + fresh.replace(/\n*$/, '\n\n'));
       }
-      fs.writeFileSync(path.join(ROOT, 'docs', 'EVOLUTION.md'), r.md);
+      fs.renameSync(evoPath + '.tmp', evoPath);
     }
     console.log(`АРХИВ${dry ? ' (проба, файлы не тронуты)' : ''}: перенесено ${r.count} записей → ${r.moved.map((m) => `docs/evolution/archive-${m.year}.md`).join(', ')}; в журнале осталось ${r.kept}. ` +
       'Проверка: node scripts/er.mjs brief — выжимка та же, кроме числа итераций');

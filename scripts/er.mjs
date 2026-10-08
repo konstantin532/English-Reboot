@@ -138,11 +138,13 @@ export function jobLimitMin(base) {
   return Math.max(12, Math.ceil(2 * (base.e2eMin + 2.5)));
 }
 
-/** Состояние фоновой задачи: итог записан — done; процесса нет, итога нет — dead; дольше предела — stuck */
-export function jobStatus({ done, start, alive, now, limitMin }) {
+/** Состояние фоновой задачи: итог записан — done; процесса нет, итога нет — dead; дольше предела и лог
+ *  молчит 5+ минут — stuck (на медленной машине задача идёт дольше, но пишет лог — это не зависание) */
+export function jobStatus({ done, start, alive, now, limitMin, logIdleMin = null }) {
   if (done) return 'done';
   if (alive === false) return 'dead';
-  if (start && start.at != null && (now - start.at) / 60000 > limitMin) return 'stuck';
+  const over = start && start.at != null && (now - start.at) / 60000 > limitMin;
+  if (over && (logIdleMin == null || logIdleMin >= 5)) return 'stuck';
   return 'running';
 }
 
@@ -163,8 +165,12 @@ async function wait(name) {
   const mins = () => (start ? Math.round((Date.now() - start.at) / 60000) : null);
   const until = Date.now() + 9 * 60 * 1000 - 20000;
   for (;;) {
-    const d = readJson(done);
-    const st = jobStatus({ done: d, start, alive: d ? null : isAlive(start && start.pid), now: Date.now(), limitMin });
+    let d = readJson(done);
+    const log = liveLog(job);
+    const logIdleMin = (() => { try { return (Date.now() - fs.statSync(log).mtimeMs) / 60000; } catch { return null; } })();
+    let st = jobStatus({ done: d, start, alive: d ? null : isAlive(start && start.pid), now: Date.now(), limitMin, logIdleMin });
+    // Задача могла дописать итог и выйти между чтением итога и проверкой процесса — перечитать
+    if (st === 'dead' && (d = readJson(done))) st = 'done';
     if (st === 'done') {
       const took = d.at && start ? ` (${Math.round((d.at - start.at) / 60000)} мин)` : '';
       console.log(`${job.toUpperCase()}: ${d.status === 0 ? 'готово' : d.status === 1 ? 'ЕСТЬ КРАСНОЕ' : 'не всё запустилось'}${took}\n${d.summary}`);
@@ -175,8 +181,9 @@ async function wait(name) {
       return 2;
     }
     if (st === 'stuck') {
-      console.log(`er: «${job}» идёт ${mins()} мин при пределе ${limitMin} (вдвое больше эталона) — похоже, зависла. Хвост лога ${liveLog(job)}:\n${tail(liveLog(job), 8)}\n` +
-        'В отчёт; прогнать вручную (er test / er e2e) — только с пометкой в отчёте, что фоновая задача не дошла');
+      console.log(`er: «${job}» идёт ${mins()} мин при пределе ${limitMin} (вдвое больше эталона), лог молчит ${Math.round(logIdleMin ?? 0)} мин — похоже, зависла. Хвост ${log}:\n${tail(log, 8)}\n` +
+        `Сначала остановить: kill -- -${start.pid} (иначе ручной прогон столкнётся с ней на порту E2E и в /tmp/er/test); ` +
+        'затем прогнать вручную (er test / er e2e) — с пометкой в отчёте, что фоновая задача не дошла');
       return 4;
     }
     if (Date.now() >= until) break;
