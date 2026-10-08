@@ -3,10 +3,10 @@ import {
   summarizeVitest, summarizePlaywright, parseBaseline, evaluate, baselineSection, summarizeAudit, parseAuditLine,
 } from '../scripts/er-health.mjs';
 import { addedLines, removedLines, check, compareCards, isAppFile, swAssets, indexRefs } from '../scripts/er-guard.mjs';
-import { sections, checkboxes, scoutAge, versions } from '../scripts/er-brief.mjs';
-import { summarizeRuns, slugFromUrl } from '../scripts/er-ci.mjs';
-import { formatUnit, formatE2e } from '../scripts/er.mjs';
-import { codeDiff, isDataHunk, collapseData, similarity, cardText, markedLine, marksSample, ipaChanges } from '../scripts/er-review.mjs';
+import { sections, checkboxes, scoutAge, versions, archiveJournal, latestMetric } from '../scripts/er-brief.mjs';
+import { summarizeRuns, slugFromUrl, vitestTotal, countLine, ciVerdict, annotationTotal } from '../scripts/er-ci.mjs';
+import { formatUnit, formatE2e, jobLimitMin, jobStatus } from '../scripts/er.mjs';
+import { codeDiff, isDataHunk, collapseData, similarity, cardText, markedLine, marksSample, ipaChanges, dictStats, dictNote } from '../scripts/er-review.mjs';
 import { cardDiff, stripParts } from '../scripts/er-cards.mjs';
 import { nextIdsOf } from '../scripts/er-brief.mjs';
 
@@ -358,5 +358,118 @@ describe('er-cards: что изменилось в карточках', () => {
 describe('er-brief: следующие номера карточек', () => {
   it('для каждого префикса — максимум + 1 с той же шириной', () => {
     expect(nextIdsOf(['wd_0001', 'wd_0550', 'pv_208', 'pv_238', 'g067', 'cafe-order'])).toEqual(['g068', 'pv_239', 'wd_0551']);
+  });
+});
+
+/* Механика, которую раньше выполняла модель по тексту скилла: теперь её делают команды er,
+   а модель только читает итог. Без этих тестов правило снова пришлось бы держать в голове. */
+
+describe('er ci: число тестов на CI и предел ожидания', () => {
+  const at = (min) => new Date(Date.UTC(2026, 9, 8, 12, 0) + min * 60000).toISOString();
+  const NOW = Date.UTC(2026, 9, 8, 12, 0) + 40 * 60000;
+  const run = (status, startedMin, conclusion = null) => ({ id: 1, name: 'test', status, conclusion, started_at: at(startedMin), completed_at: conclusion ? at(startedMin + 4) : null, html_url: 'https://github.com/x/y/actions/runs/1' });
+
+  it('итог vitest берётся из лога задания: метки времени и цвета не мешают, упавшие тоже в счёт', () => {
+    const log = '2026-10-08T12:03:01.1234567Z \x1b[2m Test Files \x1b[22m 18 passed (18)\n2026-10-08T12:03:01.1234567Z \x1b[2m      Tests \x1b[22m \x1b[1m\x1b[32m303 passed\x1b[39m\x1b[22m (303)\n  54 passed (4.5m)';
+    expect(vitestTotal(log)).toBe(303);
+    expect(vitestTotal('      Tests  2 failed | 300 passed | 1 skipped (303)')).toBe(303);
+    expect(vitestTotal('нет итога')).toBe(null);
+  });
+
+  it('число тестов CI из аннотации vitest-total (лог задания из облачной сессии не скачать)', () => {
+    expect(annotationTotal([{ title: '', message: 'Node.js 20 is deprecated' }, { title: 'vitest-total', message: '303 tests, failed 0' }])).toBe(303);
+    expect(annotationTotal([{ title: 'vitest-total', message: 'no vitest-report.json' }])).toBe(null);
+    expect(annotationTotal(null)).toBe(null);
+  });
+
+  it('сверка с локальным прогоном: шим недосчитал, CI недосчитал, совпало, не с чем сравнить', () => {
+    expect(countLine(468, { total: 412, sha: 'abc1234', source: 'er test' })).toMatch(/⚠.*412.*468.*шим/);
+    expect(countLine(300, { total: 303, sha: 'abc1234', source: 'er test' })).toMatch(/⚠.*меньше/);
+    expect(countLine(303, { total: 303, sha: 'abc1234', source: 'здоровье «после»' })).toMatch(/303.*как локально/);
+    expect(countLine(303, null)).toMatch(/сравнить не с чем/);
+    expect(countLine(null, { total: 303 })).toMatch(/не нашёл/);
+  });
+
+  it('проверки идут дольше предела — «не ответил» (не красное и не зелёное); моложе предела — ещё идёт', () => {
+    const stuck = ciVerdict([run('queued', 5)], { now: NOW, maxMin: 30 });
+    expect(stuck.state).toBe('stuck');
+    expect(stuck.ageMin).toBe(35);
+    expect(stuck.line).toMatch(/не ответил/);
+    expect(ciVerdict([run('in_progress', 25)], { now: NOW, maxMin: 30 }).state).toBe('pending');
+    expect(ciVerdict([run('completed', 0, 'success')], { now: NOW, maxMin: 30 }).state).toBe('success');
+    expect(ciVerdict([run('completed', 0, 'failure')], { now: NOW, maxMin: 30 }).state).toBe('failure');
+  });
+
+  it('проверок нет: предел считается от первого вызова er ci для этого коммита', () => {
+    expect(ciVerdict([], { now: NOW, maxMin: 30, firstSeen: NOW - 31 * 60000 }).state).toBe('stuck');
+    expect(ciVerdict([], { now: NOW, maxMin: 30, firstSeen: NOW - 5 * 60000 }).state).toBe('none');
+    expect(ciVerdict([], { now: NOW, maxMin: 30 }).state).toBe('none');
+  });
+});
+
+describe('er wait: фоновая задача готова, идёт, зависла или прервалась', () => {
+  it('предел — от эталонного времени E2E, не меньше 12 минут; эталона нет — 25', () => {
+    expect(jobLimitMin({ e2eMin: 4.5 })).toBe(14);
+    expect(jobLimitMin({ e2eMin: 1 })).toBe(12);
+    expect(jobLimitMin(null)).toBe(25);
+  });
+  it('итог записан — готово; процесса нет — прервалась; дольше предела — зависла; иначе — идёт', () => {
+    const start = { at: 0, pid: 123 };
+    expect(jobStatus({ done: { status: 0 }, start, alive: false, now: 60 * 60000, limitMin: 14 })).toBe('done');
+    expect(jobStatus({ done: null, start, alive: false, now: 60000, limitMin: 14 })).toBe('dead');
+    expect(jobStatus({ done: null, start, alive: true, now: 15 * 60000, limitMin: 14 })).toBe('stuck');
+    expect(jobStatus({ done: null, start, alive: true, now: 5 * 60000, limitMin: 14 })).toBe('running');
+    expect(jobStatus({ done: null, start: null, alive: null, now: 5 * 60000, limitMin: 14 })).toBe('running');
+  });
+});
+
+describe('er archive: старые записи журнала — в docs/evolution/', () => {
+  const entry = (t) => `### ${t}\n\nЗапись ${t}.\n\n`;
+  const md = '# Эволюция\n\n## Планы автора\n### План «+4000»\n- [ ] шаг\n\n## Эталон\n\nюнит 303\n\n## Итерации\n\nЖурнал по порядку.\n\n' +
+    entry('2025-12-30 — старая') + entry('2026-01-02 — средняя') + entry('2026-10-07 (3) — новая') + '## Бэклог\n- [ ] одно\n\n## Разведка 2026-10-06\nфакты\n';
+
+  it('переносит всё, кроме последних keep, по годам; остальные разделы не трогает; повтор ничего не меняет', () => {
+    const r = archiveJournal(md, 1);
+    expect(r.moved.map((m) => m.year)).toEqual(['2025', '2026']);
+    expect(r.moved[0].text).toMatch(/### 2025-12-30 — старая/);
+    expect(r.moved[1].text).toMatch(/### 2026-01-02 — средняя/);
+    const its = sections(sections(r.md).find((s) => s.title === 'Итерации').body, 3);
+    expect(its.map((s) => s.title)).toEqual(['2026-10-07 (3) — новая']);
+    expect(r.md).toMatch(/docs\/evolution\/archive-2025\.md/);
+    for (const name of ['Планы автора', 'Эталон', 'Бэклог', 'Разведка 2026-10-06']) {
+      expect(sections(r.md).find((s) => s.title === name).body).toBe(sections(md).find((s) => s.title === name).body);
+    }
+    expect(archiveJournal(r.md, 1).moved).toEqual([]);
+  });
+
+  it('записей не больше keep — файл не меняется', () => {
+    const r = archiveJournal(md, 30);
+    expect(r.moved).toEqual([]);
+    expect(r.md).toBe(md);
+  });
+});
+
+describe('er start: метрика автора из docs/metrics/', () => {
+  it('последняя непустая строка самого нового файла; файлов нет — null', () => {
+    expect(latestMetric([{ name: '2026-09.csv', text: 'date,phrases\n2026-09-30,22\n' }, { name: '2026-10.csv', text: 'date,phrases\n2026-10-06,41\n2026-10-07,37\n\n' }]))
+      .toEqual({ file: '2026-10.csv', line: '2026-10-07,37' });
+    expect(latestMetric([])).toBe(null);
+    expect(latestMetric([{ name: 'README.md', text: '' }])).toBe(null);
+  });
+});
+
+describe('er review: словари, которых нет в диффе, — ревизору-код числами', () => {
+  it('записи словаря: добавлены, удалены, изменены', () => {
+    const a = 'const LEX_US = {"cat":"kæt","dog":"dɔɡ|0","toy":"tɔɪ"};';
+    const b = 'const LEX_US = {"cat":"kæt","dog":"dɑɡ|0","coins":"kɔɪnz"};';
+    expect(dictStats(a, b)).toEqual({ total: 3, added: 1, removed: 1, changed: 1 });
+    expect(dictStats('', b)).toEqual({ total: 3, added: 3, removed: 0, changed: 0 });
+  });
+  it('флаг: изменилось больше 10% записей или словарь менялся без новых карточек', () => {
+    expect(dictNote('js/lex_us.js', { total: 100, added: 15, removed: 0, changed: 0 }, true)).toMatchObject({ flag: true });
+    expect(dictNote('js/lex_us.js', { total: 100, added: 2, removed: 0, changed: 0 }, true)).toMatchObject({ flag: false });
+    const n = dictNote('js/pos_us.js', { total: 100, added: 0, removed: 0, changed: 2 }, false);
+    expect(n.flag).toBe(true);
+    expect(n.line).toMatch(/pos_us\.js.*изменено 2.*из 100/);
   });
 });
