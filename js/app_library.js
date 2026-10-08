@@ -248,6 +248,7 @@ const AppLibrary = (() => {
           </button>
         </h2>
         <p class="slang-full-form">= ${p.full_form}</p>
+        ${p.translation ? `<p class="card-translation">${p.translation}</p>` : ''}
         <div class="ipa-chips">
           <span class="ipa-chip">полная: ${p.ipa_full} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa_full, p.full_form || '')}</span></span>
           <span class="ipa-chip">сокращённая: ${p.ipa_short} <span class="ru-tr">${Annotate.ruTranscribe(p.ipa_short, p.front)}</span></span>
