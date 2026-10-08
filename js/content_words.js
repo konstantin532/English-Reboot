@@ -2,7 +2,8 @@
    English Reboot — раздел «Слова»: базовый американский словарь по подуровням
    Файл: content_words.js — WORD_CARDS. Пакет A1: часть 1 — 200 слов в 12 темах (wd_0001–0200),
    часть 2 — ещё 200 (wd_0201–0400). Пакет A1+, часть 1 — 150 слов (wd_0401–0550) и 30 фразовых
-   глаголов (pv_209–238, в раздел «Фразовые глаголы»). Новое — только в конец: id и прогресс не сдвигаются.
+   глаголов (pv_209–238, в раздел «Фразовые глаголы»). Пакет A1+, часть 2 — ещё 120 слов (wd_0551–0670)
+   и 30 фразовых глаголов (pv_239–268), 20 карточек живой речи (sl_072–091, в раздел «Сленг»). Новое — только в конец: id и прогресс не сдвигаются.
    Строка данных: [слово, часть речи, перевод, пример 1, перевод 1, пример 2, перевод 2, тема, подуровень?]
    В примерах {слово} — целевая форма для теста «вставь слово» (в карточку не попадает).
    Примеры — свои, в духе сериала: герои истории «Переезд в Нью-Йорк» (Мэгги, Тони, Джесс,
@@ -636,6 +637,146 @@
     ['future', 'сущ.', 'будущее', 'Plans for the {future}?', 'Планы на будущее?', 'The {future} looks good!', 'Будущее выглядит неплохо!', 'Время', 'A1+'],
     ['holiday', 'сущ.', 'праздник', 'Happy {holidays}!', 'С праздниками!', 'Monday is a {holiday}.', 'В понедельник праздник.', 'Время', 'A1+'],
 
+    /* ========== Пакет A1+, часть 2 (wd_0551–wd_0670): подуровень A1+, примеры до 7 слов ========== */
+
+    /* ---------- Действия ---------- */
+    ['stay', 'глаг.', 'оставаться', 'Can you {stay} for dinner?', 'Останешься на ужин?', 'Jess {stays} with us this week.', 'Джесс живёт у нас эту неделю.', 'Действия', 'A1+'],
+    ['keep', 'глаг.', 'оставлять себе; хранить', '{Keep} the change.', 'Сдачи не надо.', 'Maggie {keeps} the keys in a bowl.', 'Мэгги хранит ключи в миске.', 'Действия', 'A1+'],
+    ['hold', 'глаг.', 'держать', 'Can you {hold} my coffee?', 'Подержишь мой кофе?', 'Tony {holds} the door for everybody.', 'Тони всем придерживает дверь.', 'Действия', 'A1+'],
+    ['miss', 'глаг.', 'скучать; пропустить, опоздать на', 'I {miss} my family.', 'Я скучаю по семье.', 'Sam {missed} the bus again.', 'Сэм опять опоздал на автобус.', 'Действия', 'A1+'],
+    ['happen', 'глаг.', 'случаться, происходить', 'What {happened}?', 'Что случилось?', 'It {happens} every Monday.', 'Это случается каждый понедельник.', 'Действия', 'A1+'],
+    ['mean', 'глаг.', 'значить; иметь в виду', 'What does it {mean}?', 'Что это значит?', 'Sorry, I {mean} Tuesday.', 'Простите, я имею в виду вторник.', 'Действия', 'A1+'],
+    ['use', 'глаг.', 'пользоваться, использовать', 'Can I {use} your phone?', 'Можно воспользоваться твоим телефоном?', 'We {use} the app every day.', 'Мы каждый день пользуемся приложением.', 'Действия', 'A1+'],
+    ['believe', 'глаг.', 'верить', 'I don\'t {believe} it!', 'Не верю!', 'Sam {believes} everything online.', 'Сэм верит всему в интернете.', 'Действия', 'A1+'],
+    ['share', 'глаг.', 'делиться; делить', 'Wanna {share} a pizza?', 'Возьмём одну пиццу на двоих?', 'Maggie and I {share} a kitchen.', 'Мы с Мэгги делим кухню.', 'Действия', 'A1+'],
+    ['join', 'глаг.', 'присоединиться', 'Can I {join} you?', 'Можно к вам присоединиться?', 'Tony {joins} a gym every January.', 'Каждый январь Тони записывается в спортзал.', 'Действия', 'A1+'],
+    ['check', 'глаг., сущ.', 'проверять; счёт (в ресторане)', 'Let me {check} my phone.', 'Дай проверю телефон.', 'Can we get the {check}?', 'Можно нам счёт?', 'Действия', 'A1+'],
+    ['order', 'глаг., сущ.', 'заказывать; заказ', 'Are you ready to {order}?', 'Вы готовы сделать заказ?', 'Your {order} is ready!', 'Ваш заказ готов!', 'Действия', 'A1+'],
+    ['rent', 'глаг., сущ.', 'снимать (жильё); арендная плата', 'We {rent} a small apartment.', 'Мы снимаем маленькую квартиру.', 'The {rent} is due Friday.', 'За квартиру платить до пятницы.', 'Действия', 'A1+'],
+    ['pack', 'глаг.', 'собирать вещи, упаковывать', 'Did you {pack} your bag?', 'Ты собрал(а) сумку?', 'Jess {packs} the night before.', 'Джесс собирает вещи накануне вечером.', 'Действия', 'A1+'],
+    ['cut', 'глаг.', 'резать', 'Can you {cut} the cake?', 'Разрежешь торт?', 'Maggie {cuts} the bread.', 'Мэгги режет хлеб.', 'Действия', 'A1+'],
+    ['bake', 'глаг.', 'печь (в духовке)', 'Let\'s {bake} cookies!', 'Давай испечём печенье!', 'Luis {bakes} bread at night.', 'Луис печёт хлеб по ночам.', 'Действия', 'A1+'],
+    ['count', 'глаг.', 'считать', '{Count} to ten.', 'Посчитай до десяти.', 'Luis {counts} the cash twice.', 'Луис дважды пересчитывает наличные.', 'Действия', 'A1+'],
+    ['draw', 'глаг.', 'рисовать (карандашом)', 'Can you {draw} a map?', 'Нарисуешь схему?', 'Sam {draws} cats on everything.', 'Сэм везде рисует котов.', 'Действия', 'A1+'],
+    ['jump', 'глаг.', 'прыгать', 'Don\'t {jump}!', 'Не прыгай!', 'The dog {jumps} on the couch.', 'Собака прыгает на диван.', 'Действия', 'A1+'],
+    ['push', 'глаг.', 'толкать; нажимать', '{Push} the door, not pull.', 'Толкай дверь, а не тяни.', '{Push} the green button.', 'Нажми зелёную кнопку.', 'Действия', 'A1+'],
+    ['pull', 'глаг.', 'тянуть', '{Pull} the door, it\'s heavy.', 'Тяни дверь, она тяжёлая.', 'Kids {pull} the dog\'s tail.', 'Дети тянут собаку за хвост.', 'Действия', 'A1+'],
+    ['touch', 'глаг.', 'трогать', 'Don\'t {touch} that!', 'Не трогай!', 'Sam {touches} everything in the store.', 'Сэм трогает в магазине всё подряд.', 'Действия', 'A1+'],
+    ['knock', 'глаг.', 'стучать (в дверь)', 'Please {knock} first.', 'Пожалуйста, сначала постучи.', 'Someone\'s {knocking}!', 'Кто-то стучит!', 'Действия', 'A1+'],
+    ['hug', 'глаг., сущ.', 'обнимать; объятие', 'Come here, give me a {hug}!', 'Иди сюда, обними меня!', 'Jess {hugs} everybody.', 'Джесс всех обнимает.', 'Действия', 'A1+'],
+    ['enjoy', 'глаг.', 'наслаждаться, получать удовольствие', '{Enjoy} your meal!', 'Приятного аппетита!', 'Did you {enjoy} the movie?', 'Тебе понравился фильм?', 'Действия', 'A1+'],
+
+    /* ---------- Дом ---------- */
+    ['yard', 'сущ.', 'двор (у дома)', 'The kids play in the {yard}.', 'Дети играют во дворе.', 'We have a tiny {yard}.', 'У нас крошечный двор.', 'Дом', 'A1+'],
+    ['garage', 'сущ.', 'гараж', 'The car is in the {garage}.', 'Машина в гараже.', 'Ray fixes his cab in the {garage}.', 'Рэй чинит такси в гараже.', 'Дом', 'A1+'],
+    ['basement', 'сущ.', 'подвал, цокольный этаж', 'The washer is in the {basement}.', 'Стиральная машина в подвале.', 'Our {basement} is so creepy.', 'Наш подвал такой жуткий.', 'Дом', 'A1+'],
+    ['laundry', 'сущ.', 'стирка; бельё для стирки', 'I gotta do {laundry}.', 'Мне надо постирать.', 'Sam\'s {laundry} is everywhere.', 'Бельё Сэма валяется повсюду.', 'Дом', 'A1+'],
+    ['blanket', 'сущ.', 'одеяло, плед', 'Can I get a {blanket}?', 'Можно мне плед?', 'The cat sleeps on my {blanket}.', 'Кот спит на моём пледе.', 'Дом', 'A1+'],
+    ['shelf', 'сущ.', 'полка', 'The cups are on the top {shelf}.', 'Чашки на верхней полке.', 'This {shelf} is for books.', 'Эта полка для книг.', 'Дом', 'A1+'],
+    ['drawer', 'сущ.', 'ящик (стола, комода)', 'The forks are in that {drawer}.', 'Вилки в том ящике.', 'Check the top {drawer}.', 'Посмотри в верхнем ящике.', 'Дом', 'A1+'],
+    ['rug', 'сущ.', 'коврик, ковёр', 'Nice {rug}! Is it new?', 'Классный ковёр! Новый?', 'The dog sleeps on the {rug}.', 'Собака спит на коврике.', 'Дом', 'A1+'],
+    ['toilet', 'сущ.', 'унитаз', 'The {toilet} is broken again.', 'Унитаз опять сломался.', 'Who\'s gonna clean the {toilet}?', 'Кто будет мыть унитаз?', 'Дом', 'A1+'],
+    ['microwave', 'сущ.', 'микроволновка', 'Is the {microwave} free?', 'Микроволновка свободна?', 'Sam cooks everything in the {microwave}.', 'Сэм всё готовит в микроволновке.', 'Дом', 'A1+'],
+    ['oven', 'сущ.', 'духовка', 'The pizza\'s in the {oven}.', 'Пицца в духовке.', 'Is the {oven} still on?', 'Духовка ещё включена?', 'Дом', 'A1+'],
+    ['faucet', 'сущ.', 'кран (амер.)', 'The {faucet} is dripping.', 'Кран капает.', 'Turn off the {faucet}, please.', 'Закрой кран, пожалуйста.', 'Дом', 'A1+'],
+    ['mailbox', 'сущ.', 'почтовый ящик', 'Check the {mailbox}, okay?', 'Проверь почтовый ящик, ладно?', 'Our {mailbox} is always full.', 'Наш почтовый ящик вечно полный.', 'Дом', 'A1+'],
+    ['hallway', 'сущ.', 'коридор', 'Shoes stay in the {hallway}.', 'Обувь остаётся в коридоре.', 'The {hallway} light is broken.', 'Свет в коридоре не работает.', 'Дом', 'A1+'],
+    ['neighborhood', 'сущ.', 'район (где живёшь)', 'I love this {neighborhood}.', 'Обожаю этот район.', 'Is the {neighborhood} safe?', 'Район безопасный?', 'Дом', 'A1+'],
+
+    /* ---------- Город и транспорт ---------- */
+    ['building', 'сущ.', 'здание, дом (многоэтажный)', 'Which {building} is yours?', 'Какой дом твой?', 'Our {building} has no elevator.', 'В нашем доме нет лифта.', 'Город и транспорт', 'A1+'],
+    ['bridge', 'сущ.', 'мост', 'Let\'s walk across the {bridge}.', 'Давай пройдём по мосту.', 'The {bridge} is closed today.', 'Мост сегодня закрыт.', 'Город и транспорт', 'A1+'],
+    ['crosswalk', 'сущ.', 'пешеходный переход (амер.)', 'Cross at the {crosswalk}.', 'Переходи по пешеходному переходу.', 'Ray stops at every {crosswalk}.', 'Рэй останавливается у каждого перехода.', 'Город и транспорт', 'A1+'],
+    ['traffic', 'сущ.', 'движение (на дороге); пробки', 'Sorry, the {traffic} is terrible.', 'Простите, ужасные пробки.', 'Ray hates Monday {traffic}.', 'Рэй ненавидит пробки по понедельникам.', 'Город и транспорт', 'A1+'],
+    ['parking lot', 'сущ.', 'парковка, стоянка (амер.)', 'Meet me in the {parking lot}.', 'Встретимся на парковке.', 'The {parking lot} is full.', 'Парковка забита.', 'Город и транспорт', 'A1+'],
+    ['gas station', 'сущ.', 'заправка (амер.)', 'Is there a {gas station} near here?', 'Тут рядом есть заправка?', 'Ray stops at the {gas station}.', 'Рэй заезжает на заправку.', 'Город и транспорт', 'A1+'],
+    ['library', 'сущ.', 'библиотека', 'The {library} is free!', 'Библиотека бесплатная!', 'Kim studies at the {library}.', 'Ким занимается в библиотеке.', 'Город и транспорт', 'A1+'],
+    ['school', 'сущ.', 'школа', 'Where\'s the {school}?', 'Где школа?', 'Kids go to {school} at eight.', 'Дети идут в школу в восемь.', 'Город и транспорт', 'A1+'],
+    ['post office', 'сущ.', 'почта, почтовое отделение', 'Where\'s the {post office}?', 'Где почта?', 'The {post office} closes at five.', 'Почта закрывается в пять.', 'Город и транспорт', 'A1+'],
+    ['restaurant', 'сущ.', 'ресторан', 'Any good {restaurants} around here?', 'Тут есть хорошие рестораны?', 'This {restaurant} is always packed.', 'В этом ресторане всегда битком.', 'Город и транспорт', 'A1+'],
+    ['bakery', 'сущ.', 'пекарня', 'The {bakery} opens at six.', 'Пекарня открывается в шесть.', 'Luis works at a {bakery}.', 'Луис работает в пекарне.', 'Город и транспорт', 'A1+'],
+    ['police', 'сущ.', 'полиция', 'Call the {police}!', 'Вызовите полицию!', 'The {police} are outside.', 'Снаружи полиция.', 'Город и транспорт', 'A1+'],
+    ['avenue', 'сущ.', 'проспект, авеню', 'It\'s on Fifth {Avenue}.', 'Это на Пятой авеню.', 'Walk two blocks up the {avenue}.', 'Пройди два квартала вверх по авеню.', 'Город и транспорт', 'A1+'],
+    ['bus stop', 'сущ.', 'автобусная остановка', 'Where\'s the {bus stop}?', 'Где автобусная остановка?', 'Meet me at the {bus stop}.', 'Встретимся на остановке.', 'Город и транспорт', 'A1+'],
+    ['playground', 'сущ.', 'детская площадка', 'The kids are at the {playground}.', 'Дети на площадке.', 'There\'s a {playground} in the park.', 'В парке есть детская площадка.', 'Город и транспорт', 'A1+'],
+
+    /* ---------- Тело и здоровье ---------- */
+    ['body', 'сущ.', 'тело', 'My whole {body} hurts.', 'У меня болит всё тело.', 'Listen to your {body}.', 'Прислушивайся к своему телу.', 'Тело и здоровье', 'A1+'],
+    ['heart', 'сущ.', 'сердце', 'My {heart} is beating so fast!', 'Сердце так быстро бьётся!', 'Jess has a big {heart}.', 'У Джесс большое сердце.', 'Тело и здоровье', 'A1+'],
+    ['shoulder', 'сущ.', 'плечо', 'My {shoulder} hurts.', 'У меня болит плечо.', 'Sam carries his bag on one {shoulder}.', 'Сэм носит сумку на одном плече.', 'Тело и здоровье', 'A1+'],
+    ['knee', 'сущ.', 'колено', 'Ow, my {knee}!', 'Ой, колено!', 'Tony hurt his {knee} at the gym.', 'Тони повредил колено в спортзале.', 'Тело и здоровье', 'A1+'],
+    ['neck', 'сущ.', 'шея', 'My {neck} is stiff.', 'Шея затекла.', 'Jess wears a scarf on her {neck}.', 'Джесс носит шарф на шее.', 'Тело и здоровье', 'A1+'],
+    ['throat', 'сущ.', 'горло', 'My {throat} hurts.', 'У меня болит горло.', 'Tea is good for your {throat}.', 'Чай полезен для горла.', 'Тело и здоровье', 'A1+'],
+    ['skin', 'сущ.', 'кожа', 'My {skin} is so dry.', 'У меня такая сухая кожа.', 'Use sunscreen, protect your {skin}.', 'Пользуйся кремом от солнца, береги кожу.', 'Тело и здоровье', 'A1+'],
+    ['flu', 'сущ.', 'грипп', 'I think I have the {flu}.', 'Кажется, у меня грипп.', 'Half the office has the {flu}.', 'Пол-офиса болеет гриппом.', 'Тело и здоровье', 'A1+'],
+    ['dentist', 'сущ.', 'стоматолог', 'I hate the {dentist}.', 'Терпеть не могу стоматолога.', 'Tony sees the {dentist} on Monday.', 'Тони идёт к стоматологу в понедельник.', 'Тело и здоровье', 'A1+'],
+    ['pain', 'сущ.', 'боль', 'Any {pain} here?', 'Здесь болит?', 'The {pain} is gone now.', 'Боль уже прошла.', 'Тело и здоровье', 'A1+'],
+    ['healthy', 'прил.', 'здоровый; полезный (о еде)', 'I wanna eat {healthy} food.', 'Хочу есть полезную еду.', 'Jess is so {healthy}.', 'Джесс такая здоровая.', 'Тело и здоровье', 'A1+'],
+    ['sneeze', 'глаг.', 'чихать', 'Sorry, I always {sneeze} in spring.', 'Простите, весной я вечно чихаю.', 'The cat makes Tony {sneeze}.', 'От кота Тони чихает.', 'Тело и здоровье', 'A1+'],
+
+    /* ---------- Люди и семья ---------- */
+    ['person', 'сущ.', 'человек', 'She\'s a nice {person}.', 'Она хороший человек.', 'One {person}, please.', 'Один человек, пожалуйста.', 'Люди и семья', 'A1+'],
+    ['stranger', 'сущ.', 'незнакомец, незнакомый человек', 'Don\'t talk to {strangers}!', 'Не разговаривай с незнакомцами!', 'A {stranger} helps Sam with his bag.', 'Незнакомец помогает Сэму с сумкой.', 'Люди и семья', 'A1+'],
+    ['adult', 'сущ.', 'взрослый', 'One {adult} and two kids.', 'Один взрослый и двое детей.', 'Sam is an {adult}? Really?', 'Сэм — взрослый? Серьёзно?', 'Люди и семья', 'A1+'],
+    ['teenager', 'сущ.', 'подросток', 'Our neighbor has two {teenagers}.', 'У нашей соседки двое подростков.', 'Sam acts like a {teenager}.', 'Сэм ведёт себя как подросток.', 'Люди и семья', 'A1+'],
+    ['boyfriend', 'сущ.', 'парень (в отношениях)', 'Is he your {boyfriend}?', 'Он твой парень?', 'Kim\'s {boyfriend} is a chef.', 'Парень Ким — повар.', 'Люди и семья', 'A1+'],
+    ['girlfriend', 'сущ.', 'девушка (в отношениях)', 'Tony has a new {girlfriend}!', 'У Тони новая девушка!', 'Is she Sam\'s {girlfriend}?', 'Она девушка Сэма?', 'Люди и семья', 'A1+'],
+    ['kind', 'прил.', 'добрый', 'That\'s so {kind} of you!', 'Как мило с вашей стороны!', 'Ms. Garcia is very {kind}.', 'Мисс Гарсия очень добрая.', 'Люди и семья', 'A1+'],
+    ['friendly', 'прил.', 'дружелюбный', 'People here are so {friendly}.', 'Люди здесь такие дружелюбные.', 'Is the dog {friendly}?', 'Собака не злая?', 'Люди и семья', 'A1+'],
+    ['smart', 'прил.', 'умный', 'Wow, that\'s {smart}!', 'Ого, умно!', 'Priya is super {smart}.', 'Прия очень умная.', 'Люди и семья', 'A1+'],
+    ['shy', 'прил.', 'застенчивый', 'Don\'t be {shy}!', 'Не стесняйся!', 'Kim is {shy} at parties.', 'На вечеринках Ким стесняется.', 'Люди и семья', 'A1+'],
+    ['lazy', 'прил.', 'ленивый', 'Sunday is my {lazy} day.', 'Воскресенье — мой ленивый день.', 'Our cat is so {lazy}.', 'Наш кот такой ленивый.', 'Люди и семья', 'A1+'],
+    ['polite', 'прил.', 'вежливый', 'Be {polite}, okay?', 'Будь вежлив(а), ладно?', 'Luis is always {polite}.', 'Луис всегда вежлив.', 'Люди и семья', 'A1+'],
+    ['honest', 'прил.', 'честный', 'To be {honest}, I\'m tired.', 'Честно говоря, я без сил.', 'Ray is an {honest} guy.', 'Рэй — честный парень.', 'Люди и семья', 'A1+'],
+    ['serious', 'прил.', 'серьёзный', 'Are you {serious}?', 'Ты серьёзно?', 'Priya looks so {serious} today.', 'Прия сегодня такая серьёзная.', 'Люди и семья', 'A1+'],
+    ['cute', 'прил.', 'милый, симпатичный', 'Aw, your dog is so {cute}!', 'Ой, твоя собака такая милая!', 'What a {cute} little apartment!', 'Какая милая маленькая квартира!', 'Люди и семья', 'A1+'],
+
+    /* ---------- Погода и природа ---------- */
+    ['sunny', 'прил.', 'солнечный', 'It\'s {sunny} today!', 'Сегодня солнечно!', 'Tomorrow is gonna be {sunny}.', 'Завтра будет солнечно.', 'Погода и природа', 'A1+'],
+    ['cloudy', 'прил.', 'облачный, пасмурный', 'It\'s {cloudy} again.', 'Опять пасмурно.', 'A {cloudy} day in New York.', 'Пасмурный день в Нью-Йорке.', 'Погода и природа', 'A1+'],
+    ['windy', 'прил.', 'ветреный', 'It\'s so {windy} on the bridge!', 'На мосту такой ветер!', 'Chicago is really {windy}.', 'В Чикаго очень ветрено.', 'Погода и природа', 'A1+'],
+    ['foggy', 'прил.', 'туманный', 'It\'s {foggy} this morning.', 'Сегодня утром туман.', 'Ray drives slow when it\'s {foggy}.', 'В туман Рэй едет медленно.', 'Погода и природа', 'A1+'],
+    ['storm', 'сущ.', 'гроза, буря', 'A big {storm} is coming.', 'Надвигается сильная гроза.', 'The dog hates {storms}.', 'Собака боится гроз.', 'Погода и природа', 'A1+'],
+    ['ice', 'сущ.', 'лёд', 'A soda, no {ice}, please.', 'Газировку без льда, пожалуйста.', 'Careful, there\'s {ice} outside!', 'Осторожно, на улице гололёд!', 'Погода и природа', 'A1+'],
+    ['degree', 'сущ.', 'градус', 'It\'s ninety {degrees} today!', 'Сегодня девяносто градусов (по Фаренгейту, около 32 °C)!', 'Thirty {degrees}? That\'s cold!', 'Тридцать градусов (по Фаренгейту)? Это холодно!', 'Погода и природа', 'A1+'],
+    ['forest', 'сущ.', 'лес', 'Let\'s walk in the {forest}.', 'Давай погуляем в лесу.', 'The {forest} is so quiet.', 'В лесу так тихо.', 'Погода и природа', 'A1+'],
+    ['grass', 'сущ.', 'трава', 'Let\'s sit on the {grass}.', 'Давай сядем на траву.', 'The {grass} is wet.', 'Трава мокрая.', 'Погода и природа', 'A1+'],
+    ['leaf', 'сущ.', 'лист (дерева)', 'The {leaves} are so red!', 'Листья такие красные!', 'A {leaf} in your hair!', 'У тебя листок в волосах!', 'Погода и природа', 'A1+'],
+    ['moon', 'сущ.', 'луна', 'Look at the {moon}!', 'Посмотри на луну!', 'The {moon} is huge tonight.', 'Сегодня луна огромная.', 'Погода и природа', 'A1+'],
+    ['star', 'сущ.', 'звезда', 'No {stars} in the city.', 'В городе не видно звёзд.', 'So many {stars} here!', 'Здесь столько звёзд!', 'Погода и природа', 'A1+'],
+
+    /* ---------- Числа и деньги ---------- */
+    ['coin', 'сущ.', 'монета', 'I only have {coins}.', 'У меня только монеты.', 'Sam keeps {coins} in a jar.', 'Сэм хранит монеты в банке.', 'Числа и деньги', 'A1+'],
+    ['wallet', 'сущ.', 'кошелёк, бумажник', 'Where\'s my {wallet}?', 'Где мой кошелёк?', 'Tony left his {wallet} at home.', 'Тони оставил бумажник дома.', 'Числа и деньги', 'A1+'],
+    ['bill', 'сущ.', 'купюра (амер.); счёт (за услуги)', 'Do you have a five-dollar {bill}?', 'У тебя есть купюра в пять долларов?', 'The phone {bill} is huge.', 'Счёт за телефон огромный.', 'Числа и деньги', 'A1+'],
+    ['discount', 'сущ.', 'скидка', 'Is there a student {discount}?', 'Есть скидка для студентов?', 'Luis gives us a {discount}.', 'Луис делает нам скидку.', 'Числа и деньги', 'A1+'],
+    ['cost', 'глаг.', 'стоить', 'How much does it {cost}?', 'Сколько это стоит?', 'Coffee here {costs} six dollars!', 'Кофе здесь стоит шесть долларов!', 'Числа и деньги', 'A1+'],
+    ['total', 'сущ.', 'итого, общая сумма', 'What\'s the {total}?', 'Сколько всего?', 'Your {total} is twelve fifty.', 'С вас двенадцать пятьдесят.', 'Числа и деньги', 'A1+'],
+    ['tax', 'сущ.', 'налог', 'Is {tax} included?', 'Налог включён?', 'Plus {tax}, so about ten dollars.', 'Плюс налог, итого около десяти долларов.', 'Числа и деньги', 'A1+'],
+    ['cent', 'сущ.', 'цент', 'It\'s ninety-nine {cents}.', 'Это стоит девяносто девять центов.', 'Not one {cent} more!', 'Ни цента больше!', 'Числа и деньги', 'A1+'],
+    ['coupon', 'сущ.', 'купон (на скидку)', 'I have a {coupon}!', 'У меня есть купон!', 'Maggie loves {coupons}.', 'Мэгги обожает купоны.', 'Числа и деньги', 'A1+'],
+    ['deal', 'сущ.', 'выгодная покупка; уговор', 'Ten bucks? Good {deal}!', 'Десять баксов? Выгодно!', 'You cook, I clean. {Deal}?', 'Ты готовишь, я убираю. Договорились?', 'Числа и деньги', 'A1+'],
+
+    /* ---------- Маленькие слова ---------- */
+    ['actually', 'нареч.', 'на самом деле, вообще-то', '{Actually}, I\'m from Ohio.', 'Вообще-то я из Огайо.', 'It\'s {actually} pretty good!', 'На самом деле довольно неплохо!', 'Маленькие слова', 'A1+'],
+    ['anyway', 'нареч.', 'в любом случае; короче (в рассказе)', '{Anyway}, see you tomorrow!', 'В общем, до завтра!', 'Thanks {anyway}!', 'Всё равно спасибо!', 'Маленькие слова', 'A1+'],
+    ['finally', 'нареч.', 'наконец', '{Finally}! The bus is here.', 'Наконец-то! Автобус пришёл.', 'Sam {finally} fixed the faucet.', 'Сэм наконец починил кран.', 'Маленькие слова', 'A1+'],
+    ['usually', 'нареч.', 'обычно', 'I {usually} walk to work.', 'Обычно я хожу на работу пешком.', 'Tony is {usually} late.', 'Тони обычно опаздывает.', 'Маленькие слова', 'A1+'],
+    ['often', 'нареч.', 'часто', 'Do you come here {often}?', 'Часто сюда приходишь?', 'Jess {often} works on weekends.', 'Джесс часто работает по выходным.', 'Маленькие слова', 'A1+'],
+    ['once', 'нареч.', 'один раз; однажды', '{Once} a week is fine.', 'Раз в неделю — нормально.', 'Say it {once} more.', 'Скажи ещё раз.', 'Маленькие слова', 'A1+'],
+    ['twice', 'нареч.', 'дважды, два раза', '{Twice} a day, after meals.', 'Два раза в день, после еды.', 'Sam calls his mom {twice} a week.', 'Сэм звонит маме два раза в неделю.', 'Маленькие слова', 'A1+'],
+    ['slowly', 'нареч.', 'медленно', 'Can you speak {slowly}, please?', 'Можете говорить медленно, пожалуйста?', 'Ray drives {slowly} in the rain.', 'В дождь Рэй едет медленно.', 'Маленькие слова', 'A1+'],
+    ['before', 'предл.', 'до, перед', 'Call me {before} lunch.', 'Позвони мне до обеда.', 'Wash your hands {before} dinner.', 'Помой руки перед ужином.', 'Маленькие слова', 'A1+'],
+    ['after', 'предл.', 'после', 'Let\'s talk {after} class.', 'Давай поговорим после занятия.', 'Jess runs {after} work.', 'Джесс бегает после работы.', 'Маленькие слова', 'A1+'],
+    ['without', 'предл.', 'без', 'Coffee {without} sugar, please.', 'Кофе без сахара, пожалуйста.', 'Don\'t leave {without} me!', 'Не уходи без меня!', 'Маленькие слова', 'A1+'],
+    ['near', 'предл.', 'рядом с, около', 'Is it {near} the station?', 'Это рядом со станцией?', 'Maggie lives {near} the park.', 'Мэгги живёт рядом с парком.', 'Маленькие слова', 'A1+'],
+
+    /* ---------- Еда и напитки ---------- */
+    ['steak', 'сущ.', 'стейк', 'How do you like your {steak}?', 'Какой прожарки стейк?', 'Tony orders {steak} every time.', 'Тони каждый раз заказывает стейк.', 'Еда и напитки', 'A1+'],
+    ['ice cream', 'сущ.', 'мороженое', 'Wanna get {ice cream}?', 'Пойдём за мороженым?', 'Jess eats {ice cream} in winter.', 'Джесс ест мороженое даже зимой.', 'Еда и напитки', 'A1+'],
+    ['lemon', 'сущ.', 'лимон', 'Tea with {lemon}, please.', 'Чай с лимоном, пожалуйста.', 'Water with {lemon} is my thing.', 'Вода с лимоном — это моё.', 'Еда и напитки', 'A1+'],
+    ['peanut butter', 'сущ.', 'арахисовая паста', 'Toast with {peanut butter}?', 'Тост с арахисовой пастой?', 'Sam eats {peanut butter} with a spoon.', 'Сэм ест арахисовую пасту ложкой.', 'Еда и напитки', 'A1+'],
+
   ];
 
   // Фразовые глаголы A1+: те же правила и тесты, что у слов; карточки уходят в раздел
@@ -671,7 +812,112 @@
     ['walk around', 'фраз. глаг.', 'гулять, ходить по (месту)', 'Let\'s {walk around} the park.', 'Давай погуляем по парку.', 'Tourists {walk around} all day.', 'Туристы гуляют весь день.', 'Первый месяц', 'A1+'],
     ['fill up', 'фраз. глаг.', 'наполнить; заправить', 'Can you {fill up} my cup?', 'Подольёшь мне?', 'Ray {fills up} the cab every morning.', 'Рэй заправляет такси каждое утро.', 'Первый месяц', 'A1+'],
     ['lock up', 'фраз. глаг.', 'запереть (всё)', 'Don\'t forget to {lock up}!', 'Не забудь всё запереть!', 'Who {locks up} the office?', 'Кто запирает офис?', 'Первый месяц', 'A1+'],
+    /* ---------- Пакет A1+, часть 2 (pv_239–268) ---------- */
+    ['calm down', 'фраз. глаг.', 'успокоиться', 'Hey, {calm down}. It\'s okay.', 'Эй, успокойся. Всё нормально.', 'Tony {calms down} after coffee.', 'После кофе Тони успокаивается.', 'Первый месяц', 'A1+'],
+    ['cheer up', 'фраз. глаг.', 'взбодриться, не грустить', '{Cheer up}! It\'s Friday!', 'Не грусти! Пятница же!', 'Sam {cheers up} after pizza.', 'После пиццы Сэм веселеет.', 'Первый месяц', 'A1+'],
+    ['come out', 'фраз. глаг.', 'выйти (наружу; в продажу)', '{Come out}, the sun is shining!', 'Выходи, солнце светит!', 'The new episode {comes out} Friday.', 'Новая серия выходит в пятницу.', 'Первый месяц', 'A1+'],
+    ['go ahead', 'фраз. глаг.', 'давай, вперёд; начинай', 'Any questions? {Go ahead}.', 'Есть вопросы? Задавайте.', '{Go ahead}, I\'m listening.', 'Давай, я слушаю.', 'Первый месяц', 'A1+'],
+    ['settle in', 'фраз. глаг.', 'обжиться, освоиться (на новом месте)', 'Are you {settling in} okay?', 'Как, обживаешься?', 'Kim {settles in} really fast.', 'Ким очень быстро осваивается.', 'Первый месяц', 'A1+'],
+    ['sign up', 'фраз. глаг.', 'записаться, зарегистрироваться', 'I wanna {sign up} for yoga.', 'Хочу записаться на йогу.', 'Jess {signs up} for everything.', 'Джесс записывается на всё подряд.', 'Первый месяц', 'A1+'],
+    ['cool down', 'фраз. глаг.', 'остыть; остынуть (о человеке)', 'Let the soup {cool down}.', 'Дай супу остыть.', 'Go for a walk, {cool down}.', 'Сходи прогуляйся, остынь.', 'Первый месяц', 'A1+'],
+    ['heat up', 'фраз. глаг.', 'разогреть', 'Can you {heat up} the soup?', 'Разогреешь суп?', 'Sam {heats up} pizza for breakfast.', 'Сэм разогревает пиццу на завтрак.', 'Первый месяц', 'A1+'],
+    ['back up', 'фраз. глаг.', 'сдать назад; сделать копию', 'Can you {back up} a little?', 'Можете чуть сдать назад?', '{Back up} your photos!', 'Сделай копию фотографий!', 'Первый месяц', 'A1+'],
+    ['stay out', 'фраз. глаг.', 'гулять допоздна, не приходить домой', 'Don\'t {stay out} too late!', 'Не гуляй слишком поздно!', 'Sam {stays out} all night.', 'Сэм гуляет всю ночь.', 'Первый месяц', 'A1+'],
+    ['plug in', 'фраз. глаг.', 'включить в розетку', 'Can I {plug in} my phone?', 'Можно поставить телефон на зарядку?', 'Is the TV {plugged in}?', 'Телевизор включён в розетку?', 'Первый месяц', 'A1+'],
+    ['help out', 'фраз. глаг.', 'помочь, выручить', 'Can you {help out} tonight?', 'Сможешь помочь сегодня вечером?', 'Kim {helps out} at the clinic.', 'Ким помогает в клинике.', 'Первый месяц', 'A1+'],
+    ['chill out', 'фраз. глаг.', 'расслабиться, остыть (разг.)', 'Just {chill out}, okay?', 'Просто расслабься, ладно?', 'We {chill out} on Sundays.', 'По воскресеньям мы отдыхаем.', 'Первый месяц', 'A1+'],
+    ['stay over', 'фраз. глаг.', 'остаться на ночь (в гостях)', 'It\'s late. Wanna {stay over}?', 'Уже поздно. Останешься на ночь?', 'Jess {stays over} on Fridays.', 'По пятницам Джесс остаётся у нас ночевать.', 'Первый месяц', 'A1+'],
+    ['text back', 'фраз. глаг.', 'ответить на сообщение', '{Text back} when you can.', 'Ответь, когда сможешь.', 'Sam never {texts back}.', 'Сэм никогда не отвечает на сообщения.', 'Первый месяц', 'A1+'],
+    ['write back', 'фраз. глаг.', 'ответить (письменно)', 'Please {write back} soon.', 'Пожалуйста, ответь поскорее.', 'Priya always {writes back} fast.', 'Прия всегда быстро отвечает.', 'Первый месяц', 'A1+'],
+    ['fall off', 'фраз. глаг.', 'упасть (с чего-то)', 'Careful, don\'t {fall off}!', 'Осторожно, не свались!', 'Sam {fell off} his bike.', 'Сэм упал с велосипеда.', 'Первый месяц', 'A1+'],
+    ['move over', 'фраз. глаг.', 'подвинуться', 'Can you {move over} a little?', 'Можешь чуть подвинуться?', 'The cat never {moves over}.', 'Кот никогда не двигается.', 'Первый месяц', 'A1+'],
+    ['wash up', 'фраз. глаг.', 'умыться, помыть руки (амер.)', 'Go {wash up}, dinner\'s ready!', 'Иди мой руки, ужин готов!', 'I gotta {wash up} first.', 'Мне сначала надо умыться.', 'Первый месяц', 'A1+'],
+    ['order in', 'фраз. глаг.', 'заказать еду на дом', 'Let\'s just {order in} tonight.', 'Давай сегодня просто закажем еду.', 'Sam {orders in} every night.', 'Сэм каждый вечер заказывает еду.', 'Первый месяц', 'A1+'],
+    ['clear up', 'фраз. глаг.', 'проясниться (о погоде)', 'It\'s gonna {clear up} later.', 'Позже прояснится.', 'The sky {clears up} by noon.', 'К полудню небо проясняется.', 'Первый месяц', 'A1+'],
+    ['start over', 'фраз. глаг.', 'начать заново', 'Okay, let\'s {start over}.', 'Ладно, начнём заново.', 'Sam {starts over} every Monday.', 'Сэм каждый понедельник начинает с чистого листа.', 'Первый месяц', 'A1+'],
+    ['come up', 'фраз. глаг.', 'подняться (к кому-то); возникнуть', '{Come up}, it\'s open!', 'Поднимайся, открыто!', 'Something {came up}. Sorry!', 'Кое-что случилось. Простите!', 'Первый месяц', 'A1+'],
+    ['open up', 'фраз. глаг.', 'открыться (о месте; о человеке)', 'A new bakery {opens up} Monday.', 'В понедельник открывается новая пекарня.', 'Kim {opens up} after a while.', 'Ким раскрывается не сразу.', 'Первый месяц', 'A1+'],
+    ['throw up', 'фраз. глаг.', 'тошнить, вырвать', 'I think I\'m gonna {throw up}.', 'Кажется, меня сейчас стошнит.', 'The dog {threw up} on the rug.', 'Собаку стошнило на ковёр.', 'Первый месяц', 'A1+'],
+    ['jump in', 'фраз. глаг.', 'запрыгнуть; вмешаться в разговор', '{Jump in}, I\'ll drive!', 'Запрыгивай, я поведу!', 'Sorry, can I {jump in}?', 'Простите, можно вставлю слово?', 'Первый месяц', 'A1+'],
+    ['turn back', 'фраз. глаг.', 'повернуть назад', 'We\'re lost. Let\'s {turn back}.', 'Мы заблудились. Давай повернём назад.', 'Ray {turns back} for the bag.', 'Рэй возвращается за сумкой.', 'Первый месяц', 'A1+'],
+    ['take away', 'фраз. глаг.', 'убрать, унести', 'Can you {take away} the plates?', 'Можете убрать тарелки?', 'Mom {takes away} my phone.', 'Мама отбирает у меня телефон.', 'Первый месяц', 'A1+'],
+    ['drop by', 'фраз. глаг.', 'заскочить, заглянуть', 'Can I {drop by} later?', 'Можно заскочить попозже?', 'Kim {drops by} with cookies.', 'Ким заглядывает с печеньем.', 'Первый месяц', 'A1+'],
+    ['dry off', 'фраз. глаг.', 'вытереться, обсохнуть', 'Here\'s a towel, {dry off}.', 'Вот полотенце, вытрись.', 'The dog {dries off} by the door.', 'Собака обсыхает у двери.', 'Первый месяц', 'A1+'],
   ];
+
+  // Живая речь A1+ (раздел «Сленг», sl_072+; sl_071 занят — убран как дубль в content_migrate.js).
+  // Звуки «да / нет» (uh-huh / uh-uh), междометия и слабые формы (for → «фэр», until → 'til):
+  // их постоянно слышно в кино, и это нейтральная речь — её можно и говорить самому.
+  // Строка: [форма, полная форма / смысл по-английски, перевод, IPA полной, IPA живой, пример 1, перевод 1, пример 2, перевод 2, группа смысла]
+  const LIVE_DATA = [
+    ['uh-huh', 'yes', 'ага, угу (да)', '/jɛs/', '/əˈhʌ/', '{Uh-huh}, I\'m listening.', 'Угу, я слушаю.', 'Coffee? {Uh-huh}, please.', 'Кофе? Ага, пожалуйста.', 'yes'],
+    ['uh-uh', 'no', 'не-а (нет; звучит «а́-а» с запинкой)', '/noʊ/', '/ˈʌʔʌ/', '{Uh-uh}, not this one.', 'Не-а, не этот.', 'Far? {Uh-uh}, two minutes.', 'Далеко? Не-а, две минуты.', 'no'],
+    ['mm-hmm', 'yes (I\'m listening)', 'угу (да, слушаю)', '/jɛs/', '/mˈhm/', '{Mm-hmm}, go on.', 'Угу, продолжай.', 'Is this seat free? {Mm-hmm}.', 'Это место свободно? Угу.', 'yes'],
+    ['yup', 'yes', 'ага, да', '/jɛs/', '/jʌp/', '{Yup}, that\'s my bag.', 'Ага, это моя сумка.', 'Ready? {Yup}!', 'Готов(а)? Ага!', 'yes'],
+    ['nuh-uh', 'no way', 'не-а, ещё чего (в шутку, по-детски)', '/noʊ weɪ/', '/nəˈʌ/', '{Nuh-uh}, that\'s mine!', 'Ещё чего, это моё!', 'My fries? {Nuh-uh}!', 'Мою картошку? Не-а!', 'no'],
+    ['huh?', 'what?', 'а? что? (не расслышал)', '/wʌt/', '/hʌ/', '{Huh}? Sorry, say again?', 'А? Простите, повторите?', '{Huh}? What time is it?', 'А? Который час?', 'what'],
+    ['uh-oh', 'oh no', 'ой-ой (что-то пошло не так)', '/oʊ noʊ/', '/ˈʌʔoʊ/', '{Uh-oh}, the milk is gone.', 'Ой-ой, молоко кончилось.', '{Uh-oh}. Where\'s my wallet?', 'Ой-ой. А где мой кошелёк?', 'oops'],
+    ['oops', 'my mistake', 'ой, упс (моя ошибка)', '/maɪ mɪˈsteɪk/', '/ups/', '{Oops}, wrong button!', 'Упс, не та кнопка!', '{Oops}, sorry about that!', 'Ой, извините!', 'oops'],
+    ['ouch', 'that hurts', 'ай, больно', '/ðæt hɝts/', '/aʊtʃ/', '{Ouch}! My finger!', 'Ай! Палец!', '{Ouch}, that\'s hot!', 'Ай, горячо!', 'ouch'],
+    ['ugh', 'I\'m annoyed', 'фу, ну вот (досада)', '/aɪm əˈnɔɪd/', '/ʌɡ/', '{Ugh}, Monday again.', 'Ну вот, опять понедельник.', '{Ugh}, the subway is late.', 'Фу, метро опаздывает.', 'ugh'],
+    ['ew', 'gross', 'фу, гадость', '/ɡroʊs/', '/iu/', '{Ew}, the milk smells bad!', 'Фу, молоко плохо пахнет!', 'A bug? {Ew}!', 'Жук? Фу!', 'ugh'],
+    ['whoa', 'wow / wait', 'ого!; стоп-стоп', '/waʊ/', '/woʊ/', '{Whoa}, look at that view!', 'Ого, ты посмотри, какой вид!', '{Whoa}, slow down!', 'Стоп-стоп, помедленнее!', 'wow'],
+    ['phew', 'what a relief', 'фух (облегчение)', '/wʌt ə rɪˈlif/', '/fju/', '{Phew}, we made it!', 'Фух, успели!', '{Phew}, the test is over.', 'Фух, тест закончился.', 'phew'],
+    ['yay', 'hooray', 'ура', '/hʊˈreɪ/', '/jeɪ/', 'Pizza night? {Yay}!', 'Вечер пиццы? Ура!', '{Yay}, it\'s Friday!', 'Ура, пятница!', 'wow'],
+    ['shh', 'be quiet', 'тсс, тише', '/bi ˈkwaɪət/', '/ʃ/', '{Shh}, the baby\'s sleeping.', 'Тсс, малыш спит.', '{Shh}! The movie\'s starting.', 'Тсс! Фильм начинается.', 'shh'],
+    ['\'til', 'until', 'до (какого-то времени)', '/ənˈtɪl/', '/tɪl/', 'We\'re open {\'til} ten.', 'Мы работаем до десяти.', 'Wait {\'til} Friday.', 'Подожди до пятницы.', 'til'],
+    ['\'bout', 'about', 'про, о; около', '/əˈbaʊt/', '/baʊt/', 'What {\'bout} you?', 'А ты?', 'Let\'s talk {\'bout} it later.', 'Давай поговорим об этом потом.', 'bout'],
+    ['aw', 'how sweet', 'ой, как мило; эх (сочувствие)', '/haʊ swit/', '/ɔ/', '{Aw}, that\'s so sweet!', 'Ой, как мило!', '{Aw}, poor thing.', 'Эх, бедняжка.', 'aw'],
+    ['fer', 'for', 'for без ударения (звучит «фэр»)', '/fɔr/', '/fɚ/', 'Thanks {fer} coming!', 'Спасибо, что пришли!', 'What\'s {fer} dinner?', 'Что на ужин?', 'fer'],
+    ['y\'know', 'you know', 'знаешь; ну, это (слово-связка)', '/ju noʊ/', '/jəˈnoʊ/', 'It\'s, {y\'know}, kinda weird.', 'Это, ну, как-то странно.', 'I like it here, {y\'know}?', 'Мне тут нравится, понимаешь?', 'know'],
+  ];
+  function buildLive(rows, firstNum) {
+    /* global partsOf */
+    const parts = (text) => (typeof partsOf === 'function' ? partsOf(text)
+      : String(text).split(/\s+/).filter(Boolean).map((w) => ({ word: w })));
+    const n = rows.length;
+    const APPROP = ['В разговоре с другом', 'В официальном письме', 'В новостном репортаже', 'В научной статье'];
+    const clean = (raw) => String(raw).replace(/[{}]/g, '');
+    // Неверные варианты — другие живые формы с другим смыслом (uh-huh и yup оба «да» — вместе не даём)
+    const others = (i, key) => {
+      const out = [];
+      for (let j = 1, k = (i * 7 + 3) % n; out.length < 3 && j <= n * 2; j++, k = (k + 3) % n) {
+        if (k === i || rows[k][9] === rows[i][9]) continue;
+        const v = key(rows[k]);
+        if (v && !out.includes(v) && v !== key(rows[i])) out.push(v);
+      }
+      return out;
+    };
+    const mix = (correct, distr, pos) => {
+      const options = distr.slice(0, 3);
+      const p = pos % (options.length + 1);
+      options.splice(p, 0, correct);
+      return { options, correct: p };
+    };
+    const word = (r) => r[0].replace(/\?$/, '');
+    return rows.map((r, i) => {
+      const tests = [];
+      tests.push({ q: 'Что значит «' + r[0] + '»?', ...mix(r[2], others(i, (x) => x[2]), i) });
+      tests.push({ q: 'Как это звучит в живой речи: «' + r[2] + '»?', ...mix(r[0], others(i, (x) => x[0]), i + 1) });
+      const m = String(r[5]).match(/^(.*?)\{([^}]+)\}(.*)$/);
+      if (m) {
+        const up = /^[A-Z]/.test(m[2]);
+        const like = (v) => (up ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+        tests.push({ q: clean(m[1]) + '___' + clean(m[3]) + ' (' + r[6] + ')', ...mix(m[2], others(i, word).map(like), i + 2) });
+      }
+      tests.push({ q: '«' + r[0] + '» в обычной речи — это…', ...mix(r[1], others(i, (x) => x[1]), i + 3) });
+      tests.push({ q: 'Где уместно сказать «' + r[0] + '»?', ...mix(APPROP[0], APPROP.slice(1), i + 1) });
+      return {
+        id: 'sl_' + String(firstNum + i).padStart(3, '0'),
+        type: 'slang', level: 'A1', sublevel: 'A1+', tags: ['живая речь'], audio: true,
+        payload: {
+          front: r[0], full_form: r[1], translation: r[2], ipa_full: r[3], ipa_short: r[4],
+          examples: [[r[5], r[6]], [r[7], r[8]]].map(([raw, ru]) => ({ text: clean(raw), ru, parts: parts(clean(raw)), connected: '' })),
+          test: tests,
+        },
+      };
+    });
+  }
 
   // Сборка карточек из строк данных: свой пул вариантов для каждого раздела
   function build(DATA, opt) {
@@ -709,7 +955,23 @@
     ['because', 'so'], ['country', 'city', 'world'], ['fine', 'okay'], ['bored', 'boring'], ['game', 'fun'],
     ['look at', 'watch', 'see'], ['listen to', 'hear'], ['think about', 'talk about'], ['come down', 'go down', 'fall down'],
     ['go up', 'come over'], ['hang on', 'wait up'], ['head out', 'leave'], ['stay in', 'sleep in'], ['then', 'later', 'soon'],
-    ['put back', 'bring back']];
+    ['put back', 'bring back'],
+    // A1+, часть 2
+    ['hold', 'keep', 'carry'], ['miss', 'lose', 'forget'], ['believe', 'think', 'guess', 'hope'], ['share', 'give'],
+    ['order', 'buy'], ['rent', 'borrow', 'lend'], ['bake', 'cook', 'make'], ['enjoy', 'like', 'love'], ['check', 'look'],
+    ['use', 'try'], ['toilet', 'bathroom'], ['yard', 'park'], ['neighborhood', 'block', 'downtown'], ['building', 'house', 'home'],
+    ['avenue', 'street'], ['parking lot', 'garage'], ['crosswalk', 'sidewalk', 'corner'], ['pain', 'hurt', 'headache'],
+    ['flu', 'cold', 'fever', 'sick', 'cough'], ['healthy', 'fine'], ['person', 'people', 'guy', 'man', 'woman'],
+    ['adult', 'teenager', 'kid', 'child'], ['kind', 'friendly', 'nice', 'polite', 'good'], ['shy', 'quiet'],
+    ['serious', 'important'], ['cute', 'beautiful'], ['sunny', 'sun', 'warm'], ['cloudy', 'foggy', 'cloud'],
+    ['storm', 'wind', 'windy', 'rain'], ['ice', 'snow', 'cold'], ['coin', 'cent', 'cash', 'money', 'change', 'bill', 'dollar'],
+    ['discount', 'sale', 'deal', 'coupon'], ['total', 'price', 'cost', 'bill'], ['bill', 'check', 'receipt'],
+    ['actually', 'really'], ['finally', 'already'], ['after', 'later', 'then'], ['near', 'next to', 'around'],
+    ['once', 'again'], ['moon', 'sky'], ['star', 'sky'],
+    ['calm down', 'chill out', 'cool down', 'relax'], ['text back', 'write back', 'call back'], ['come up', 'go up'],
+    ['drop by', 'come over', 'drop in'], ['stay over', 'stay in', 'stay out'], ['wash up', 'clean up'],
+    ['fall off', 'fall down', 'fall over'], ['heat up', 'warm up'], ['come out', 'go out'], ['start over', 'start', 'begin'],
+    ['settle in', 'move in'], ['help out', 'help'], ['take away', 'take out', 'put away']];
   // Слово может быть в нескольких группах — объединяем их (а не перезаписываем последней)
   const SYN = new Map();
   SYN_GROUPS.forEach((g) => g.forEach((w) => { const set = SYN.get(w) || new Set(); g.forEach((x) => set.add(x)); SYN.set(w, set); }));
@@ -832,4 +1094,9 @@
   const pvTarget = (typeof PHRASAL_CARDS !== 'undefined' && PHRASAL_CARDS) || window.PHRASAL_CARDS;
   if (Array.isArray(pvTarget)) pvTarget.push(...PV.cards);
   window.PHRASAL_A1P_COUNT = PV.cards.length;
+  const LIVE = buildLive(LIVE_DATA, 72);
+  /* global SLANG_CARDS */
+  const slTarget = (typeof SLANG_CARDS !== 'undefined' && SLANG_CARDS) || window.SLANG_CARDS;
+  if (Array.isArray(slTarget)) slTarget.push(...LIVE);
+  window.LIVE_A1P_COUNT = LIVE.length;
 })();
