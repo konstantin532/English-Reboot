@@ -6,7 +6,7 @@ import { addedLines, removedLines, check, compareCards, isAppFile, swAssets, ind
 import { sections, checkboxes, scoutAge, versions, archiveJournal, latestMetric } from '../scripts/er-brief.mjs';
 import { summarizeRuns, slugFromUrl, vitestTotal, countLine, ciVerdict, annotationTotal } from '../scripts/er-ci.mjs';
 import { formatUnit, formatE2e, jobLimitMin, jobStatus } from '../scripts/er.mjs';
-import { codeDiff, isDataHunk, collapseData, similarity, cardText, markedLine, marksSample, ipaChanges, dictStats, dictNote } from '../scripts/er-review.mjs';
+import { codeDiff, isDataHunk, collapseData, similarity, cardText, markedLine, marksSample, ipaChanges, dictStats, dictNote, codePrompt, pedagoguePrompt } from '../scripts/er-review.mjs';
 import { cardDiff, stripParts } from '../scripts/er-cards.mjs';
 import { nextIdsOf } from '../scripts/er-brief.mjs';
 
@@ -486,5 +486,25 @@ describe('er review: словари, которых нет в диффе, — р
     const n = dictNote('js/pos_us.js', { total: 100, added: 0, removed: 0, changed: 2 }, false);
     expect(n.flag).toBe(true);
     expect(n.line).toMatch(/pos_us\.js.*изменено 2.*из 100/);
+  });
+});
+
+describe('er review: задания ревизорам — коротко, по-английски, с чек-листом педагога', () => {
+  const paths = { code: '/r/code.diff', content: '/r/content.md', guard: '/r/guard.txt', root: '/repo', base: 'abc1234' };
+  it('педагогу — чек-лист из docs/PEDAGOGY.md: одна новинка, калька, полная форма, ошибки русскоязычных, синтез без вердикта', () => {
+    const p = pedagoguePrompt(paths, {});
+    expect(p).toMatch(/\/repo\/docs\/PEDAGOGY\.md/);
+    for (const re of [/one new thing/i, /calque/i, /full form/i, /Russian speakers/i, /synthes/i, /slang, rude words or AAVE/i]) expect(p).toMatch(re);
+    expect(p).not.toMatch(/recognize.*field|пометка/i);            // поля «узнавать / говорить» в приложении нет — не проверять несуществующее
+    expect(pedagoguePrompt(paths, { marks: 3 })).toMatch(/word markup/i);
+    expect(pedagoguePrompt(paths, { ipa: 2 })).toMatch(/IPA changed/i);
+  });
+  it('ревизору-код — числа словарей и просьба выяснить причину только при флаге', () => {
+    expect(codePrompt(paths, [])).not.toMatch(/their numbers/i);
+    const flagged = codePrompt(paths, [{ line: 'js/lex_us.js: +900 −0, изменено 0 из 3000 (30%) — больше 10% записей', flag: true }]);
+    expect(flagged).toMatch(/lex_us\.js: \+900/);
+    expect(flagged).toMatch(/find out why/i);
+    expect(flagged).toMatch(/git diff abc1234 -- /);
+    expect(codePrompt(paths, [{ line: 'js/pos_us.js: +2 −0, изменено 0 из 3000 (0%)', flag: false }])).not.toMatch(/find out why/i);
   });
 });

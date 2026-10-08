@@ -232,29 +232,32 @@ export function ipaChanges(before, after) {
   return out.sort();
 }
 
-const PROMPT_CODE = (paths, dicts = []) => `Ты — ревизор кода English Reboot (офлайн-SPA на Vanilla JS: IndexedDB, Service Worker, FSRS). Ты не видел, как писалась работа.
+// Задания ревизорам — по-английски: субагент читает их целиком, а английский текст в разы дешевле по токенам.
+// Ответ ревизора тоже по-английски; автору его пересказывает по-русски основной агент.
+export const codePrompt = (paths, dicts = []) => `You review code for English Reboot (offline SPA in vanilla JS: IndexedDB, Service Worker, FSRS). You did not see how the work was done.
 
-Прочитай только эти файлы:
-- ${paths.code} — дифф кода (без сгенерированных словарей и строк данных карточек; их проверяют тесты и педагог);
-- ${paths.guard} — отчёт сторожа: механику правил (CACHE_VERSION, sw.js/index.html, *_VERSION по изменённым карточкам, номера карточек и миграция, skip/retries, innerHTML с переменной, британское написание, род) он уже проверил. Не повторяй её; пункты «?» из отчёта — разбери.
-Исходники рядом в репозитории ${paths.root} — открывай точечно, если без контекста не понять.
+Read only these files:
+- ${paths.code} — the code diff (generated dictionaries and card data lines are left out: tests and the pedagogue check them);
+- ${paths.guard} — the rule guard report: it has already checked the mechanics (CACHE_VERSION, sw.js/index.html, *_VERSION for changed cards, card ids and migration, skip/retries, innerHTML with a variable, British spelling, gender). Do not repeat it; resolve its "?" items.
+Sources are in the repo ${paths.root} — open single places only when the diff is unclear without context.
 ${dicts.length ? `
-Сгенерированные словари в дифф не вошли — их числа:
+Generated dictionaries are not in the diff — their numbers:
 ${dicts.map((d) => '- ' + d.line).join('\n')}
-${dicts.some((d) => d.flag) ? `Помеченные «—» — выясни причину: записи дописал скрипт под новые карточки или их правили руками / заменили массово. Смотри точечно: git diff ${paths.base} -- <файл>.\n` : ''}` : ''}
-Смотри: правильность логики и крайние случаи; не сломаны ли офлайн, прогресс учеников, FSRS, экспорт/импорт; честность (похвала только после проверки, ничего не имитируется, отрицание не засчитано как согласие); тесты действительно проверяют заявленное и не ослаблены; чужой текст только через escapeHtml/textContent; цена при запуске на телефоне.
+${dicts.some((d) => d.flag) ? `For the lines marked "—" find out why: did the script add entries for new cards, or were they edited by hand / replaced in bulk? Look at single places: git diff ${paths.base} -- <file>.\n` : ''}` : ''}
+Check: logic and edge cases; nothing broken in offline mode, student progress, FSRS, export/import; honesty (praise only after a real check, nothing faked, a "no" never counted as "yes"); tests really check what they claim and are not weakened; foreign text only via escapeHtml/textContent; cost on a phone.
 
-Ответ — только список: «блокер / важно / мелочь — файл:строка — что не так — как исправить». Замечаний нет — одна строка «нарушений нет». Дифф не пересказывай. До 300 слов.`;
+Answer only as a list: "blocker / important / minor — file:line — what is wrong — how to fix". Nothing found — one line "no issues". Do not retell the diff. Up to 300 words.`;
 
-const PROMPT_PED = (paths, extra = {}) => `Ты — ревизор-педагог English Reboot: русскоязычный ученик A1–B2 учит американский разговорный английский, чтобы понимать фильмы, сериалы и песни и говорить вслух. Ты не видел, как писалась работа.
+export const pedagoguePrompt = (paths, extra = {}) => `You are the pedagogue reviewer of English Reboot: a Russian-speaking A1–B2 learner studies spoken American English to understand films, series and songs and to speak aloud. You did not see how the work was done.
 
-Прочитай только ${paths.content} — новые и изменённые карточки текстом: примеры с переводом, задания с правильным ответом (✓) и неверными (✗).
+Read only ${paths.content} — new and changed cards as text: examples with translation, tasks with the right answer (✓) and wrong ones (✗). The reasons behind the checks are in ${paths.root}/docs/PEDAGOGY.md — open it only if a check is unclear.
 
-Проверь: английский живой и американский (написание, слова, IPA, без британского); перевод точный и естественный; у каждого задания ровно один верный ответ и неверные действительно неверны (синонимы и близкие реакции — частая ошибка); уровень соответствует подуровню; реплики ученика в русском нейтральны по роду; сленг, грубость и AAVE — с регистром и уважительно; нет текстов песен, реплик и субтитров из фильмов (свои примеры — можно).
-${extra.ipa ? '\nРаздел «IPA изменилась» — проверь, что новое произношение американское и ударение на нужном слоге.\n' : ''}${extra.marks ? `
-Раздел «Разметка слов» — так ученик увидит слова: после / — часть речи (цвет подчёркивания), ЗАГЛАВНЫЕ — ударный слог, (буква) — немая. Проверь: часть речи — по роли слова именно в этой фразе (условности курса, как в ручной грамматике: притяжательные my/your — мест; частицы фразовых глаголов — нар; be — глаг., в страдательном залоге — всп.; will — всп.; can/could/should — мод.; междометия — нар.); ударный слог — как в американском словаре; немые — буквы, которых не слышно в американском произношении. Конечная немая e (make, here) не помечается намеренно — не ошибка. Ошибку пиши с id и словом.
+Check: the English is natural and American (spelling, words, IPA, nothing British); the Russian translation is accurate and natural; each task has exactly one right answer and the wrong ones are really wrong (synonyms and similar reactions are a common mistake); the level fits the sublevel; the student's lines in Russian are gender-neutral; no song lyrics, film lines or subtitles (own examples are fine).
+Also check: a new card has one new thing (a new word, or a new phenomenon, or a new construction); an American would really say this phrase in this situation; the Russian prompt calls up exactly this phrase and is not a calque; a contracted or spoken form (gonna, didja) also shows the full form and the register; slang, rude words or AAVE appear only for recognition, never in a phrase the student is asked to say; wrong options are typical errors of Russian speakers (vowels, final devoicing, stress, can / can't), not random words; no claims about how the speech synthesizer sounds without the author's verdict.
+${extra.ipa ? '\nSection "IPA изменилась" (IPA changed) — check that the new pronunciation is American and the stress is on the right syllable.\n' : ''}${extra.marks ? `
+Section "Разметка слов" (word markup) — this is how the student sees the words: after / — part of speech (underline colour), CAPITALS — stressed syllable, (letter) — silent. Check: part of speech by the role of the word in this very phrase (course conventions, as in the hand-made grammar: possessive my/your — pronoun; particles of phrasal verbs — adverb; be — verb, in the passive — auxiliary; will — auxiliary; can/could/should — modal; interjections — adverb); stressed syllable as in an American dictionary; silent letters are letters not heard in American pronunciation. A final silent e (make, here) is not marked on purpose — not an error. Write each error with the card id and the word.
 ` : ''}
-Ответ — только список: «блокер / важно / мелочь — id карточки — что не так — как исправить». Замечаний нет — одна строка «нарушений нет». До 300 слов.`;
+Answer only as a list: "blocker / important / minor — card id — what is wrong — how to fix". Nothing found — one line "no issues". Up to 300 words.`;
 
 function main() {
   const argv = process.argv.slice(2);
@@ -339,8 +342,8 @@ function main() {
     try { after = fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { /* файл удалён */ }
     return dictNote(f, dictStats(git(['show', `${base}:${f}`]), after), cardsChanged);
   });
-  fs.writeFileSync(path.join(OUT, 'prompt-code.md'), PROMPT_CODE(paths, dicts) + '\n');
-  fs.writeFileSync(path.join(OUT, 'prompt-pedagogue.md'), PROMPT_PED(paths, extra) + '\n');
+  fs.writeFileSync(path.join(OUT, 'prompt-code.md'), codePrompt(paths, dicts) + '\n');
+  fs.writeFileSync(path.join(OUT, 'prompt-pedagogue.md'), pedagoguePrompt(paths, extra) + '\n');
   const kb = (n) => (n / 1024).toFixed(0) + ' КБ';
   const size = (f) => fs.statSync(f).size;
   const needPed = counts.added + counts.changed + counts.removed + extra.ipa > 0 || engineChanged;
