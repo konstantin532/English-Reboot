@@ -1,0 +1,695 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-09T00:00:00Z",
+  "title": "Design System: English Reboot",
+  "extensions": {
+    "colorMeta": {
+      "guide-green": {
+        "role": "primary",
+        "displayName": "Guide Green",
+        "canonical": "oklch(46.4% 0.111 157)",
+        "tonalRamp": [
+          "#001103",
+          "#002E14",
+          "#004E2A",
+          "#126F44",
+          "#4D8D68",
+          "#7BAC8D",
+          "#ACCEB8",
+          "#E2F4E8"
+        ]
+      },
+      "guide-green-deep": {
+        "role": "primary",
+        "displayName": "Guide Green Deep",
+        "canonical": "oklch(39.9% 0.095 157)",
+        "tonalRamp": [
+          "#001103",
+          "#002E15",
+          "#004D2C",
+          "#306B4B",
+          "#5C896E",
+          "#86A892",
+          "#B5CBBC",
+          "#E7F2EB"
+        ]
+      },
+      "sign-white": {
+        "role": "primary",
+        "displayName": "Sign White",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#7D7D7D",
+          "#9E9E9E",
+          "#C4C4C4",
+          "#EEEEEE"
+        ]
+      },
+      "sign-legend-soft": {
+        "role": "primary",
+        "displayName": "Sign Legend Soft",
+        "canonical": "oklch(91.3% 0.026 162)",
+        "tonalRamp": [
+          "#0A0C0B",
+          "#222523",
+          "#3E403F",
+          "#5A5F5C",
+          "#77807B",
+          "#96A29B",
+          "#B8C9C0",
+          "#E1F4E9"
+        ]
+      },
+      "gantry-charcoal": {
+        "role": "secondary",
+        "displayName": "Gantry Charcoal",
+        "canonical": "oklch(23.6% 0.010 164)",
+        "tonalRamp": [
+          "#070D0A",
+          "#202623",
+          "#3B423E",
+          "#58605C",
+          "#787F7B",
+          "#99A19D",
+          "#BEC6C2",
+          "#E8F1EC"
+        ]
+      },
+      "gantry-panel": {
+        "role": "secondary",
+        "displayName": "Gantry Panel",
+        "canonical": "oklch(28.8% 0.013 164)",
+        "tonalRamp": [
+          "#060D0A",
+          "#1E2622",
+          "#3A423E",
+          "#57605B",
+          "#76807B",
+          "#97A19C",
+          "#BDC7C2",
+          "#E7F1EC"
+        ]
+      },
+      "caution-yellow": {
+        "role": "tertiary",
+        "displayName": "Caution Yellow",
+        "canonical": "oklch(86.7% 0.177 91)",
+        "tonalRamp": [
+          "#0F0B01",
+          "#292415",
+          "#473F29",
+          "#6C5C2E",
+          "#937B2F",
+          "#BD9A2A",
+          "#ECBE17",
+          "#FFEA67"
+        ]
+      },
+      "caution-ink": {
+        "role": "tertiary",
+        "displayName": "Caution Ink",
+        "canonical": "oklch(21.0% 0.011 164)",
+        "tonalRamp": [
+          "#070D0A",
+          "#1F2623",
+          "#3B423E",
+          "#58605C",
+          "#787F7B",
+          "#99A19C",
+          "#BEC6C2",
+          "#E8F1EC"
+        ]
+      },
+      "concrete": {
+        "role": "neutral",
+        "displayName": "Concrete",
+        "canonical": "oklch(94.6% 0.006 129)",
+        "tonalRamp": [
+          "#0A0C09",
+          "#232522",
+          "#3F403D",
+          "#5D5E5B",
+          "#7C7E7A",
+          "#9D9F9B",
+          "#C3C5C1",
+          "#EDEFEB"
+        ]
+      },
+      "sheeting-white": {
+        "role": "neutral",
+        "displayName": "Sheeting White",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#7D7D7D",
+          "#9E9E9E",
+          "#C4C4C4",
+          "#EEEEEE"
+        ]
+      },
+      "asphalt-ink": {
+        "role": "neutral",
+        "displayName": "Asphalt Ink",
+        "canonical": "oklch(21.0% 0.011 164)",
+        "tonalRamp": [
+          "#070D0A",
+          "#1F2623",
+          "#3B423E",
+          "#58605C",
+          "#787F7B",
+          "#99A19C",
+          "#BEC6C2",
+          "#E8F1EC"
+        ]
+      },
+      "weathered-grey": {
+        "role": "neutral",
+        "displayName": "Weathered Grey",
+        "canonical": "oklch(47.9% 0.015 164)",
+        "tonalRamp": [
+          "#060D09",
+          "#1E2622",
+          "#39423E",
+          "#56605B",
+          "#76807B",
+          "#97A19C",
+          "#BCC7C1",
+          "#E6F2EC"
+        ]
+      },
+      "joint-line": {
+        "role": "neutral",
+        "displayName": "Joint Line",
+        "canonical": "oklch(89.2% 0.009 146)",
+        "tonalRamp": [
+          "#090C09",
+          "#212521",
+          "#3D413D",
+          "#5B5F5B",
+          "#7A7F7A",
+          "#9BA09B",
+          "#C1C6C1",
+          "#EBF0EB"
+        ]
+      },
+      "joint-line-strong": {
+        "role": "neutral",
+        "displayName": "Joint Line Strong",
+        "canonical": "oklch(81.2% 0.012 154)",
+        "tonalRamp": [
+          "#070D09",
+          "#202621",
+          "#3B423D",
+          "#59605A",
+          "#787F7A",
+          "#99A19B",
+          "#BEC6C0",
+          "#E9F1EB"
+        ]
+      },
+      "green-tint": {
+        "role": "neutral",
+        "displayName": "Green Tint",
+        "canonical": "oklch(96.4% 0.009 161)",
+        "tonalRamp": [
+          "#080C0A",
+          "#202523",
+          "#3C413E",
+          "#595F5C",
+          "#797F7B",
+          "#9AA09D",
+          "#BFC6C2",
+          "#E9F0EC"
+        ]
+      },
+      "go-green": {
+        "role": "neutral",
+        "displayName": "Go Green",
+        "canonical": "oklch(56.0% 0.134 153)",
+        "tonalRamp": [
+          "#001003",
+          "#002D12",
+          "#054D26",
+          "#14703C",
+          "#339257",
+          "#6AB17F",
+          "#9ED3AC",
+          "#D6F9DF"
+        ]
+      },
+      "stop-red": {
+        "role": "neutral",
+        "displayName": "Stop Red",
+        "canonical": "oklch(53.0% 0.207 22)",
+        "tonalRamp": [
+          "#240000",
+          "#4F0005",
+          "#7E0015",
+          "#B00626",
+          "#D63F47",
+          "#EE7472",
+          "#FFA7A3",
+          "#FFDDDA"
+        ]
+      },
+      "amber-warning": {
+        "role": "neutral",
+        "displayName": "Amber Warning",
+        "canonical": "oklch(72.8% 0.151 79)",
+        "tonalRamp": [
+          "#100A02",
+          "#2E220D",
+          "#523B12",
+          "#795714",
+          "#A27411",
+          "#CD9205",
+          "#F0BA5A",
+          "#FFE8A3"
+        ]
+      },
+      "transcription-rust": {
+        "role": "neutral",
+        "displayName": "Transcription Rust",
+        "canonical": "oklch(53.9% 0.150 45)",
+        "tonalRamp": [
+          "#1D0200",
+          "#431200",
+          "#6C2700",
+          "#993D03",
+          "#BE5E2E",
+          "#D88763",
+          "#F2B498",
+          "#FFE4D3"
+        ]
+      },
+      "night-road": {
+        "role": "neutral",
+        "displayName": "Night Road",
+        "canonical": "oklch(17.7% 0.007 179)",
+        "tonalRamp": [
+          "#080C0B",
+          "#212524",
+          "#3C4140",
+          "#5A5F5E",
+          "#797F7D",
+          "#9AA09E",
+          "#C0C5C4",
+          "#EAF0EE"
+        ]
+      },
+      "night-sheeting": {
+        "role": "neutral",
+        "displayName": "Night Sheeting",
+        "canonical": "oklch(22.3% 0.011 164)",
+        "tonalRamp": [
+          "#070D0A",
+          "#1F2623",
+          "#3B423E",
+          "#58605C",
+          "#787F7B",
+          "#99A19D",
+          "#BEC6C2",
+          "#E8F1EC"
+        ]
+      },
+      "night-raised": {
+        "role": "neutral",
+        "displayName": "Night Raised",
+        "canonical": "oklch(26.0% 0.012 160)",
+        "tonalRamp": [
+          "#070D09",
+          "#1F2622",
+          "#3A423D",
+          "#58605B",
+          "#77807B",
+          "#98A19C",
+          "#BEC7C1",
+          "#E8F1EC"
+        ]
+      },
+      "night-guide-green": {
+        "role": "neutral",
+        "displayName": "Night Guide Green",
+        "canonical": "oklch(51.2% 0.117 157)",
+        "tonalRamp": [
+          "#001104",
+          "#002E16",
+          "#004D2C",
+          "#087044",
+          "#418F65",
+          "#72AE8A",
+          "#A5D0B5",
+          "#DCF6E5"
+        ]
+      },
+      "night-accent-text": {
+        "role": "neutral",
+        "displayName": "Night Accent Text",
+        "canonical": "oklch(75.4% 0.136 159)",
+        "tonalRamp": [
+          "#040E08",
+          "#18281F",
+          "#264835",
+          "#336B4E",
+          "#418F67",
+          "#4EB682",
+          "#79DCA7",
+          "#B8FFD8"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "canonical": "oklch(95.7% 0.006 154)",
+        "tonalRamp": [
+          "#090C0A",
+          "#222523",
+          "#3D413E",
+          "#5B5F5C",
+          "#7B7E7C",
+          "#9C9F9D",
+          "#C1C5C2",
+          "#ECF0ED"
+        ]
+      },
+      "night-muted": {
+        "role": "neutral",
+        "displayName": "Night Muted",
+        "canonical": "oklch(73.8% 0.014 160)",
+        "tonalRamp": [
+          "#060D09",
+          "#1E2622",
+          "#3A423D",
+          "#57605B",
+          "#76807A",
+          "#97A19B",
+          "#BDC7C1",
+          "#E7F2EB"
+        ]
+      },
+      "night-joint-line": {
+        "role": "neutral",
+        "displayName": "Night Joint Line",
+        "canonical": "oklch(29.9% 0.015 161)",
+        "tonalRamp": [
+          "#060D09",
+          "#1E2622",
+          "#39423D",
+          "#56605B",
+          "#76807A",
+          "#97A19B",
+          "#BCC7C1",
+          "#E6F2EB"
+        ]
+      },
+      "night-transcription": {
+        "role": "neutral",
+        "displayName": "Night Transcription",
+        "canonical": "oklch(79.6% 0.131 51)",
+        "tonalRamp": [
+          "#120905",
+          "#2C211B",
+          "#52392B",
+          "#7B533B",
+          "#A76E4B",
+          "#D58A5C",
+          "#FFAC76",
+          "#FFDCB2"
+        ]
+      },
+      "amoled-black": {
+        "role": "neutral",
+        "displayName": "Amoled Black",
+        "canonical": "oklch(0.0% 0.000 0)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#7D7D7D",
+          "#9E9E9E",
+          "#C4C4C4",
+          "#EEEEEE"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Today sign and onboarding sign titles."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section header sign titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Tile fronts, word tokens, button legends."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All reading text, tabular figures on."
+      },
+      "label": {
+        "displayName": "Sign Legend",
+        "purpose": "Uppercase legends on mile markers and the streak plate only."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Counts in the gantry, stats strip, badges; Overpass Mono limited to digits and signs."
+      },
+      "milepost": {
+        "displayName": "Milepost Figure",
+        "purpose": "Big figures on mile-marker plates and stat cards."
+      },
+      "ipa": {
+        "displayName": "IPA",
+        "purpose": "American IPA transcription; Inter because Overpass lacks IPA glyphs."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sheet",
+        "value": "0 1px 2px rgba(20,26,23,.06), 0 1px 1px rgba(20,26,23,.03)",
+        "purpose": "Resting cards and tiles on concrete."
+      },
+      {
+        "name": "lift",
+        "value": "0 2px 4px rgba(20,26,23,.05), 0 14px 30px -12px rgba(20,26,23,.28)",
+        "purpose": "Hovered tiles, toasts."
+      },
+      {
+        "name": "sign",
+        "value": "0 2px 3px rgba(10,30,20,.12), 0 18px 36px -18px rgba(10,40,25,.45)",
+        "purpose": "Green guide signs and the rail only."
+      },
+      {
+        "name": "sign-border-today",
+        "value": "inset 0 0 0 8px #006B3F, inset 0 0 0 11px rgba(255,255,255,.94)",
+        "purpose": "White inset rule of the Today sign."
+      },
+      {
+        "name": "sign-border-section",
+        "value": "inset 0 0 0 6px #006B3F, inset 0 0 0 8px rgba(255,255,255,.92)",
+        "purpose": "White inset rule of section signs and the rail."
+      },
+      {
+        "name": "supplemental-plate",
+        "value": "inset 0 0 0 5px #FFFFFF, inset 0 0 0 6.5px #BCC4BE",
+        "purpose": "Inner rule on top-level white cards."
+      },
+      {
+        "name": "sheet-dark",
+        "value": "0 0 0 1px rgba(255,255,255,.03)",
+        "purpose": "Resting cards in dark/AMOLED."
+      },
+      {
+        "name": "sign-dark",
+        "value": "0 18px 40px -20px rgba(0,0,0,.8)",
+        "purpose": "Signs in dark/AMOLED."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-road",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "The only easing; all state transitions."
+      },
+      {
+        "name": "duration-state",
+        "value": "0.2s–0.3s",
+        "purpose": "Hover/active on tiles, rail rows, buttons."
+      },
+      {
+        "name": "er-sign-in",
+        "value": "0.9s ease-road: translateY(10px) + clip-path inset(0 0 12% 0 round 16px) to none",
+        "purpose": "Entrance of the Today sign; removed under prefers-reduced-motion."
+      },
+      {
+        "name": "lift",
+        "value": "translateY(-2px)",
+        "purpose": "Tile and heatmap hover; exit button rises 1px, its arrow nudges 2px."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "768px"
+      },
+      {
+        "name": "rail-drawer",
+        "value": "1100px"
+      },
+      {
+        "name": "desktop",
+        "value": "1101px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Today Guide Sign",
+      "kind": "card",
+      "refersTo": "guide-sign",
+      "description": "The front-door sign: title, coach line, white exit button, EXIT-tab lesson plan.",
+      "html": "<div class=\"ds-sign\"><div class=\"ds-sign-top\"><div><h1 class=\"ds-sign-title\">Сегодня</h1><p class=\"ds-sign-coach\">Пятнадцать минут — и сегодня ты скажешь по-английски больше, чем вчера.</p></div><button class=\"ds-exit-btn\">Начать</button></div><ol class=\"ds-plan\"><li>Новое — 3 фразы: послушай, повтори вслух</li><li>Слова — 5 слов: послушай и выбери значение</li><li>Сцена — поговори с героями истории</li></ol></div>",
+      "css": ".ds-sign{background:#006B3F;color:#fff;border-radius:16px;padding:40px 44px 36px;font-family:Overpass,Inter,system-ui,sans-serif;box-shadow:inset 0 0 0 8px #006B3F,inset 0 0 0 11px rgba(255,255,255,.94),0 2px 3px rgba(10,30,20,.12),0 18px 36px -18px rgba(10,40,25,.45)}.ds-sign-top{display:flex;gap:40px;justify-content:space-between;align-items:center;flex-wrap:wrap}.ds-sign-title{margin:0;font-weight:800;font-size:clamp(40px,5vw,60px);line-height:.95;letter-spacing:-.03em}.ds-sign-coach{color:#D4E8DD;font-size:18.5px;line-height:1.45;max-width:44ch;margin:16px 0 0}.ds-exit-btn{display:inline-flex;align-items:center;gap:10px;min-width:176px;justify-content:center;background:#fff;color:#006B3F;border:0;border-radius:8px;font:800 18px/1 Overpass,Inter,sans-serif;padding:17px 26px 15px;cursor:pointer;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 3.5px #006B3F,0 6px 16px -6px rgba(0,0,0,.35);transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s cubic-bezier(.16,1,.3,1)}.ds-exit-btn:hover{transform:translateY(-1px);box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 3.5px #006B3F,0 10px 22px -8px rgba(0,0,0,.45)}.ds-exit-btn:focus-visible{outline:3px solid #FFCD00;outline-offset:3px}.ds-plan{list-style:none;counter-reset:exit;margin:14px 0 0;padding:0;border-top:1px solid rgba(255,255,255,.22);font-size:15.5px}.ds-plan li{counter-increment:exit;display:flex;gap:16px;align-items:center;padding:14px 0 13px;border-bottom:1px solid rgba(255,255,255,.22)}.ds-plan li:last-child{border-bottom:0}.ds-plan li::before{content:'EXIT ' counter(exit);flex:none;min-width:64px;text-align:center;padding:6px 8px 4px;border-radius:5px;font:800 12px/1 Overpass,sans-serif;letter-spacing:.06em;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.9)}"
+    },
+    {
+      "name": "Section Header Sign",
+      "kind": "custom",
+      "refersTo": "section-sign",
+      "description": "Green sign opening every library and practice screen, with a large route marker and a white-on-green filter.",
+      "html": "<div class=\"ds-section-sign\"><h2><span class=\"ds-marker ds-marker-lg\" style=\"--line:#C2185B\">W</span>Слова</h2><select class=\"ds-sign-select\"><option>Все уровни</option></select></div>",
+      "css": ".ds-section-sign{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px 20px;border-radius:16px;background:#006B3F;color:#fff;font-family:Overpass,Inter,sans-serif;box-shadow:inset 0 0 0 6px #006B3F,inset 0 0 0 8px rgba(255,255,255,.92),0 2px 3px rgba(10,30,20,.12),0 18px 36px -18px rgba(10,40,25,.45)}.ds-section-sign h2{display:flex;align-items:center;gap:16px;margin:0;font-weight:800;font-size:clamp(28px,3.2vw,38px);letter-spacing:-.025em;line-height:1.05}.ds-marker{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:6px;background:var(--line);color:#fff;font:800 13px/1 Overpass,sans-serif;box-shadow:inset 0 0 0 2px var(--line),inset 0 0 0 3.5px rgba(255,255,255,.9)}.ds-marker-lg{width:44px;height:44px;border-radius:9px;font-size:22px;box-shadow:inset 0 0 0 3px var(--line),inset 0 0 0 5px #fff}.ds-sign-select{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.55);border-radius:8px;font:700 14px Overpass,sans-serif;padding:9px 12px 8px}.ds-sign-select:hover{background:rgba(255,255,255,.18);border-color:#fff}.ds-sign-select:focus-visible{outline:3px solid #FFCD00}"
+    },
+    {
+      "name": "Route Markers",
+      "kind": "chip",
+      "refersTo": "route-marker",
+      "description": "Square section badges in each section's line colour with a white inset rule.",
+      "html": "<div class=\"ds-markers\"><span class=\"ds-rm\" style=\"--line:#C2185B\">W</span><span class=\"ds-rm\" style=\"--line:#0039A6\">G</span><span class=\"ds-rm\" style=\"--line:#FF6319\">P</span><span class=\"ds-rm\" style=\"--line:#00A1DE\">X</span><span class=\"ds-rm\" style=\"--line:#1A201D\">%</span></div>",
+      "css": ".ds-markers{display:flex;gap:8px}.ds-rm{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:6px;background:var(--line);color:#fff;font:800 13px/1 Overpass,sans-serif;box-shadow:inset 0 0 0 2px var(--line),inset 0 0 0 3.5px rgba(255,255,255,.9)}"
+    },
+    {
+      "name": "Mile-Marker Plates",
+      "kind": "card",
+      "refersTo": "mile-marker",
+      "description": "Today's numbers under the sign; the lead plate (phrases aloud) is gantry charcoal.",
+      "html": "<div class=\"ds-miles\"><div class=\"ds-mile ds-mile-lead\"><b>12</b><span>фраз вслух</span></div><div class=\"ds-mile\"><b>4</b><span>ступеней открыто</span></div><div class=\"ds-mile\"><b>9</b><span>минут</span></div></div>",
+      "css": ".ds-miles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;font-family:Overpass,sans-serif}.ds-mile{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px 16px;border-radius:10px;background:#006B3F;color:#fff;box-shadow:inset 0 0 0 5px #006B3F,inset 0 0 0 6.5px rgba(255,255,255,.9),0 1px 2px rgba(20,26,23,.06)}.ds-mile b{font:800 40px/1 Overpass,sans-serif;letter-spacing:-.02em}.ds-mile span{font:700 11.5px/1.25 Overpass,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#D4E8DD;text-align:center}.ds-mile-lead{background:#1A201D;box-shadow:inset 0 0 0 5px #1A201D,inset 0 0 0 6.5px rgba(255,255,255,.9),0 1px 2px rgba(20,26,23,.06)}.ds-mile-lead span{color:#D9E1DC}"
+    },
+    {
+      "name": "Streak Plate",
+      "kind": "custom",
+      "refersTo": "streak-plate",
+      "description": "The only yellow surface in the world: the day streak.",
+      "html": "<div class=\"ds-streak\"><span class=\"ds-streak-num\">14</span><span class=\"ds-streak-label\">дней подряд</span></div>",
+      "css": ".ds-streak{display:flex;align-items:baseline;gap:10px;width:fit-content;padding:16px 26px 12px;border-radius:10px;background:#FFCD00;color:#141A17;box-shadow:inset 0 0 0 4px #FFCD00,inset 0 0 0 6px #141A17}.ds-streak-num{font:800 44px/1 Overpass,sans-serif}.ds-streak-label{font:800 13px/1 Overpass,sans-serif;letter-spacing:.08em;text-transform:uppercase}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Small green sign with its own inset rule; default call to action on white ground.",
+      "html": "<button class=\"ds-btn-primary\">Проверить</button>",
+      "css": ".ds-btn-primary{background:#006B3F;color:#fff;border:0;border-radius:8px;font:800 15px/1 Overpass,Inter,sans-serif;letter-spacing:.01em;padding:13px 22px 11px;cursor:pointer;box-shadow:inset 0 0 0 2px #006B3F,inset 0 0 0 3.5px rgba(255,255,255,.55);transition:background .2s cubic-bezier(.16,1,.3,1),box-shadow .2s}.ds-btn-primary:hover{background:#005632;box-shadow:inset 0 0 0 2px #005632,inset 0 0 0 3.5px rgba(255,255,255,.7)}.ds-btn-primary:focus-visible{outline:3px solid rgba(0,107,63,.7);outline-offset:2px}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action on white sheeting with a strong stroke.",
+      "html": "<button class=\"ds-btn-ghost\">Бэкап</button>",
+      "css": ".ds-btn-ghost{background:#fff;color:#141A17;border:1.5px solid #BCC4BE;border-radius:8px;font:700 14px/1 Overpass,Inter,sans-serif;padding:11px 16px 9px;cursor:pointer}.ds-btn-ghost:hover{border-color:#141A17}.ds-btn-ghost:focus-visible{outline:3px solid rgba(0,107,63,.7);outline-offset:2px}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Sheeting-white field with a strong stroke and a green focus halo.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Слово или фраза\">",
+      "css": ".ds-input{background:#fff;color:#141A17;border:1.5px solid #BCC4BE;border-radius:8px;font:400 15.5px Overpass,Inter,sans-serif;padding:10px 12px 8px;caret-color:#006B3F;outline:0}.ds-input:hover{border-color:#141A17}.ds-input:focus{border-color:#006B3F;box-shadow:0 0 0 4px rgba(0,107,63,.1)}"
+    },
+    {
+      "name": "Guide-Sign Rail",
+      "kind": "nav",
+      "refersTo": "rail-nav",
+      "description": "Left navigation as a green sign; active row is a white plate.",
+      "html": "<nav class=\"ds-rail\"><div class=\"ds-rail-group\">Библиотека</div><a class=\"ds-rail-link is-active\"><span class=\"ds-rm\" style=\"--line:#C2185B\">W</span>Слова</a><a class=\"ds-rail-link\"><span class=\"ds-rm\" style=\"--line:#0039A6\">G</span>Грамматика</a><a class=\"ds-rail-link\"><span class=\"ds-rm\" style=\"--line:#FF6319\">P</span>Фразовые глаголы</a></nav>",
+      "css": ".ds-rail{width:240px;padding:14px 12px;background:#006B3F;border-radius:16px;font-family:Overpass,sans-serif;box-shadow:inset 0 0 0 6px #006B3F,inset 0 0 0 8px rgba(255,255,255,.9),0 2px 3px rgba(10,30,20,.12),0 18px 36px -18px rgba(10,40,25,.45)}.ds-rail-group{margin:4px 14px 6px;font:700 11px/1 Overpass,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#D4E8DD}.ds-rail-link{display:flex;align-items:center;gap:12px;min-height:35px;padding:5px 10px;border-radius:8px;color:#fff;font:600 14.5px/1.2 Overpass,sans-serif;text-decoration:none;cursor:pointer;transition:background .25s cubic-bezier(.16,1,.3,1)}.ds-rail-link:hover{background:rgba(255,255,255,.1)}.ds-rail-link.is-active{background:#fff;color:#006B3F;font-weight:800}.ds-rail-link:focus-visible{outline:3px solid #FFCD00;outline-offset:-1px}.ds-rm{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:6px;background:var(--line);color:#fff;font:800 13px/1 Overpass,sans-serif;box-shadow:inset 0 0 0 2px var(--line),inset 0 0 0 3.5px rgba(255,255,255,.9)}"
+    },
+    {
+      "name": "Gantry Header",
+      "kind": "nav",
+      "refersTo": "gantry-header",
+      "description": "Asphalt gantry with the logo sign plate and odometer counters in mono.",
+      "html": "<header class=\"ds-gantry\"><span class=\"ds-logo\">English Reboot<small>A1–B2</small></span><div class=\"ds-counters\"><span>12</span><span class=\"ds-streak-c\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-7 0 2 1 3 2 3 0-3-1-5 1-8z\"/></svg>14</span><span>320 XP</span></div></header>",
+      "css": ".ds-gantry{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 16px 0 18px;background:#1A201D;color:#fff}.ds-logo{display:inline-flex;align-items:center;padding:7px 12px 5px;border-radius:7px;background:#006B3F;color:#fff;font:800 15px/1 Overpass,sans-serif;letter-spacing:.01em;text-transform:uppercase;outline:1.5px solid rgba(255,255,255,.92);outline-offset:-4px}.ds-logo small{margin-left:10px;font:700 11px/1 'Overpass Mono',Overpass,sans-serif;text-transform:none;color:#D4E8DD}.ds-counters{display:flex;height:34px;align-items:center;border-radius:8px;background:#252D29;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}.ds-counters span{display:inline-flex;align-items:center;gap:6px;padding:0 11px;font:700 13px/1 'Overpass Mono',Overpass,monospace;color:#F1F4F2}.ds-counters span+span{border-left:1px solid rgba(255,255,255,.12)}.ds-streak-c svg{color:#FFCD00}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Interstate",
+    "overview": "The course is a 90-day road, and the interface is signed the way a US interstate is signed. Every place the student must read or decide is a guide sign: a guide-green panel with rounded corners and a white inset border, heavy Overpass legends (the open-source descendant of the FHWA Highway Gothic alphabet), and nothing decorative that a highway engineer would not put on a sign. Above it all runs a dark asphalt gantry carrying the logo plate and the odometer counters; below it lies concrete grey ground where library content sits on white sheeting panels.\n\nThe system is legible first and confident second. Density is moderate: big signs at the top of each screen, then calm white tiles that never compete with the markup on example sentences (the product's signature, coloured by the separate part-of-speech palette). Sections keep their own colour and letter, drawn as square route markers with a white inset rule. Wayfinding vocabulary is literal, not ornamental: the lesson plan is a stack of EXIT tabs, today's numbers stand on mile-marker plates, and the main action is a white exit panel with an up-right arrow.\n\nThe world refuses two defaults: the grey-card Apple-settings look and the cream-serif editorial look. Yellow belongs to the caution channel only.",
+    "keyCharacteristics": [
+      "Guide-green sign panels with an inset white border and 16px sign corners.",
+      "Asphalt-charcoal gantry header; concrete ground; white sheeting panels.",
+      "Overpass 800 for sign legends, Overpass for UI, Overpass Mono for figures only.",
+      "Section route markers in each section's own line colour.",
+      "MUTCD caution yellow reserved for streak and warnings.",
+      "Light, dark and AMOLED themes share one structure; only the road surface darkens."
+    ],
+    "rules": [
+      {
+        "name": "The Caution Channel Rule",
+        "body": "Yellow means streak or warning. It appears on the streak plate, the streak flame, warning and context notes, attention states (partial mastery), selection and focus on green. It is never a decorative accent, never a button fill, never a heading colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Green Rule",
+        "body": "There is one sign green per theme. Every panel that speaks with authority is that green with a white inset border; the system does not introduce a second brand hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Legend Rule",
+        "body": "Uppercase tracking is reserved for sign legends: EXIT tabs, mile-marker captions, the streak plate, rail group names and the logo plate. Body labels, captions and helper text stay in sentence case with zero tracking.",
+        "section": "typography"
+      },
+      {
+        "name": "The Figures-in-Mono Rule",
+        "body": "Counts and figures are set in Overpass Mono so they hold column; Cyrillic words are never set in a monospace face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Only-Signs-Stand-Up Rule",
+        "body": "Green signs carry the Sign shadow; white panels never do. If a white panel needs presence, give it a supplemental inner rule, not a bigger shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** open every screen with exactly one green guide sign (Today sign or section header sign) and put supporting content on white sheeting below it.",
+      "**Do** draw sign borders as an inset white rule inside the green (for example 8px band + 3px rule on the Today sign), scaled to the panel size.",
+      "**Do** keep yellow for the streak, warnings and focus on green; use `caution-yellow` with `caution-ink` text.",
+      "**Do** set every count in Overpass Mono and every sign legend in Overpass 800.",
+      "**Do** render each section with its own route marker colour and letter from `TABS`.",
+      "**Do** use the road easing `cubic-bezier(.16, 1, .3, 1)` and keep lifts to 2px or less.",
+      "**Do** keep light, dark and AMOLED structurally identical; change only the token values."
+    ],
+    "donts": [
+      "**Don't** use yellow as a decorative accent, a button fill or a heading colour.",
+      "**Don't** add, edit or borrow part-of-speech colours from the POS-PALETTE block; that palette belongs to `tests/palette.test.js`, not to the world.",
+      "**Don't** put the Sign shadow on white panels or invent a second sign green.",
+      "**Don't** fall back to grey settings-style cards or cream backgrounds with serif headlines.",
+      "**Don't** use uppercase tracked labels outside sign legends; no eyebrow or kicker text above headings.",
+      "**Don't** set IPA in Overpass or Cyrillic words in Overpass Mono.",
+      "**Don't** use emoji as icons; inline SVG icons only."
+    ]
+  }
+}

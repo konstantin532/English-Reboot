@@ -24,8 +24,8 @@ const AppProgress = (() => {
     const levelBlock = `
       <div class="user-level-display">
         <span class="level-icon" aria-hidden="true">${userLv.icon}</span>
-        <span class="level-kind">Уровень по изученным карточкам</span>
         <span class="level-title">${userLv.title}</span>
+        <span class="level-kind">Уровень по изученным карточкам</span>
         <div class="level-progress" role="progressbar" aria-valuenow="${userLv.progress}" aria-valuemin="0" aria-valuemax="100">
           <div class="level-progress-fill" style="width:${userLv.progress}%"></div>
         </div>
@@ -44,7 +44,7 @@ const AppProgress = (() => {
           <span class="stat-num">${stats.retention === null ? '—' : stats.retention + '%'}</span><span class="stat-label">Память сегодня</span></div>
       </div>
       <div class="streak-display">
-        <span class="streak-icon" aria-hidden="true">🔥</span><span class="streak-num">${streak}</span><span class="streak-label">дней подряд</span>
+        <span class="streak-num">${streak}</span><span class="streak-label">дней подряд</span>
       </div>`;
 
     const achList = await Achievements.getAll();
@@ -90,7 +90,7 @@ const AppProgress = (() => {
     const calendarBlock = `
       <h3 class="card-title" style="margin-top:18px">Календарь занятий (30 дней)</h3>
       <div class="study-calendar" aria-label="Календарь занятий за 30 дней">${calCells.join('')}</div>
-      <p class="setting-hint">Зелёный — был заход и работа с карточками. Оранжевая рамка — сегодня.</p>`;
+      <p class="setting-hint">Зелёный — был заход и работа с карточками. Рамка — сегодня.</p>`;
 
     const history = ((logRes.success && logRes.data) || [])
       .filter((r) => (r.cardsStudied || 0) > 0)

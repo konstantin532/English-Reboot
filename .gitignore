@@ -3,3 +3,6 @@ test-results/
 playwright-report/
 vitest-report.json
 .claude/
+.impeccable/review/
+.impeccable/questions/
+.impeccable/config.local.json
