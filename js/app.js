@@ -240,6 +240,8 @@
     zone.querySelector('.modal-card').classList.add('modal-card--wide');
     const open = zone.querySelector('.pg-chapter[open]');
     if (open && ch && ch !== 'intro') open.scrollIntoView({ block: 'start' });
+    const first = open && open.querySelector('summary');
+    if (first) first.focus({ preventScroll: true });
   }
 
   function showModal(html, handlers = {}) {
