@@ -1,0 +1,33 @@
+# Dependabot (бесплатный бот GitHub): раз в месяц проверяет новые версии экшенов CI и dev-зависимостей npm
+# и открывает по одному PR на каждую экосистему — всё одним списком, без россыпи мелких PR.
+# Приложение ученика от этого не меняется: в sw.js и на сайт ничего из этого не попадает (vitest, playwright,
+# экшены — только для тестов и CI). PR от бота проходят тот же CI; сливает, как всегда, только автор.
+# Пример, зачем это нужно: переход экшенов с Node 20 на Node 24 (PR #11) пришлось делать вручную.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      time: "09:00"
+      timezone: Europe/Moscow
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: "CI"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+      time: "09:00"
+      timezone: Europe/Moscow
+    open-pull-requests-limit: 1
+    versioning-strategy: increase
+    commit-message:
+      prefix: "dev-зависимости"
+    groups:
+      dev:
+        patterns: ["*"]
