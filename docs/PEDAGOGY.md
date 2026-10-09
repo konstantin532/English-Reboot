@@ -100,3 +100,26 @@ Where the project lacks data or a feature that a rule needs, the rule says so �
 - Neither the app nor Claude hears the student: no pronunciation scores (rule 7).
 - Honest feedback is the student's own recording next to the model, replayed in turn.
 - Cloud speech recognition breaks offline mode and rule 13.
+
+## 12. Word markup colors: few, distinct, meaningful
+
+Author, 2026-10-08: the palette must not look like one color in different shades. Rules
+(`css/style.css`, block POS-PALETTE; guarded by `tests/palette.test.js`):
+
+- **Distinct by eye.** Any two palette colors differ by ΔE2000 ≥ 20 in the light and in the dark theme, and every
+  line is visible on the card background (ΔE2000 ≥ 25). Shades of one hue for different parts of speech are not allowed.
+- **Few colors, chosen by meaning.** People reliably tell apart about 8–10 categorical colors, so color goes only to
+  what the learner must notice: noun — blue (things), verb — red (action), irregular verb — orange double line
+  ("warning: the form changes", all forms: take, takes, took, taken), adjective — green, adverb and phrasal-verb
+  particle — purple (it sits next to the verb), pronoun — teal (stands for a noun), preposition — brown (the
+  "coordinates" of an action: in, on, at). Helpers of the verb (modal — solid, auxiliary — dashed) share one dark
+  line: they build questions and negatives. Articles, conjunctions, determiners, numbers and `to` — one gray dotted
+  line: short glue words that should not pull the eye.
+- **Line style carries meaning too**, so a learner with weak color vision still sees solid / double / dashed / dotted.
+- **One meaning per visual signal.** Red belongs to verbs; the stressed syllable is bold with a yellow marker, not red.
+- **Why "irregular".** The past of these verbs is not formed by the rule "+ed" but by a vowel or whole-word change
+  (go → went). They are the oldest and most frequent verbs; frequent use kept the old forms alive, so films and songs
+  are full of them. American forms only (get – got – gotten, dive – dove); British forms (got as a participle) may be
+  mentioned for recognition, never taught to say (EVOLUTION.md, «Правила контента», 2026-10-09).
+- **A legend is always one tap away** (Settings → markup layers): each color with its question (who? what? what
+  to do? which?) and an example word.
