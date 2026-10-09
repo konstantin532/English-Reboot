@@ -8,7 +8,7 @@ import { summarizeRuns, slugFromUrl, vitestTotal, countLine, ciVerdict, annotati
 import { formatUnit, formatE2e, jobLimitMin, jobStatus } from '../scripts/er.mjs';
 import { codeDiff, isDataHunk, collapseData, similarity, cardText, markedLine, marksSample, ipaChanges, dictStats, dictNote, codePrompt, pedagoguePrompt } from '../scripts/er-review.mjs';
 import { cardDiff, stripParts } from '../scripts/er-cards.mjs';
-import { nextIdsOf, retiredIds } from '../scripts/er-brief.mjs';
+import { nextIdsOf, retiredIds, prLine } from '../scripts/er-brief.mjs';
 
 /* Скрипты скилла english-reboot-evolve: модель верит их сводкам вместо логов, поэтому разбор и
    решения «красное/зелёное» стерегутся тестами. */
@@ -235,6 +235,14 @@ describe('er-guard: сторож правил', () => {
 });
 
 describe('er-brief: выжимка EVOLUTION.md', () => {
+  it('PR от бота помечен: в лимит «один открытый PR от скилла» не входит', () => {
+    const pr = (login, type) => ({ number: 14, head: { ref: 'dependabot/npm_and_yarn/dev-1' }, title: 'bump', user: { login, type }, updated_at: '2026-11-01T06:00:00Z' });
+    expect(prLine(pr('dependabot[bot]', 'Bot'))).toMatch(/бот, не от скилла/);
+    expect(prLine(pr('renovate[bot]'))).toMatch(/бот, не от скилла/);
+    const own = prLine(pr('konstantin532', 'User'), ' · er-v37');
+    expect(own).not.toMatch(/бот/);
+    expect(own).toBe('  #14 dependabot/npm_and_yarn/dev-1 — bump (konstantin532, 2026-11-01) · er-v37');
+  });
   const md = '# E\n## Планы автора\n### План X\n- [x] шаг 1\n- [ ] шаг 2\n  продолжение\n## Бэклог\n- [ ] одно\n- [x] другое\n## Разведка 2026-09-01\n';
   it('разделы и чекбоксы', () => {
     expect(sections(md).map((s) => s.title)).toEqual(['Планы автора', 'Бэклог', 'Разведка 2026-09-01']);

@@ -107,6 +107,15 @@ export function versions(files) {
   return out;
 }
 
+/** Строка открытого PR для выжимки. PR от ботов (Dependabot) помечены: они не от скилла и в лимит
+ *  «Сам: не больше одного открытого PR от скилла» не входят — иначе бот на неделю остановил бы итерации. */
+export function prLine(p, cv = '', cut = (s) => s) {
+  const login = (p.user && p.user.login) || '';
+  const bot = (p.user && p.user.type === 'Bot') || /\[bot\]$/.test(login);
+  const tag = bot ? ' · бот, не от скилла — в лимит открытых PR не входит' : '';
+  return `  #${p.number} ${p.head.ref} — ${cut(p.title, 70)} (${login}, ${String(p.updated_at).slice(0, 10)})${cv}${tag}`;
+}
+
 function repoSlug() {
   const url = sh('git', ['remote', 'get-url', 'origin']) || '';
   const m = url.match(/github\.com[/:]([^/]+)\/([^/.]+?)(?:\.git)?$/i);
@@ -143,7 +152,7 @@ function brief(opts) {
         const sw = sh('gh', ['api', `repos/${slug}/contents/sw.js?ref=${encodeURIComponent(p.head.ref)}`, '-H', 'Accept: application/vnd.github.raw']);
         const m = sw && sw.match(/CACHE_VERSION\s*=\s*'([^']+)'/);
         if (m) { cv = ` · ${m[1]}`; maxCache = Math.max(maxCache, cacheNum(m[1])); }
-        L.push(`  #${p.number} ${p.head.ref} — ${cut(p.title, 70)} (${p.user && p.user.login}, ${String(p.updated_at).slice(0, 10)})${cv}`);
+        L.push(prLine(p, cv, cut));
       }
     }
   }
