@@ -729,6 +729,14 @@
     const content = document.getElementById('content');
 
     content.addEventListener('click', (e) => {
+      const vf = e.target.closest('.verb-filter-btn');
+      if (vf && VOCAB_STORES[currentTab]) {
+        const v = state.vocab[currentTab];
+        v.verbs = vf.dataset.verbs;
+        v.limit = 20;
+        switchTab(currentTab);
+        return;
+      }
       const mb = e.target.closest('.mode-btn');
       if (mb) {
         state.practiceMode = mb.dataset.mode === 'srs' ? null : mb.dataset.mode;

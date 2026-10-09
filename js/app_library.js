@@ -133,11 +133,13 @@ const AppLibrary = (() => {
     else if (c.type === 'idiom') sub = c.payload.context;
     else sub = (c.tags && c.tags[0]) || '';
     if (sub.length > 34) sub = sub.slice(0, 33) + '…';
+    const irr = c.type === 'phrasal' || storeName === 'phrasal_verbs' ? irrOfPhrasal(c) : null;
     return `
       <button class="vocab-tile ${c.type === 'slang' ? 'slang-tile' : ''}" data-store="${storeName}" data-id="${c.id}" type="button">
         <span class="tile-front">${c.payload.front}</span>
         ${c.type === 'slang' ? `<span class="tile-full-form">${c.payload.full_form}</span>` : ''}
         <span class="tile-trans">${c.payload.translation || ''}</span>
+        ${irr ? `<span class="tile-forms" title="Неправильный глагол: формы учить">${irr.base} · ${irr.past} · ${irr.pp}</span>` : ''}
         <span class="topic-meta">
           ${c.level ? `<span class="level-badge level-badge--${c.level}">${c.sublevel || c.level}</span>` : ''}
           ${sub && c.type !== 'slang' ? `<span class="tag-chip">${sub}</span>` : ''}
@@ -173,11 +175,26 @@ const AppLibrary = (() => {
       </button>`;
   }
 
+  // Фразовые глаголы: глагол в основе неправильный (take off → take – took – taken) или правильный (pick up)
+  const irrOfPhrasal = (c) => (window.WordMarks && WordMarks.irregularOf
+    ? WordMarks.irregularOf(String(c.payload.front || '').trim().split(/\s+/)[0]) : null);
+  const VERB_FILTERS = [['all', 'Все'], ['irr', 'Неправильные'], ['reg', 'Правильные']];
+  function filteredCards(key, cards, v) {
+    let list = v.filter === 'all' ? cards : cards.filter((c) => c.level === v.filter);
+    if (key === 'phrasal' && v.verbs && v.verbs !== 'all') list = list.filter((c) => !!irrOfPhrasal(c) === (v.verbs === 'irr'));
+    return list;
+  }
+  function verbFilterHtml(v) {
+    return `<div class="verb-filter" role="group" aria-label="Глагол в основе">
+      ${VERB_FILTERS.map(([k, label]) => `<button type="button" class="verb-filter-btn${(v.verbs || 'all') === k ? ' is-active' : ''}${k === 'irr' ? ' verb-filter-btn--irr' : ''}" data-verbs="${k}" aria-pressed="${(v.verbs || 'all') === k}">${label}</button>`).join('')}
+    </div>`;
+  }
+
   async function renderVocabList(t, key) {
     const cfg = C.VOCAB_STORES[key];
     const { cards, progress } = await C.ensureVocabData(cfg.store);
     const v = C.state.vocab[key] || (C.state.vocab[key] = { filter: 'all', limit: 20 });
-    const list = v.filter === 'all' ? cards : cards.filter((c) => c.level === v.filter);
+    const list = filteredCards(key, cards, v);
     const shown = list.slice(0, v.limit);
     const tileFn = cfg.kind === 'minimal' ? minimalTileHtml : cfg.kind === 'reading' ? readingTileHtml : vocabTileHtml;
     const tiles = shown.map((c) => tileFn(c, progress[c.id] && progress[c.id].mark, cfg.store)).join('');
@@ -185,6 +202,7 @@ const AppLibrary = (() => {
     return `
       <div class="section-wrap" data-vocab="${key}">
         ${C.sectionHeader(t, v.filter)}
+        ${key === 'phrasal' ? verbFilterHtml(v) : ''}
         <p class="list-summary">${marked} из ${cards.length} отмечено · показано ${shown.length} из ${list.length}</p>
         ${list.length
           ? `<div class="vocab-grid">${tiles}</div>
@@ -206,7 +224,7 @@ const AppLibrary = (() => {
     const loadMore = async () => {
       if (loading) return;
       const data = await C.ensureVocabData(cfg.store);
-      const all = v.filter === 'all' ? data.cards : data.cards.filter((c) => c.level === v.filter);
+      const all = filteredCards(key, data.cards, v);
       if (v.limit >= all.length) { sentinel.remove(); return; }
       loading = true;
       const tileFn = cfg.kind === 'minimal' ? minimalTileHtml : cfg.kind === 'reading' ? readingTileHtml : vocabTileHtml;
