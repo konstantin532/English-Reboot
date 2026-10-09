@@ -15,10 +15,10 @@ async function onboard(page) {
   await expect(page.locator('#today-start')).toBeVisible();
 }
 
-test('раздел «Слова»: 670 слов A1–A1+, перевод примеров под строкой, 5 вопросов в карточке', async ({ page }) => {
+test('раздел «Слова»: 748 слов A1–A2, перевод примеров под строкой, 5 вопросов в карточке', async ({ page }) => {
   await onboard(page);
   await page.locator('.nav-link[data-tab="words"]').click();
-  await expect(page.locator('.list-summary')).toContainText('из 670');
+  await expect(page.locator('.list-summary')).toContainText('из 748');
   const first = page.locator('.vocab-tile').first();
   await expect(first).toContainText('water');
   await expect(first).toContainText('A1');
@@ -72,7 +72,7 @@ test('обновление базы v1 → v2: прогресс на месте,
     kept: (await DB.getByKey('progress', 'cv_1001')).data,
     version: (await DB.getByKey('content_meta', 'words_version')).data.value,
   }));
-  expect(st.words).toBe(670);
+  expect(st.words).toBe(748);
   expect(st.kept.reps).toBe(3);
   expect(st.kept.ladder.step).toBe(3);
   expect(st.version).toBe('1.5.0');   // WORDS_VERSION: 1.5.0 — глаголы A2
