@@ -843,6 +843,37 @@
     ['take away', 'фраз. глаг.', 'убрать, унести', 'Can you {take away} the plates?', 'Можете убрать тарелки?', 'Mom {takes away} my phone.', 'Мама отбирает у меня телефон.', 'Первый месяц', 'A1+'],
     ['drop by', 'фраз. глаг.', 'заскочить, заглянуть', 'Can I {drop by} later?', 'Можно заскочить попозже?', 'Kim {drops by} with cookies.', 'Ким заглядывает с печеньем.', 'Первый месяц', 'A1+'],
     ['dry off', 'фраз. глаг.', 'вытереться, обсохнуть', 'Here\'s a towel, {dry off}.', 'Вот полотенце, вытрись.', 'The dog {dries off} by the door.', 'Собака обсыхает у двери.', 'Первый месяц', 'A1+'],
+    /* ---------- Пакет A2, часть 1: фразовые глаголы в прошедшем времени (pv_269–298) ---------- */
+    ['come by', 'фраз. глаг.', 'заглянуть, зайти ненадолго', 'Sam {came by} yesterday.', 'Сэм вчера заходил.', 'Feel free to {come by} anytime.', 'Заходите в любое время.', 'Что было', 'A2'],
+    ['stop by', 'фраз. глаг.', 'заскочить (по пути)', 'We {stopped by} the bakery.', 'Мы заскочили в пекарню.', 'Can Jess {stop by} later?', 'Джесс может заскочить попозже?', 'Что было', 'A2'],
+    ['bring over', 'фраз. глаг.', 'принести (к кому-то домой)', 'Tony {brought over} some pizza.', 'Тони принёс к нам пиццу.', 'Can you {bring over} the chairs?', 'Принесёшь стулья?', 'Что было', 'A2'],
+    ['cut off', 'фраз. глаг.', 'прерваться, оборваться (о связи)', 'The call {cut off} again.', 'Звонок опять оборвался.', 'The Wi-Fi keeps {cutting off}.', 'Вайфай всё время отваливается.', 'Что было', 'A2'],
+    ['drop out', 'фраз. глаг.', 'бросить (учёбу, гонку)', 'Ray {dropped out} of college.', 'Рэй бросил колледж.', 'Why did Sam {drop out}?', 'Почему Сэм бросил учёбу?', 'Что было', 'A2'],
+    ['fall apart', 'фраз. глаг.', 'развалиться', 'The old couch {fell apart}.', 'Старый диван развалился.', 'These shoes are {falling apart}.', 'Эти ботинки разваливаются.', 'Что было', 'A2'],
+    ['fall behind', 'фраз. глаг.', 'отстать (по учёбе, работе)', 'Kim {fell behind} at work last week.', 'На прошлой неделе Ким отстала по работе.', 'Don\'t {fall behind}!', 'Не отставай!', 'Что было', 'A2'],
+    ['get through', 'фраз. глаг.', 'дозвониться; пережить', 'Maggie finally {got through} to the bank.', 'Мэгги наконец дозвонилась до банка.', 'We {got through} the winter.', 'Мы пережили зиму.', 'Что было', 'A2'],
+    ['give out', 'фраз. глаг.', 'раздавать', 'Luis {gave out} free samples.', 'Луис раздавал бесплатные пробники.', 'They {give out} coffee on Mondays.', 'По понедельникам раздают кофе.', 'Что было', 'A2'],
+    ['look over', 'фраз. глаг.', 'просмотреть, проверить', 'Priya {looked over} the report.', 'Прия просмотрела отчёт.', 'Can you {look over} my email?', 'Посмотришь моё письмо?', 'Что было', 'A2'],
+    ['look through', 'фраз. глаг.', 'перебрать, пролистать', 'Jess {looked through} the old photos.', 'Джесс пересмотрела старые фото.', 'Let\'s {look through} the menu.', 'Давай посмотрим меню.', 'Что было', 'A2'],
+    ['pass by', 'фраз. глаг.', 'проходить, проезжать мимо', 'We {passed by} your building.', 'Мы проходили мимо твоего дома.', 'Ray {passes by} the park every day.', 'Рэй каждый день проезжает мимо парка.', 'Что было', 'A2'],
+    ['put out', 'фраз. глаг.', 'потушить', 'Tony {put out} the fire fast.', 'Тони быстро потушил огонь.', '{Put out} the candles, please.', 'Потуши свечи, пожалуйста.', 'Что было', 'A2'],
+    ['put together', 'фраз. глаг.', 'собрать (мебель, план)', 'We {put together} the new bed.', 'Мы собрали новую кровать.', 'Can Sam {put together} the shelf?', 'Сэм может собрать полку?', 'Что было', 'A2'],
+    ['send back', 'фраз. глаг.', 'отправить обратно, вернуть', 'Maggie {sent back} the shoes.', 'Мэгги отправила туфли обратно.', 'Can we {send back} the soup?', 'Можно вернуть суп?', 'Что было', 'A2'],
+    ['sleep over', 'фраз. глаг.', 'переночевать в гостях', 'Jess {slept over} at our place.', 'Джесс ночевала у нас.', 'Can Kim {sleep over} tonight?', 'Ким может сегодня переночевать?', 'Что было', 'A2'],
+    ['speak up', 'фраз. глаг.', 'говорить громче; высказаться', 'Priya {spoke up} at the meeting.', 'Прия высказалась на встрече.', 'Sorry, can you {speak up}?', 'Простите, можно погромче?', 'Что было', 'A2'],
+    ['split up', 'фраз. глаг.', 'расстаться', 'Sam and his girlfriend {split up}.', 'Сэм с девушкой расстались.', 'Did they really {split up}?', 'Они правда расстались?', 'Что было', 'A2'],
+    ['step out', 'фраз. глаг.', 'выйти ненадолго', 'Priya {stepped out} for lunch.', 'Прия вышла на обед.', 'Sorry, Tony just {stepped out}.', 'Простите, Тони только что вышел.', 'Что было', 'A2'],
+    ['take on', 'фраз. глаг.', 'взять на себя (работу)', 'Tony {took on} a new project.', 'Тони взялся за новый проект.', 'Don\'t {take on} too much.', 'Не бери на себя слишком много.', 'Что было', 'A2'],
+    ['throw out', 'фраз. глаг.', 'выбросить; выгнать', 'Maggie {threw out} the old milk.', 'Мэгги выбросила старое молоко.', 'The bar {threw out} two guys.', 'Из бара выгнали двоих парней.', 'Что было', 'A2'],
+    ['tear up', 'фраз. глаг.', 'порвать (на куски)', 'Sam {tore up} the letter.', 'Сэм порвал письмо.', 'Don\'t {tear up} the receipt!', 'Не рви чек!', 'Что было', 'A2'],
+    ['wear off', 'фраз. глаг.', 'пройти, перестать действовать', 'The coffee {wore off} by noon.', 'К полудню кофе перестал действовать.', 'The pain will {wear off} soon.', 'Боль скоро пройдёт.', 'Что было', 'A2'],
+    ['go through', 'фраз. глаг.', 'пережить; пройтись (по списку)', 'We {went through} a lot that year.', 'В тот год мы через многое прошли.', 'Let\'s {go through} the list.', 'Давай пройдёмся по списку.', 'Что было', 'A2'],
+    ['fly back', 'фраз. глаг.', 'прилететь обратно', 'Priya {flew back} on Sunday.', 'Прия прилетела обратно в воскресенье.', 'When do you {fly back}?', 'Когда вы летите обратно?', 'Что было', 'A2'],
+    ['think up', 'фраз. глаг.', 'придумать', 'Jess {thought up} a great name.', 'Джесс придумала отличное название.', 'We need to {think up} a plan.', 'Нам нужно придумать план.', 'Что было', 'A2'],
+    ['pull up', 'фраз. глаг.', 'подъехать (и остановиться)', 'A cab {pulled up} outside.', 'У входа остановилось такси.', 'Ray is {pulling up} now.', 'Рэй как раз подъезжает.', 'Что было', 'A2'],
+    ['mess up', 'фраз. глаг.', 'испортить, напутать', 'Tony {messed up} the order.', 'Тони напутал с заказом.', 'Don\'t {mess up} the kitchen!', 'Не устрой бардак на кухне!', 'Что было', 'A2'],
+    ['blow up', 'фраз. глаг.', 'вспылить; надуть (шарик)', 'Sam {blew up} at the waiter.', 'Сэм накричал на официанта.', 'Let\'s {blow up} the balloons!', 'Давай надуем шарики!', 'Что было', 'A2'],
+    ['burn down', 'фраз. глаг.', 'сгореть дотла', 'The old diner {burned down}.', 'Старая закусочная сгорела дотла.', 'Did the barn {burn down}?', 'Сарай сгорел?', 'Что было', 'A2'],
   ];
 
   // Живая речь A1+ (раздел «Сленг», sl_072+; sl_071 занят — убран как дубль в content_migrate.js).
@@ -871,7 +902,32 @@
     ['fer', 'for', 'for без ударения (звучит коротко, почти «фр»)', '/fɔr/', '/fɚ/', 'Thanks {fer} coming!', 'Спасибо, что пришли!', 'What\'s {fer} dinner?', 'Что на ужин?', 'fer'],
     ['y\'know', 'you know', 'знаешь; ну, это (слово-связка)', '/ju noʊ/', '/jəˈnoʊ/', 'It\'s, {y\'know}, kinda weird.', 'Это, ну, как-то странно.', 'I like it here, {y\'know}?', 'Мне тут нравится, понимаешь?', 'know'],
   ];
-  function buildLive(rows, firstNum) {
+  // Пакет A2, часть 1 (sl_092–111): слияние «t/d + you» → /tʃ, dʒ/ (did you → didja, meet you → meetcha),
+  // проглоченные начала и окончания (excuse → 'scuse, nothing → nothin'), слабые формы (to → ta, was → wuz).
+  // Только для узнавания на слух: ученик говорит обычной формой. Написание wuz, ta — так их пишут в песнях и чатах.
+  const LIVE_DATA_A2 = [
+    ['whadja', 'what did you', 'что ты… / что вы… (в прошлом)', '/wʌt dɪd ju/', '/ˈwʌdʒə/', '{Whadja} do last night?', 'Что вы делали вчера вечером?', '{Whadja} get for Kim?', 'Что вы купили для Ким?', 'what'],
+    ['howdja', 'how did you', 'как ты… / как вы… (в прошлом)', '/haʊ dɪd ju/', '/ˈhaʊdʒə/', '{Howdja} know?', 'Откуда вы узнали?', '{Howdja} sleep?', 'Как спалось?', 'how'],
+    ['wheredja', 'where did you', 'куда / где ты… (в прошлом)', '/wɛr dɪd ju/', '/ˈwɛrdʒə/', '{Wheredja} go for lunch?', 'Куда вы ходили обедать?', '{Wheredja} park?', 'Где вы припарковались?', 'where'],
+    ['didn\'tcha', 'didn\'t you', 'разве ты не… / вы же… (в прошлом)', '/ˈdɪdənt ju/', '/ˈdɪdəntʃə/', '{Didn\'tcha} get my text?', 'Вы разве не получили моё сообщение?', 'You saw it, {didn\'tcha}?', 'Вы же видели, да?', 'didnt'],
+    ['wontcha', 'won\'t you', 'может, … ? (вежливое приглашение)', '/woʊnt ju/', '/ˈwoʊntʃə/', '{Wontcha} come in?', 'Может, зайдёте?', 'Stay a bit, {wontcha}?', 'Останьтесь ещё немного, а?', 'invite'],
+    ['meetcha', 'meet you', 'встретить вас; познакомиться с вами', '/mit ju/', '/ˈmitʃə/', 'Nice to {meetcha}!', 'Приятно познакомиться!', 'Sam will {meetcha} at the station.', 'Сэм встретит вас на станции.', 'meet'],
+    ['getcha', 'get you', 'принести вам; взять для вас', '/ɡɛt ju/', '/ˈɡɛtʃə/', 'Can I {getcha} anything?', 'Вам что-нибудь принести?', 'Jess will {getcha} a coffee.', 'Джесс возьмёт вам кофе.', 'get'],
+    ['letcha', 'let you', 'дать вам (знать, сделать)', '/lɛt ju/', '/ˈlɛtʃə/', 'Tony will {letcha} know.', 'Тони даст вам знать.', 'Can Maggie {letcha} in?', 'Мэгги может вас впустить?', 'let'],
+    ['tellya', 'tell you', 'сказать вам, рассказать вам', '/tɛl ju/', '/ˈtɛljə/', 'Sam will {tellya} later.', 'Сэм расскажет вам потом.', 'Lemme {tellya} something.', 'Дайте я вам кое-что скажу.', 'tell'],
+    ['seeya', 'see you', 'пока, увидимся', '/si ju/', '/ˈsijə/', '{Seeya} tomorrow!', 'До завтра!', '{Seeya} around!', 'Ещё увидимся!', 'bye'],
+    ['\'scuse me', 'excuse me', 'простите, извините (проглоченное ex-)', '/ɪkˈskjuz mi/', '/ˈskjuz mi/', '{\'Scuse me}, is this seat free?', 'Простите, это место свободно?', '{\'Scuse me}, coming through!', 'Извините, пропустите!', 'sorry'],
+    ['g\'night', 'good night', 'спокойной ночи', '/ɡʊd naɪt/', '/ɡəˈnaɪt/', '{G\'night}, everybody!', 'Спокойной ночи всем!', '{G\'night}, sleep tight.', 'Спокойной ночи, сладких снов.', 'bye'],
+    ['mornin\'', 'morning', 'доброе утро (без -g на конце)', '/ˈmɔrnɪŋ/', '/ˈmɔrnɪn/', '{Mornin\'}! Coffee\'s ready.', 'Доброе утро! Кофе готов.', '{Mornin\'}, Ms. Garcia!', 'Доброе утро, мисс Гарсия!', 'hi'],
+    ['nothin\'', 'nothing', 'ничего (без -g на конце)', '/ˈnʌθɪŋ/', '/ˈnʌθɪn/', '{Nothin\'} much, and you?', 'Ничего особенного, а у вас?', 'There\'s {nothin\'} on TV.', 'По телику ничего нет.', 'nothing'],
+    ['somethin\'', 'something', 'что-то, что-нибудь (без -g на конце)', '/ˈsʌmθɪŋ/', '/ˈsʌmθɪn/', 'Wanna eat {somethin\'}?', 'Хотите чего-нибудь поесть?', 'Kim heard {somethin\'}.', 'Ким что-то услышала.', 'something'],
+    ['\'n\'', 'and', 'и (в устойчивых парах)', '/ænd/', '/ən/', 'Salt {\'n\'} pepper?', 'Соль и перец?', 'Rock {\'n\'} roll!', 'Рок-н-ролл!', 'and'],
+    ['\'round', 'around', 'вокруг; заходите (come round)', '/əˈraʊnd/', '/raʊnd/', 'Come {\'round} anytime.', 'Заходите в любое время.', 'Turn {\'round}, it\'s behind you!', 'Повернитесь, это за вами!', 'around'],
+    ['ta', 'to', 'to без ударения (звучит «тə»)', '/tu/', '/tə/', 'Gotta go {ta} work.', 'Надо идти на работу.', 'Nice {ta} meet you.', 'Приятно познакомиться.', 'to'],
+    ['wuz', 'was', 'was без ударения (звучит «уəз»)', '/wʌz/', '/wəz/', 'It {wuz} so good!', 'Было так вкусно!', 'Who {wuz} that?', 'Кто это был?', 'was'],
+    ['d\'ya', 'do you / did you', 'ты… ? / вы… ? (вопрос)', '/du ju/', '/dʒə/', '{D\'ya} want some?', 'Хотите немного?', '{D\'ya} like it?', 'Нравится?', 'doyou'],
+  ];
+  function buildLive(rows, firstNum, sublevel = 'A1+') {
     /* global partsOf */
     const parts = (text) => (typeof partsOf === 'function' ? partsOf(text)
       : String(text).split(/\s+/).filter(Boolean).map((w) => ({ word: w })));
@@ -914,7 +970,7 @@
       tests.push({ q: '«' + r[0] + '» в обычной речи — это…', ...mix(r[1], others(i, (x) => x[1]), i + 3) });
       return {
         id: 'sl_' + String(firstNum + i).padStart(3, '0'),
-        type: 'slang', level: 'A1', sublevel: 'A1+', tags: ['живая речь'], audio: true,
+        type: 'slang', level: sublevel.replace('+', ''), sublevel, tags: ['живая речь'], audio: true,
         payload: {
           front: r[0], full_form: r[1], translation: r[2], ipa_full: r[3], ipa_short: r[4],
           examples: [[r[5], r[6]], [r[7], r[8]]].map(([raw, ru]) => ({ text: clean(raw), ru, parts: parts(clean(raw)), connected: '' })),
@@ -976,7 +1032,13 @@
     ['sit back', 'chill out', 'cool down', 'relax'], ['check on', 'look after', 'check'], ['text back', 'write back', 'call back'], ['come up', 'go up'],
     ['drop by', 'come over', 'drop in'], ['stay over', 'stay in', 'stay out'], ['wash up', 'clean up'],
     ['fall off', 'fall down', 'fall over'], ['heat up', 'warm up'], ['come out', 'go out'], ['start over', 'start', 'begin'],
-    ['settle in', 'move in'], ['help out', 'help'], ['take away', 'take out', 'put away']];
+    ['settle in', 'move in'], ['help out', 'help'], ['take away', 'take out', 'put away'],
+    // A2, часть 1
+    ['come by', 'stop by', 'drop by', 'drop in', 'come over'], ['look over', 'look through', 'go through', 'go over', 'check out'],
+    ['throw out', 'throw away'], ['give out', 'hand out'], ['split up', 'break up'], ['sleep over', 'stay over'],
+    ['step out', 'head out', 'go out'], ['put together', 'set up'], ['send back', 'take back', 'bring back'],
+    ['fall apart', 'break down'], ['blow up', 'freak out'], ['mess up', 'mix up'], ['speak up', 'speak out'],
+    ['think up', 'come up with', 'make up']];
   // Слово может быть в нескольких группах — объединяем их (а не перезаписываем последней)
   const SYN = new Map();
   SYN_GROUPS.forEach((g) => g.forEach((w) => { const set = SYN.get(w) || new Set(); g.forEach((x) => set.add(x)); SYN.set(w, set); }));
@@ -1267,7 +1329,7 @@
   const pvTarget = (typeof PHRASAL_CARDS !== 'undefined' && PHRASAL_CARDS) || window.PHRASAL_CARDS;
   if (Array.isArray(pvTarget)) pvTarget.push(...PV.cards);
   window.PHRASAL_A1P_COUNT = PV.cards.length;
-  const LIVE = buildLive(LIVE_DATA, 72);
+  const LIVE = buildLive(LIVE_DATA, 72).concat(buildLive(LIVE_DATA_A2, 92, 'A2'));   // sl_072–091 (A1+), sl_092–111 (A2)
   /* global SLANG_CARDS */
   const slTarget = (typeof SLANG_CARDS !== 'undefined' && SLANG_CARDS) || window.SLANG_CARDS;
   if (Array.isArray(slTarget)) slTarget.push(...LIVE);
