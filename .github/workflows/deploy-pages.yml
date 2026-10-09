@@ -30,6 +30,8 @@ jobs:
        github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
       pages: write
@@ -59,3 +61,30 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  # Сторож релиза «после»: открывает НАСТОЯЩИЙ сайт, как ученик, — версия, все файлы кэша байт в байт,
+  # Service Worker закэшировал всё, без сети открывается (scripts/check-live.mjs). Красный — сайт у учеников
+  # сломан или устарел: GitHub пришлёт письмо о провале, итог — в сводке задания.
+  live:
+    name: live
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Chromium with system dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Check the live site
+        run: node scripts/check-live.mjs --url "${{ needs.deploy.outputs.page_url }}"
