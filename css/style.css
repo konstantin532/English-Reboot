@@ -1421,11 +1421,6 @@ body.tts-unavailable .audio-btn { display: none !important; }
   font-family: var(--font-head);
   font-size: var(--text-2xl);
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #fff, #FDBA74);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
 }
 
 .onboarding-card p { color: rgba(255, 255, 255, 0.85); margin: 8px 0; }
@@ -1755,17 +1750,6 @@ body::before {
   -webkit-backdrop-filter: blur(14px) saturate(1.15);
 }
 
-/* --- Градиентный логотип с медленным переливом --- */
-.logo-accent {
-  background: linear-gradient(90deg, var(--accent), #F5A65B 50%, var(--accent));
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: logoFlow 7s linear infinite;
-}
-@keyframes logoFlow { to { background-position: -200% 0; } }
 
 /* --- Spotlight: тёплое пятно следует за курсором --- */
 .topic-tile, .vocab-tile, .stat-card, .mode-btn {
@@ -1814,21 +1798,10 @@ body::before {
   85%, 100% { left: 130%; }
 }
 
-/* --- Полоса уровня со скользящим блеском --- */
-.level-progress-fill { position: relative; overflow: hidden; }
-.level-progress-fill::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  animation: barShine 2.2s linear infinite;
-}
-@keyframes barShine { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
 /* --- Цель достигнута: зелёное свечение кольца --- */
 .side-card.ring-complete {
   border-color: var(--success);
-  box-shadow: 0 0 26px rgba(76, 154, 95, 0.22);
 }
 
 /* --- Разблокированное достижение: акцентная рамка + pop иконки --- */
@@ -3266,3 +3239,248 @@ button:not([class]):hover { background: var(--fill-strong); }
   .league-row .bot-tag { display: block; width: max-content; margin-bottom: 2px; }
   .league-row .name small { display: block; margin-left: 0; }
 }
+
+/* ==========================================================================
+   v4 — доводка дизайна и вёрстки (тот же стиль, без нового «мира»).
+   Единая колонка контента, ритм отступов, иерархия «Сегодня»,
+   спокойные выноски без цветных полос слева, плотная мобильная вёрстка.
+   ========================================================================== */
+:root {
+  --content-w: 920px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  --tint: color-mix(in srgb, var(--accent) 7%, var(--bg-card));
+  --hairline: color-mix(in srgb, var(--text) 9%, transparent);
+}
+:root[data-theme="dark"], :root[data-theme="amoled"] {
+  --tint: color-mix(in srgb, var(--accent) 12%, var(--bg-card));
+}
+
+/* ---------- Поверхности браузера ---------- */
+html { scrollbar-color: color-mix(in srgb, var(--text) 22%, transparent) transparent; scroll-padding-top: calc(var(--header-h) + var(--strip-h) + 12px); }
+body { font-variant-numeric: tabular-nums; text-rendering: optimizeLegibility; }
+input, textarea { caret-color: var(--accent); }
+::placeholder { color: var(--text-muted); opacity: 1; }
+a { color: var(--accent); text-underline-offset: 3px; }
+
+/* ---------- Шапка: статистика одной капсулой ---------- */
+.app-header { gap: 12px; }
+.header-actions { gap: 4px; }
+.header-stats {
+  display: flex; align-items: center; height: 32px; margin: 0 6px;
+  border-radius: 999px; background: var(--fill); padding: 0 4px;
+}
+.header-stats > * {
+  height: 32px; padding: 0 10px !important; background: transparent !important;
+  border: 0 !important; border-radius: 999px !important; position: relative;
+}
+.header-stats > * + *::before {
+  content: ''; position: absolute; left: 0; top: 9px; bottom: 9px; width: 1px; background: var(--border-strong);
+}
+.header-stats .ach-counter:hover { background: var(--fill-strong) !important; }
+.review-badge svg { color: var(--text-muted); }
+.logo-badge { margin-left: 8px; }
+
+/* ---------- Полоса статистики — по колонке контента ---------- */
+.header-strip { padding: 0 32px; }
+.stats-bar { width: 100%; max-width: var(--content-w); margin: 0 auto; }
+
+/* ---------- Колонка контента ---------- */
+.content { padding: 32px 32px 96px; }
+.section-wrap { max-width: var(--content-w); }
+.section-header { margin-bottom: 24px; }
+.section-header h2 { margin: 0; }
+.list-summary { margin: -8px 0 16px; }
+.app-footer { padding: 20px 32px 32px; }
+.app-footer > * { max-width: var(--content-w); }
+
+/* ---------- Боковая колонка: цель дня ---------- */
+#goal-ring-card { gap: 14px; padding: 12px 14px; }
+#goal-ring-card .ring-wrap, #goal-ring-card .ring-wrap svg { width: 56px; height: 56px; }
+#goal-ring-card .ring-num { font-size: 13px; font-weight: 700; }
+#goal-ring-card .ring-text { min-width: 0; }
+#goal-ring-card .ring-caption { font-size: 12.5px; color: var(--text-muted); line-height: 1.3; }
+.ring-spoken { margin-top: 3px; font-size: 12.5px; }
+.ring-value { stroke-width: 9; }
+.ring-track { stroke-width: 9; }
+
+/* ---------- Меню ---------- */
+.nav-group { margin: 18px 12px 6px; font-size: 11px; letter-spacing: .02em; }
+@media (min-width: 1101px) {
+  .nav-link { min-height: 34px; }
+  .nav-link:focus-visible { outline-offset: -2px; }
+}
+
+/* ---------- Выноски: тонкая заливка вместо цветной полосы слева ---------- */
+.formula, .test-result, .ladder-cue, .imp-situation, .ielts-prompt, .ielts-cue,
+.scene-note, .ladder-verdict, .context-note, .error-explanation, .danger-zone {
+  border: 1px solid var(--hairline) !important; border-radius: 14px !important;
+}
+.formula {
+  background: var(--tint); font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65;
+  padding: 14px 18px; margin: 18px 0;
+}
+.test-result { background: var(--tint); padding: 16px 20px; }
+.ielts-prompt, .ielts-cue, .imp-situation, .ladder-cue { background: var(--tint); }
+.context-note { background: color-mix(in srgb, var(--warning) 10%, var(--bg-card)); }
+.error-explanation { background: color-mix(in srgb, var(--danger) 7%, var(--bg-card)); }
+.scene-note.is-ok, .ladder-verdict { background: color-mix(in srgb, var(--success) 8%, var(--bg-card)); }
+.scene-note.is-unknown, .ladder-verdict.is-miss { background: color-mix(in srgb, var(--warning) 10%, var(--bg-card)); }
+.danger-zone { border-color: color-mix(in srgb, var(--danger) 35%, transparent) !important; }
+
+/* ---------- «Сегодня» ---------- */
+.today { gap: 20px; }
+.today-hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; row-gap: 14px;
+  align-items: end; padding: 32px 36px;
+}
+.today-title { grid-column: 1 / -1; font-size: 34px; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; margin: 0; }
+.today-coach { grid-column: 1; font-size: 18px; line-height: 1.5; max-width: 46ch; color: var(--text); }
+.today-hero > .today-start { grid-column: 2; grid-row: 2; min-width: 0; padding: 14px 30px; font-size: 17px; }
+.today-hero > .today-sub, .today-hero > .today-big { grid-column: 1 / -1; }
+.today-plan {
+  grid-column: 1 / -1; margin-top: 10px; gap: 0; counter-reset: plan;
+  border-top: 1px solid var(--hairline); color: var(--text); font-size: 15px;
+}
+.today-plan li { align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--hairline); line-height: 1.4; }
+.today-plan li:last-child { border-bottom: 0; padding-bottom: 0; }
+.today-plan-n {
+  min-width: 32px; height: 32px; border-radius: 10px; font-size: 14px;
+  background: var(--accent-soft); color: var(--accent);
+}
+.today-tiles { gap: 12px; }
+.today-tile {
+  padding: 18px 20px; gap: 4px; border: 0; border-radius: 18px;
+  background: var(--bg-card); box-shadow: var(--shadow-card);
+}
+.today-tile b { font-size: 32px; font-weight: 700; letter-spacing: -.03em; line-height: 1; }
+.today-tile span { font-size: 13px; }
+/* главная цифра дня — фразы вслух */
+#today-spoken { background: var(--accent); }
+#today-spoken b, #today-spoken span { color: #fff; }
+#today-spoken span { opacity: .85; }
+.today-summary .today-big b { color: var(--accent); }
+
+/* ---------- Плитки библиотеки ---------- */
+.vocab-tile, .topic-tile { min-height: 0; }
+.vocab-tile { gap: 3px; padding: 16px 18px; }
+.tile-front { font-size: 16.5px; line-height: 1.3; }
+.tile-trans { font-size: 14px; line-height: 1.35; }
+.vocab-tile .topic-meta { margin-top: 8px; }
+.topic-tile { padding: 15px 18px; gap: 14px; }
+.topic-num { min-width: 26px; font-size: 12px; }
+.topic-title { font-size: 15px; line-height: 1.35; }
+.vocab-tile:focus-visible, .topic-tile:focus-visible { outline-offset: 2px; }
+.list-sentinel {
+  font-family: var(--font-main); font-weight: 600; border: 0; border-radius: 14px;
+  background: var(--fill); color: var(--accent); padding: 14px; margin-top: 16px;
+}
+.list-sentinel:hover { background: var(--fill-strong); }
+
+/* ---------- Карточка ---------- */
+.card-detail { padding: 32px 40px 36px; border-radius: 22px; }
+.detail-top { margin-bottom: 20px; }
+.detail-title { display: block; margin: 0 0 6px; }
+.detail-title .audio-btn { display: inline-grid; vertical-align: middle; margin: -6px 0 0 10px; }
+.card-translation { margin: 0 0 4px; }
+.card-detail h3 { font-size: 20px; font-weight: 700; letter-spacing: -.02em; margin: 32px 0 12px; }
+.explanation { font-size: 16px; line-height: 1.65; max-width: 68ch; }
+
+/* пример: слова, кнопка звука справа, «слитно» — отдельной строкой во всю ширину */
+.example {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start;
+  column-gap: 14px; row-gap: 10px; padding: 16px 18px; margin-bottom: 10px;
+}
+.example:last-child { margin-bottom: 0; }
+.example-text { gap: 6px 14px; }
+.example .connected-text { grid-column: 1 / -1; margin: 0; border-radius: 10px; }
+.word-token { padding: 2px 3px; }
+.word-token .ipa { margin-top: 3px; }
+.ru-tr { margin-top: 2px; }
+
+/* тест */
+.test-progress { margin: -4px 0 16px; }
+.test-question { margin-bottom: 22px; }
+.test-question p { font-size: 15.5px; line-height: 1.45; margin-bottom: 10px; }
+.test-options { gap: 8px; }
+.test-option { min-height: 46px; padding: 11px 16px; font-size: 15px; line-height: 1.35; }
+.test-option:hover:not(:disabled) { border-color: var(--accent); background: var(--tint); }
+.srs-area { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--hairline); }
+.srs-btn { min-height: 50px; font-size: 15.5px; }
+
+/* ---------- Тренажёр ---------- */
+.practice-modes { margin-bottom: 24px; }
+.challenge-card { padding: 14px 18px; gap: 14px; }
+.ch-icon { font-size: 22px; width: 28px; text-align: center; }
+.ch-title { font-size: 15px; }
+.ch-progress-bar { width: 96px; background: var(--fill-strong); }
+.ch-count { text-align: right; }
+.text-of-day { padding: 22px 24px; }
+.text-of-day h3 { font-size: 19px; letter-spacing: -.02em; }
+
+/* ---------- Прогресс ---------- */
+.stat-card { padding: 20px 16px; }
+.stat-label { font-size: 13px; }
+.spoken-section, .league-section { border: 0; border-radius: 20px; box-shadow: var(--shadow-card); padding: 24px; }
+
+/* ---------- Настройки ---------- */
+.setting-row { padding: 16px 0; border-bottom-color: var(--hairline); }
+.setting-info label { font-size: 15px; font-weight: 600; }
+.setting-hint { font-size: 13px; }
+.settings-card { margin-bottom: 20px; }
+.settings-card .card-title, .card-title { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+
+/* ---------- Подвал ---------- */
+.legend summary { font-weight: 600; }
+.footer-actions .btn { font-size: 13.5px; }
+
+/* ---------- Планшет и телефон ---------- */
+@media (max-width: 1100px) {
+  .header-strip { padding: 0 24px; }
+  .content { padding: 28px 24px 88px; }
+}
+@media (max-width: 768px) {
+  .header-stats { margin: 0 2px; }
+  .header-stats > *::before { display: none; }
+  .header-strip { padding: 0 16px; }
+  .content { padding: 20px 16px 72px; }
+  .app-footer { padding: 18px 16px 28px; }
+  .section-header { margin-bottom: 18px; }
+  .card-detail { padding: 22px 18px 24px; border-radius: 20px; }
+  .detail-title { font-size: 30px; }
+  .example { padding: 14px; }
+  .today-hero { grid-template-columns: 1fr; padding: 24px 20px; row-gap: 12px; }
+  .today-title { font-size: 30px; }
+  .today-coach { font-size: 17px; }
+  .today-hero > .today-start { grid-column: 1; grid-row: auto; width: 100%; }
+  .today-plan { margin-top: 4px; }
+  .today-plan li { font-size: 14.5px; padding: 12px 0; }
+  .today-tiles { gap: 10px; }
+  .today-tile { padding: 14px 16px; border-radius: 16px; }
+  .today-tile b { font-size: 28px; }
+  /* челлендж: иконка · название · награда, полоса прогресса — второй строкой */
+  .challenge-card {
+    display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto;
+    grid-template-areas: "icon title title reward" "icon bar bar count";
+    row-gap: 8px; column-gap: 12px;
+  }
+  .ch-icon { grid-area: icon; align-self: center; }
+  .ch-title { grid-area: title; line-height: 1.3; }
+  .ch-progress-bar { grid-area: bar; width: auto; align-self: center; }
+  .ch-count { grid-area: count; width: auto; }
+  .ch-reward { grid-area: reward; white-space: nowrap; }
+  .practice-modes { width: 100%; }
+  .mode-btn { flex: 1 1 auto; }
+}
+@media (max-width: 560px) {
+  .test-option { min-height: 44px; }
+  .srs-buttons { gap: 8px; }
+}
+/* v4: подвал по колонке контента, «Как НЕ говорить» — в общем стиле выносок */
+@media (min-width: 769px) {
+  .app-footer { padding-inline: max(32px, calc((100% - var(--sidebar-w) - var(--content-w)) / 2)); }
+}
+@media (min-width: 1101px) {
+  .app-footer { padding-inline: max(32px, calc((100% - var(--content-w)) / 2)); }
+}
+.card-detail .error-item { border: 1px solid var(--hairline); border-radius: 14px; background: var(--bg); padding: 12px 16px; gap: 4px; }

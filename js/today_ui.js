@@ -266,7 +266,7 @@ const TodayUI = (() => {
       body = `<div class="words-front"><span class="words-word">${esc(vf ? vf.base : p.front)}</span> <span class="words-hint">— ${esc(p.translation)}</span></div>
         <p class="words-hint">Скажи вслух все формы${vf && vf.kind === 'irr' ? ' (например: go — went — gone)' : ''}. Сначала по памяти, потом послушай образец и себя.</p>
         <div class="words-say">
-          <button class="btn-primary" id="words-rec" type="button">🎙 Записать</button>
+          <button class="btn-primary" id="words-rec" type="button"><svg class="i-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Записать</button>
           <button class="btn btn-ghost" id="words-stop" type="button" hidden>■ Стоп</button>
           <button class="btn btn-ghost" id="words-model" type="button" hidden>▶ Образец</button>
           <button class="btn btn-ghost" id="words-mine" type="button" hidden>▶ Моя запись</button>
@@ -531,7 +531,7 @@ const TodayUI = (() => {
     document.getElementById('content').innerHTML = `
       <div class="section-wrap today">
         <div class="card today-hero today-summary" id="today-summary">
-          <h2 class="today-title">Итог дня 🎉</h2>
+          <h2 class="today-title">Итог дня</h2>
           <p class="today-big">Сказано вслух: <b>${s.spoken}</b> ${plural(s.spoken, 'фраза', 'фразы', 'фраз')}.
             Открыто ступеней: <b>${s.stepsUp}</b>.</p>
           ${scene ? `<p class="today-sub" id="today-scene-done">🎬 Сцена «${esc(scene)}» пройдена</p>` : ''}

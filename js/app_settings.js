@@ -120,7 +120,7 @@ const AppSettings = (() => {
           </div>
           <div class="setting-row">
             <div class="setting-info"><span class="setting-label">Проверка</span><p class="setting-hint">Должна прозвучать английская фраза</p></div>
-            <button class="btn-primary" id="btn-sound-test" type="button">🔊 Проверить звук</button>
+            <button class="btn-primary" id="btn-sound-test" type="button">Проверить звук</button>
           </div>
           <details class="sound-help">
             <summary>Звука нет? Как установить английский голос</summary>
@@ -175,13 +175,13 @@ const AppSettings = (() => {
         </section>
         <section class="settings-section">
           <h3>Данные и синхронизация</h3>
-          <button id="btn-export-json" type="button">📁 Экспорт данных (.json) — полный бэкап</button>
-          <button id="btn-import-json" type="button">📥 Импорт данных (.json)</button>
+          <button id="btn-export-json" type="button">Экспорт данных (.json) — полный бэкап</button>
+          <button id="btn-import-json" type="button">Импорт данных (.json)</button>
           <input type="file" id="import-file" accept=".json,application/json" hidden aria-label="Файл импорта">
-          <button id="btn-qr-sync" type="button">📱 Быстрая синхронизация (QR)</button>
-          <button id="btn-qr-apply" type="button">📋 Применить данные синхронизации (вставить)</button>
-          <button id="btn-export-anki" type="button">📝 Экспорт в Anki / Quizlet</button>
-          <button id="btn-restore-backup" type="button">♻️ Восстановить из авто-бэкапа (localStorage)</button>
+          <button id="btn-qr-sync" type="button">Быстрая синхронизация (QR)</button>
+          <button id="btn-qr-apply" type="button">Применить данные синхронизации (вставить)</button>
+          <button id="btn-export-anki" type="button">Экспорт в Anki / Quizlet</button>
+          <button id="btn-restore-backup" type="button">Восстановить из авто-бэкапа (localStorage)</button>
           <p class="settings-hint">Авто-бэкап прогресса и настроек сохраняется в браузер раз в 7 дней автоматически.</p>
         </section>
         <section class="settings-section">
@@ -192,7 +192,7 @@ const AppSettings = (() => {
             </div>
             <input type="time" id="reminder-time" value="${C.settings.reminder_time || '19:00'}" aria-label="Время напоминания">
           </div>
-          <button id="btn-enable-notif" type="button">🔔 Разрешить уведомления</button>
+          <button id="btn-enable-notif" type="button">Разрешить уведомления</button>
         </section>
         <section class="settings-section">
           <h3>О приложении</h3>

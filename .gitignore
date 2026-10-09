@@ -4,3 +4,6 @@ playwright-report/
 vitest-report.json
 .claude/*
 !.claude/skills/
+.impeccable/review/
+.impeccable/questions/
+.impeccable/config.local.json

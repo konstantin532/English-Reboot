@@ -95,12 +95,12 @@ const AppSession = (() => {
     const relearn = due.filter((c) => c.status === 'relearning' || c.status === 'lapsed').length;
     const modes = `
       <div class="practice-modes" role="tablist" aria-label="Режимы тренажёра">
-        <button class="mode-btn ${!C.state.practiceMode ? 'active' : ''}" data-mode="srs" type="button">🔄 SRS-повторение</button>
-        <button class="mode-btn ${C.state.practiceMode === 'dictation' ? 'active' : ''}" data-mode="dictation" type="button">✍️ Диктант</button>
-        <button class="mode-btn ${C.state.practiceMode === 'shadowing' ? 'active' : ''}" data-mode="shadowing" type="button">🎤 Shadowing</button>
-        <button class="mode-btn ${C.state.practiceMode === 'ladder' ? 'active' : ''}" data-mode="ladder" type="button">🪜 Лестница фраз</button>
-        <button class="mode-btn ${C.state.practiceMode === 'scenes' ? 'active' : ''}" data-mode="scenes" type="button">🎬 Сцены</button>
-        <button class="mode-btn ${C.state.practiceMode === 'improv' ? 'active' : ''}" data-mode="improv" type="button">🎲 Импровизация</button>
+        <button class="mode-btn ${!C.state.practiceMode ? 'active' : ''}" data-mode="srs" type="button">SRS-повторение</button>
+        <button class="mode-btn ${C.state.practiceMode === 'dictation' ? 'active' : ''}" data-mode="dictation" type="button">Диктант</button>
+        <button class="mode-btn ${C.state.practiceMode === 'shadowing' ? 'active' : ''}" data-mode="shadowing" type="button">Shadowing</button>
+        <button class="mode-btn ${C.state.practiceMode === 'ladder' ? 'active' : ''}" data-mode="ladder" type="button">Лестница фраз</button>
+        <button class="mode-btn ${C.state.practiceMode === 'scenes' ? 'active' : ''}" data-mode="scenes" type="button">Сцены</button>
+        <button class="mode-btn ${C.state.practiceMode === 'improv' ? 'active' : ''}" data-mode="improv" type="button">Импровизация</button>
       </div>`;
 
     let panel;
