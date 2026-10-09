@@ -8,6 +8,20 @@
 const AppSettings = (() => {
   'use strict';
 
+  // Легенда цветов частей речи (палитра — css/style.css, блок POS-PALETTE)
+  const POS_LEGEND = [
+    ['pos-noun', 'существительное', 'кто? что?', 'book'],
+    ['pos-verb', 'глагол', 'что делать?', 'work'],
+    ['pos-verb pos-irr', 'неправильный глагол', 'формы учить: go – went – gone', 'went'],
+    ['pos-adj', 'прилагательное', 'какой?', 'happy'],
+    ['pos-adv', 'наречие, частица (up, off)', 'как? где? когда?', 'fast'],
+    ['pos-pron', 'местоимение', 'вместо существительного', 'she'],
+    ['pos-prep', 'предлог', 'где? когда? (in, on, at)', 'on'],
+    ['pos-modal', 'модальный глагол', 'могу, должен', 'can'],
+    ['pos-aux', 'вспомогательный', 'вопрос и отрицание', 'did'],
+    ['pos-art', 'служебные', 'артикль, союз, число, to', 'the'],
+  ];
+
   let C = null; // контекст ядра (app.js)
   function bind(core) { C = core; }
 
@@ -126,17 +140,20 @@ const AppSettings = (() => {
             <p class="preview-line">
               <span class="pos-art">The</span>
               <span class="pos-noun"><span class="silent-letter">k</span>n<span class="surprise-sound">igh</span>t</span>
-              <span class="pos-verb"><span class="silent-letter">k</span>new</span>
+              <span class="pos-verb pos-irr"><span class="silent-letter">k</span>new</span>
               <span class="pos-art">the</span>
               <span class="pos-noun"><span class="stress">an</span>swer</span>
             </p>
-            <p class="preview-ipa ipa">ðə naɪt njuː ði ˈɑːnsə</p>
-            <p class="preview-ipa ru-tr">${Annotate.ruTranscribe('ðə naɪt njuː ði ˈɑːnsə', 'the knight knew the answer')}</p>
+            <p class="preview-ipa ipa">ðə naɪt nu ði ˈænsɚ</p>
+            <p class="preview-ipa ru-tr">${Annotate.ruTranscribe('ðə naɪt nu ði ˈænsɚ', 'the knight knew the answer')}</p>
             <p class="preview-line preview-line--connected">
               I <span class="pos-verb">want</span> <span class="connected">to</span> go
               <span class="connected-note">→ «wanna»</span>
             </p>
           </div>
+          <ul class="pos-legend" aria-label="Цвета частей речи">
+            ${POS_LEGEND.map(([cls, name, hint, ex]) => `<li><span class="pos-legend-word ${cls}">${ex}</span><span class="pos-legend-name">${name}</span><span class="pos-legend-hint">${hint}</span></li>`).join('')}
+          </ul>
           <div class="layer-list">
             ${C.LAYERS.map((l) => `
               <div class="layer-row">

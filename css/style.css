@@ -412,19 +412,52 @@ body.nav-open .nav-toggle .icon-close { display: block; }
 .stub-list li div span { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
 
 /* ---------- 7. Слои разметки (готовы, контент придёт в шаге 2–3) ---------- */
-.pos-noun { border-bottom: 2px solid #4A90D9; }
-.pos-verb { border-bottom: 2px solid #D94A4A; }
-.pos-adj  { border-bottom: 2px solid #5BA655; }
-.pos-adv  { border-bottom: 2px solid #9B59B6; }
-.pos-prep { border-bottom: 2px solid #E67E22; }
-.pos-pron { border-bottom: 2px solid #1ABC9C; }
-.pos-conj { border-bottom: 2px solid #8B6F47; }
-.pos-art  { border-bottom: 2px solid #999; }
-.pos-det  { border-bottom: 2px solid #16A085; }
-.pos-num { border-bottom: 2px solid #B7791F; }
-.pos-aux { border-bottom: 2px solid #607D8B; }
-.pos-modal { border-bottom: 2px solid #8E44AD; }
-.pos-part { border-bottom: 2px solid #B7791F; }
+/* POS-PALETTE:BEGIN — цвета частей речи (tests/palette.test.js: любые два различимы, ΔE2000 ≥ 20).
+   Смысловые слова — сплошная линия своего цвета; неправильный глагол — двойная оранжевая («форма меняется»);
+   помощники глагола — тёмная линия (модальный сплошная, вспомогательный штрих); служебные — серый пунктир. */
+:root {
+  --pos-noun: #1C6FE0;    /* существительное — синий: предметы, люди */
+  --pos-verb: #E03131;    /* глагол — красный: действие */
+  --pos-irr: #F08C00;     /* неправильный глагол — оранжевый: внимание, формы учить */
+  --pos-adj: #2B9A3E;     /* прилагательное — зелёный: какой? */
+  --pos-adv: #8E3EC2;     /* наречие и частица фразового глагола — фиолетовый: как? где? когда? */
+  --pos-pron: #0B9AA8;    /* местоимение — бирюзовый: заменяет существительное */
+  --pos-prep: #8B5A2B;    /* предлог — коричневый: «координаты» (in, on, at) */
+  --pos-helper: #343A40;  /* модальный и вспомогательный — тёмный: каркас вопроса и отрицания */
+  --pos-service: #909296; /* артикль, союз, определитель, числительное, to — серый */
+}
+:is([data-theme="dark"], [data-theme="amoled"]) {
+  --pos-noun: #5C9DFF;
+  --pos-verb: #FF6B6B;
+  --pos-irr: #FFB02E;
+  --pos-adj: #51CF66;
+  --pos-adv: #C77DFF;
+  --pos-pron: #3BC9DB;
+  --pos-prep: #A9744F;
+  --pos-helper: #E9ECEF;
+  --pos-service: #6C757D;
+}
+.pos-noun { border-bottom: 2px solid var(--pos-noun); }
+.pos-verb { border-bottom: 2px solid var(--pos-verb); }
+.pos-irr { border-bottom: 4px double var(--pos-irr); }
+.pos-verb.pos-irr { border-bottom: 4px double var(--pos-irr); }
+.pos-adj { border-bottom: 2px solid var(--pos-adj); }
+.pos-adv { border-bottom: 2px solid var(--pos-adv); }
+.pos-pron { border-bottom: 2px solid var(--pos-pron); }
+.pos-prep { border-bottom: 2px solid var(--pos-prep); }
+.pos-modal { border-bottom: 2px solid var(--pos-helper); }
+.pos-aux { border-bottom: 2px dashed var(--pos-helper); }
+.pos-conj { border-bottom: 2px dotted var(--pos-service); }
+.pos-art { border-bottom: 2px dotted var(--pos-service); }
+.pos-det { border-bottom: 2px dotted var(--pos-service); }
+.pos-num { border-bottom: 2px dotted var(--pos-service); }
+.pos-part { border-bottom: 2px dotted var(--pos-service); }
+/* POS-PALETTE:END */
+.pos-legend { list-style: none; margin: 12px 0 4px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px 16px; }
+.pos-legend li { display: grid; grid-template-columns: 64px 1fr; column-gap: 10px; align-items: baseline; font-size: 13px; }
+.pos-legend-word { font-weight: 600; font-size: 15px; justify-self: start; padding-bottom: 1px; }
+.pos-legend-name { color: var(--text); font-weight: 600; }
+.pos-legend-hint { grid-column: 2; color: var(--text-muted); font-size: 12px; }
 
 .silent-letter { color: #ccc; text-decoration: line-through; opacity: 0.5; }
 .surprise-sound { background: rgba(255, 221, 87, 0.3); border-radius: 2px; }
@@ -438,11 +471,13 @@ body.nav-open .nav-toggle .icon-close { display: block; }
 :is([data-theme="dark"], [data-theme="amoled"]) .ipa { color: #aaa; }
 
 /* Гашение слоёв: app.js вешает классы layer-*-off на <body> */
-body.layer-pos-off .pos-noun, body.layer-pos-off .pos-verb,
+body.layer-pos-off .pos-noun, body.layer-pos-off .pos-verb, body.layer-pos-off .pos-irr,
 body.layer-pos-off .pos-adj,  body.layer-pos-off .pos-adv,
 body.layer-pos-off .pos-prep, body.layer-pos-off .pos-pron,
 body.layer-pos-off .pos-conj, body.layer-pos-off .pos-art,
-body.layer-pos-off .pos-det { border-bottom-color: transparent; }
+body.layer-pos-off .pos-det, body.layer-pos-off .pos-num,
+body.layer-pos-off .pos-aux, body.layer-pos-off .pos-modal,
+body.layer-pos-off .pos-part { border-bottom-color: transparent; }
 body.layer-silent-off .silent-letter { color: inherit; text-decoration: none; opacity: 1; }
 body.layer-surprise-off .surprise-sound { background: transparent; }
 body.layer-ipa-off .ipa { display: none; }
@@ -2009,10 +2044,10 @@ body::before {
 :is([data-theme="dark"], [data-theme="amoled"]) .ru-tr { color: #FDBA74; }
 body.layer-ru-off .ru-tr { display: none; }
 
-/* Ударный слог — цветом, а не только жирным */
-.stress { font-weight: 800; color: var(--danger); text-decoration: underline 2px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--danger) 45%, transparent); }
-:is([data-theme="dark"], [data-theme="amoled"]) .stress { color: #FB7185; }
-body.layer-stress-off .stress { color: inherit; font-weight: inherit; text-decoration: none; }
+/* Ударный слог — жирным и жёлтым маркером, без красного: красный в разметке занят глаголом */
+.stress { font-weight: 800; color: inherit; text-decoration: none; background: var(--stress-bg, rgba(255, 196, 0, 0.32)); border-radius: 3px; }
+:is([data-theme="dark"], [data-theme="amoled"]) .stress { --stress-bg: rgba(255, 196, 0, 0.24); }
+body.layer-stress-off .stress { color: inherit; font-weight: inherit; text-decoration: none; background: none; }
 
 /* Немые буквы — тусклые, почти в цвет фона */
 .silent-letter, body .word-token .silent-letter { color: var(--text); opacity: .22; text-decoration: none; }
@@ -2653,8 +2688,7 @@ input[type="range"] { accent-color: var(--accent); }
 .word-token[data-w]:hover { background: var(--fill); }
 .ru-tr { color: var(--tr-color); font-weight: 600; letter-spacing: -.005em; }
 :root[data-theme="dark"] .ru-tr, :root[data-theme="amoled"] .ru-tr { color: var(--tr-color); }
-.stress { color: var(--stress-color); text-decoration-color: color-mix(in srgb, var(--stress-color) 40%, transparent); }
-:root[data-theme="dark"] .stress, :root[data-theme="amoled"] .stress { color: var(--stress-color); }
+
 
 /* диалог — пузыри iMessage: собеседник слева (серый), ответ справа (синий) */
 .conversation-dialog {
