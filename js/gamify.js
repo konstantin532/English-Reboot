@@ -281,7 +281,7 @@ const Gamify = (() => {
 
   function spacedDictationHtml() {
     return `<button class="btn btn-ghost" id="spaced-dictation-btn" type="button" style="margin-top:10px">
-      ✍️ Диктант из очереди SRS</button>`;
+      Диктант из очереди SRS</button>`;
   }
 
   function bindInjectedButtons(panel) {
@@ -332,8 +332,8 @@ const Gamify = (() => {
     const rankHtml = `
       <div class="user-level-display" style="margin-bottom:16px">
         <span class="level-icon" aria-hidden="true">${rank.icon}</span>
-        <span class="level-kind">Ранг по опыту (XP)</span>
         <span class="level-title">${rank.title}</span>
+        <span class="level-kind">Ранг по опыту (XP)</span>
         <div class="level-progress"><div class="level-progress-fill" style="width:${next
           ? Math.min(100, Math.round(((xp - rank.min) / (next.min - rank.min)) * 100)) : 100}%"></div></div>
         <p class="level-next">XP: ${xp}${next ? ` · до «${next.title}»: ещё ${next.min - xp} XP` : ' · максимум!'}</p>
@@ -576,9 +576,9 @@ const Gamify = (() => {
     if (!sec || sec.dataset.pro) return;
     sec.dataset.pro = '1';
     sec.insertAdjacentHTML('beforeend', `
-      <button id="btn-import-anki" type="button">📥 Импорт из Anki (текстовый файл)</button>
+      <button id="btn-import-anki" type="button">Импорт из Anki (текстовый файл)</button>
       <input type="file" id="anki-file" accept=".txt,.csv" style="display:none" aria-label="Файл Anki">
-      <button id="btn-share-deck" type="button">📤 Поделиться моей колодой</button>
+      <button id="btn-share-deck" type="button">Поделиться моей колодой</button>
       <p class="anki-import-hint">Anki-файл: строки вида «front⇥back» (табуляция). Импорт идёт в личную колоду и SRS.</p>`);
     const fi = sec.querySelector('#anki-file');
     sec.querySelector('#btn-import-anki').addEventListener('click', () => fi.click());

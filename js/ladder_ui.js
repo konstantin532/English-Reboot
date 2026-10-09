@@ -457,7 +457,7 @@ const LadderUI = (() => {
         (в счётчик «фраз вслух» такие попытки не попадают).</p>`;
     }
     return `<div class="ladder-rec">
-      <button class="btn" id="ladder-rec" type="button">🎙 Записать себя</button>
+      <button class="btn" id="ladder-rec" type="button"><svg class="i-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Записать себя</button>
       <button class="btn btn-ghost" id="ladder-rec-stop" type="button" hidden>■ Стоп</button>
       <button class="btn btn-ghost" id="ladder-rec-play" type="button" hidden>▶ Послушать себя</button>
       <span class="ladder-rec-status" id="ladder-rec-status" aria-live="polite"></span>

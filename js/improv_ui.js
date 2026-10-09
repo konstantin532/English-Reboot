@@ -391,7 +391,7 @@ const ImprovUI = (() => {
         <p class="scene-prompt">Твой ход ${turn + 1} из ${story.turns.length}: подхвати и продолжи — «Yes, and…»</p>
         <textarea class="ladder-input ladder-textarea" id="ya-text" rows="2" lang="en" spellcheck="false" placeholder="Можно записать ответ текстом (необязательно)"></textarea>
         <div class="ladder-rec">
-          <button class="btn" id="ya-rec" type="button">🎙 Записать себя</button>
+          <button class="btn" id="ya-rec" type="button"><svg class="i-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Записать себя</button>
           <button class="btn btn-ghost" id="ya-rec-stop" type="button" hidden>■ Стоп</button>
           <span class="ladder-rec-status" id="ya-rec-status"></span>
         </div>

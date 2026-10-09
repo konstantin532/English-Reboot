@@ -1421,11 +1421,6 @@ body.tts-unavailable .audio-btn { display: none !important; }
   font-family: var(--font-head);
   font-size: var(--text-2xl);
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #fff, #FDBA74);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
 }
 
 .onboarding-card p { color: rgba(255, 255, 255, 0.85); margin: 8px 0; }
@@ -1755,17 +1750,6 @@ body::before {
   -webkit-backdrop-filter: blur(14px) saturate(1.15);
 }
 
-/* --- Градиентный логотип с медленным переливом --- */
-.logo-accent {
-  background: linear-gradient(90deg, var(--accent), #F5A65B 50%, var(--accent));
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: logoFlow 7s linear infinite;
-}
-@keyframes logoFlow { to { background-position: -200% 0; } }
 
 /* --- Spotlight: тёплое пятно следует за курсором --- */
 .topic-tile, .vocab-tile, .stat-card, .mode-btn {
@@ -1814,21 +1798,10 @@ body::before {
   85%, 100% { left: 130%; }
 }
 
-/* --- Полоса уровня со скользящим блеском --- */
-.level-progress-fill { position: relative; overflow: hidden; }
-.level-progress-fill::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  animation: barShine 2.2s linear infinite;
-}
-@keyframes barShine { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
 /* --- Цель достигнута: зелёное свечение кольца --- */
 .side-card.ring-complete {
   border-color: var(--success);
-  box-shadow: 0 0 26px rgba(76, 154, 95, 0.22);
 }
 
 /* --- Разблокированное достижение: акцентная рамка + pop иконки --- */

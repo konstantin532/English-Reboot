@@ -78,7 +78,7 @@ const SpeechUI = (() => {
   function checkHtml(label) {
     if (!offered()) return '';
     return `<div class="speech-check">
-      <button class="btn speech-btn" type="button" data-speech-check="1">🎙 ${esc(label || 'Сказать и проверить')}</button>
+      <button class="btn speech-btn" type="button" data-speech-check="1"><svg class="i-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>${esc(label || 'Сказать и проверить')}</button>
       <span class="speech-status" aria-live="polite"></span>
       <div class="speech-result"></div>
     </div>`;
@@ -119,7 +119,7 @@ const SpeechUI = (() => {
     if (h.onStart) await h.onStart();
     const res = await Speech.listen({ maxMs: MAX_MS }).promise;
     if (h.onEnd) await h.onEnd();
-    if (btn) { btn.disabled = false; btn.textContent = '🎙 Ещё раз'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="i-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Ещё раз'; }
     if (!res.alternatives.length) { status.textContent = Speech.errorText(res.error); return null; }
     status.textContent = '';
     const r = Speech.best(expected, res.alternatives);
@@ -132,7 +132,7 @@ const SpeechUI = (() => {
 
   function voiceBtnHtml() {
     if (!offered()) return '';
-    return '<button class="btn btn-ghost speech-voice" type="button" data-speech-voice="1">🎙 Ответить голосом</button><span class="speech-status speech-voice-status" aria-live="polite"></span>';
+    return '<button class="btn btn-ghost speech-voice" type="button" data-speech-voice="1"><svg class="i-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Ответить голосом</button><span class="speech-status speech-voice-status" aria-live="polite"></span>';
   }
 
   // Распознать и вставить в textarea; возвращает распознанный текст или null

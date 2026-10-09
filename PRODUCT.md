@@ -42,7 +42,7 @@ An offline-first web app (PWA) for learning conversational American English. Suc
 ## Brand Commitments
 
 - Name: **English Reboot**.
-- **The incumbent look stays** (author, 2026-10-09): keep the current visual identity (light Apple-like interface, section colour coding with letter icons, system-font stack); improve design and layout within it, no new visual world.
+- **Visual world: Interstate** (author, 2026-10-09, replaces the earlier "incumbent look stays"): the author asked for an expensive-looking redesign and left the direction open; the app now uses a US highway guide-sign world (see DESIGN.md). Section colour coding and letter glyphs stay, drawn as route markers.
 - **Gamification stays as a visible accent** (author, 2026-10-09): XP, streak, achievements, combo, daily challenges, league remain noticeable, not hidden.
 - Voice: short, direct, warm Russian; honest promises (PEDAGOGY rule 7) — never more than ~22 hours in 90 days can deliver. Praise lines live only in `js/coach.js`.
 

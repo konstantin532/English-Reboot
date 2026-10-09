@@ -130,7 +130,7 @@ const IELTS = (() => {
   /* ---------- Рендер ---------- */
   function render() {
     stop();
-    const tabs = [['writing', '✍️ Writing'], ['speaking', '🎙 Speaking'], ['reading', '📖 Reading'], ['vocab', '📚 Лексика (AWL)']]
+    const tabs = [['writing', 'Writing'], ['speaking', 'Speaking'], ['reading', 'Reading'], ['vocab', 'Лексика (AWL)']]
       .map(([m, l]) => `<button class="mode-btn ${st.mode === m ? 'active' : ''}" data-ielts-mode="${m}" type="button">${l}</button>`).join('');
     const body = { writing: renderWriting, speaking: renderSpeaking, reading: renderReading, vocab: renderVocab }[st.mode]();
     return `<div class="section-wrap">

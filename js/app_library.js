@@ -25,7 +25,7 @@ const AppLibrary = (() => {
             <span class="topic-title">${c.payload.title}</span>
             <span class="topic-meta">
               <span class="level-badge level-badge--${c.level}">${c.level}</span>
-              ${c.tags.slice(0, 2).map((tg) => `<span class="tag-chip">${tg}</span>`).join('')}
+              ${c.tags.filter((tg) => tg !== c.level).slice(0, 2).map((tg) => `<span class="tag-chip">${tg}</span>`).join('')}
               ${mark ? `<span class="mark-chip mark-chip--${mark}">${mark === 'know' ? '✓ ' : '↻ '}${C.MARK_LABEL[mark]}</span>` : ''}
             </span>
           </span>
