@@ -75,7 +75,7 @@ test('обновление базы v1 → v2: прогресс на месте,
   expect(st.words).toBe(670);
   expect(st.kept.reps).toBe(3);
   expect(st.kept.ladder.step).toBe(3);
-  expect(st.version).toBe('1.4.0');   // WORDS_VERSION: 1.4.0 — пакет A1+, часть 2
+  expect(st.version).toBe('1.5.0');   // WORDS_VERSION: 1.5.0 — глаголы A2
 });
 
 test('«Сегодня» → слова урока: неверный ответ показывает правильный, урок можно прервать и продолжить со слов', async ({ page }) => {

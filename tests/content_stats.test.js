@@ -16,15 +16,19 @@ describe('Счётчик контента: план «+4000»', () => {
   });
 
   it('пакет A1+ (части 1 и 2): 270 слов + 60 фразовых глаголов + 200 фраз + 20 живой речи + 50 импровизаций = 600 — цель подуровня A1+', () => {
-    expect(s.bySection.words).toBe(670);
     expect(s.plan.sublevels['A1+']).toBe(600);
     expect(s.plan.sublevels['A1+']).toBe(PLAN.sublevels['A1+']);
-    expect(s.plan.types.vocab).toBe(60);
-    expect(s.plan.types.words).toBe(670);
-    expect(s.plan.types.phrases).toBe(400);
-    expect(s.plan.types.live).toBe(20);
-    expect(s.plan.types.improv).toBe(100);
-    expect(s.plan.done).toBe(1250);
+  });
+
+  it('пакет A2, часть 1: 78 глаголов + 30 фразовых + 100 фраз «Что было» + 20 живой речи + 25 импровизаций = 253', () => {
+    expect(s.bySection.words).toBe(748);
+    expect(s.plan.sublevels.A2).toBe(253);
+    expect(s.plan.types.words).toBe(748);
+    expect(s.plan.types.vocab).toBe(90);
+    expect(s.plan.types.phrases).toBe(500);
+    expect(s.plan.types.live).toBe(40);
+    expect(s.plan.types.improv).toBe(125);
+    expect(s.plan.done).toBe(1503);
   });
 
   it('старый контент не считается сделанным по плану, всего карточек больше 2400', () => {

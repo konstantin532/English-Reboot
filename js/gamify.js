@@ -12,7 +12,7 @@ const Gamify = (() => {
 
   let ER = null;
   let effectsOn = true;
-  const PRO_VERSION = '1.5.0'; // 1.5.0: ударение essay / perfect; 1.4.0: разметка слов word_marks.js
+  const PRO_VERSION = '1.6.0'; // 1.6.0: метка неправильных глаголов; 1.5.0: ударение essay / perfect; 1.4.0: разметка слов word_marks.js
 
   const XP_RULES = {
     newCardKnow: 15, newCardHard: 5,
