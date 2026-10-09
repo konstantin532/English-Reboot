@@ -116,7 +116,8 @@ Author, 2026-10-08: the palette must not look like one color in different shades
   line: they build questions and negatives. Articles, conjunctions, determiners, numbers and `to` — one gray dotted
   line: short glue words that should not pull the eye.
 - **Line style carries meaning too**, so a learner with weak color vision still sees solid / double / dashed / dotted.
-- **One meaning per visual signal.** Red belongs to verbs; the stressed syllable is bold with a yellow marker, not red.
+- **One meaning per visual signal.** Red belongs to verbs; the stressed syllable is bold on a neutral gray background, not red
+  (yellow is taken by "surprise sounds").
 - **Why "irregular".** The past of these verbs is not formed by the rule "+ed" but by a vowel or whole-word change
   (go → went). They are the oldest and most frequent verbs; frequent use kept the old forms alive, so films and songs
   are full of them. American forms only (get – got – gotten, dive – dove); British forms (got as a participle) may be

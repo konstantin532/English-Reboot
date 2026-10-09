@@ -2044,9 +2044,9 @@ body::before {
 :is([data-theme="dark"], [data-theme="amoled"]) .ru-tr { color: #FDBA74; }
 body.layer-ru-off .ru-tr { display: none; }
 
-/* Ударный слог — жирным и жёлтым маркером, без красного: красный в разметке занят глаголом */
-.stress { font-weight: 800; color: inherit; text-decoration: none; background: var(--stress-bg, rgba(255, 196, 0, 0.32)); border-radius: 3px; }
-:is([data-theme="dark"], [data-theme="amoled"]) .stress { --stress-bg: rgba(255, 196, 0, 0.24); }
+/* Ударный слог — жирным и нейтральной серой подложкой: красный в разметке занят глаголом,
+   жёлтый — «неожиданными звуками» (surprise-sound) */
+.stress { font-weight: 800; color: inherit; text-decoration: none; background: color-mix(in srgb, currentColor 13%, transparent); border-radius: 3px; }
 body.layer-stress-off .stress { color: inherit; font-weight: inherit; text-decoration: none; background: none; }
 
 /* Немые буквы — тусклые, почти в цвет фона */
