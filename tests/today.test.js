@@ -123,6 +123,12 @@ describe('Урок «Сегодня»: выбор темы и края', () => {
     expect(Today.wordDrills('A1+', true)).toEqual(['listen', 'reverse']);
     // нет озвучки — «на слух» честно заменяется на «собери из букв»
     expect(Today.wordDrills('A1+', true, false)).toEqual(['letters', 'reverse']);
+    // Глаголы A2: формы (LinguaLeo) + «скажи вслух» (ELSA) на повторе; без микрофона «вслух» не засчитывается, а пропускается
+    expect(Today.wordDrills('A2', false, true, 'irr')).toEqual(['meaning', 'past']);
+    expect(Today.wordDrills('A2', true, true, 'irr')).toEqual(['pp', 'did', 'say']);
+    expect(Today.wordDrills('A2', true, true, 'reg')).toEqual(['did', 'say']);
+    expect(Today.wordDrills('A2', true, true, 'irr', false)).toEqual(['pp', 'did']);
+    expect(Today.wordDrills('A2', false, true, 'reg', false)).toEqual(['meaning', 'ed']);
     // подуровни выше A1+ пока получают набор A1+ (ELSA-задания — следующий шаг), без подуровня — A1
     expect(Today.wordDrills('A2', false)).toEqual(['meaning', 'letters']);
     expect(Today.wordDrills(undefined, false)).toEqual(['meaning']);

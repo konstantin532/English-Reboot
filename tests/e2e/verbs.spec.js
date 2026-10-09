@@ -53,3 +53,42 @@ test('в примерах неправильный глагол помечен (
   await expect(page.locator('.pos-legend li')).toHaveCount(10);
   await expect(page.locator('.pos-legend')).toContainText('неправильный глагол');
 });
+
+test('глагол A2 в «Сегодня»: 3-я форма, вопрос с did (ловушка went), «скажи вслух» без микрофона не засчитывается', async ({ page }) => {
+  await onboard(page);
+  await page.evaluate(async () => {
+    const later = SRS.addDays(SRS.todayStr(), 30);
+    const rec = (cardId, storeName, extra) => ({ cardId, storeName, status: 'review', stability: 30, difficulty: 5, ease: 2.3, lapseCount: 0,
+      reps: 3, lastReview: SRS.todayStr(), nextReview: later, ...extra });
+    const us = (await DB.getAll('conversation')).data.filter((c) => (c.tags || []).includes('США'));
+    await DB.bulkPut('progress', us.map((c) => rec(c.id, 'conversation', { ladder: { step: 2, best: 2, hist: {} } })));
+    const words = (await DB.getAll('words')).data.filter((c) => c.id !== 'wd_0708');
+    await DB.bulkPut('progress', words.map((c) => rec(c.id, 'words')));
+    await DB.saveCard('progress', rec('wd_0708', 'words', { lastReview: '2026-01-01', nextReview: '2026-01-10' }));   // go – went – gone
+    await ER.switchTab('today');
+  });
+  await page.locator('#today-start').click();
+
+  await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'pp');
+  await expect(page.locator('.words-word')).toContainText('go');
+  await page.waitForTimeout(350);
+  await page.locator('.words-opt', { hasText: /^gone$/ }).click();
+  await expect(page.locator('#words-feedback')).toContainText('Верно');
+  await page.locator('#words-next').click();
+
+  await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'did');
+  await expect(page.locator('.words-hint')).toContainText('Did Tony ___ to the gym?');
+  await page.waitForTimeout(350);
+  await page.locator('.words-opt', { hasText: /^went$/ }).click();                 // типичная ошибка: Did he went
+  await expect(page.locator('.words-opt.is-wrong')).toHaveText('went');
+  await expect(page.locator('.words-opt.is-correct')).toHaveText('go');
+  await page.locator('#words-next').click();
+
+  // В headless-браузере микрофона нет: задание пропускается, «верно» не ставится; оценка — по двум другим (1 ошибка → «сложно»)
+  await expect(page.locator('#words-root')).toHaveAttribute('data-kind', 'say');
+  await page.locator('#words-rec').click();
+  await expect(page.locator('#words-say-status')).toContainText('не засчитывается');
+  await expect(page.locator('#words-feedback')).not.toContainText('Верно');
+  await page.locator('#words-next').click();
+  await expect.poll(() => page.evaluate(async () => (await DB.getByKey('progress', 'wd_0708')).data.mark)).toBe('hard');
+});

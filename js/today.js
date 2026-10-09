@@ -125,7 +125,18 @@ const Today = (() => {
   };
   // canListen = false — озвучки нет (нет голоса и нет сети): «на слух» заменяем на «собери из букв»,
   // иначе ошибка была бы гарантирована и оценка — нечестной
-  function wordDrills(sublevel, review, canListen = true) {
+  // Глаголы A2 (карточки с forms): схема автора для A2 — в основном выбор форм (LinguaLeo) и одно «скажи вслух» (ELSA,
+  // без оценки: своя запись рядом с образцом). Неправильный: новое — значение и 2-я форма, повтор — 3-я форма, вопрос
+  // с did и вслух. Правильный: новое — значение и звук -ed, повтор — вопрос с did и вслух.
+  const VERB_DRILLS = {
+    irr: { fresh: ['meaning', 'past'], review: ['pp', 'did', 'say'] },
+    reg: { fresh: ['meaning', 'ed'], review: ['did', 'say'] },
+  };
+  // canRecord = false — нет микрофона или записи в браузере: «скажи вслух» пропускаем, а не засчитываем
+  function wordDrills(sublevel, review, canListen = true, verbKind = '', canRecord = true) {
+    if (VERB_DRILLS[verbKind]) {
+      return (review ? VERB_DRILLS[verbKind].review : VERB_DRILLS[verbKind].fresh).filter((k) => k !== 'say' || canRecord);
+    }
     const set = WORD_DRILLS[sublevel] || (sublevel === 'A1' || !sublevel ? WORD_DRILLS.A1 : WORD_DRILLS['A1+']);
     return (review ? set.review : set.fresh).map((k) => (k === 'listen' && !canListen ? 'letters' : k));
   }

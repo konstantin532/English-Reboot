@@ -205,7 +205,17 @@ const TodayUI = (() => {
     reverse: 'Выбери слово по-английски',
     letters: 'Собери слово из букв',
     listen: 'Послушай и напиши',
+    past: 'Выбери прошедшее время (2-ю форму)',
+    pp: 'Выбери 3-ю форму (причастие)',
+    ed: 'Послушай: как звучит окончание -ed?',
+    did: 'Вставь глагол в вопрос с did',
+    say: 'Скажи формы вслух — потом сравни с образцом',
   };
+  // Глаголы A2: какой тест карточки (content_words.js → buildVerbs) отвечает за задание
+  const VERB_TEST = { irr: { meaning: 0, past: 1, pp: 2, did: 4 }, reg: { meaning: 0, ed: 1, did: 3 } };
+  const recordSupported = () => !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  const MIN_SPOKEN_MS = 1000;
+  let disposeRec = null;   // остановить запись и микрофон при уходе с экрана слова   // как в лестнице и импровизации: «фраза вслух» — запись от 1 секунды
   // Буквы для «собери из букв»: перемешаны детерминированно (по id), чтобы экран не прыгал
   function shuffledLetters(word, seed) {
     const letters = String(word).toLowerCase().split('').filter((ch) => /[a-z]/.test(ch));
@@ -229,22 +239,43 @@ const TodayUI = (() => {
   // Ход по заданиям слова хранится в уроке (wordDrill, wordErr): после перерыва урок продолжается
   // с того же задания и с уже сделанными ошибками — иначе «знаю» можно было бы получить, начав заново
   function showWord(lesson, byId, drillIdx = Number(lesson.wordDrill) || 0, errors = Number(lesson.wordErr) || 0) {
+    if (disposeRec) { disposeRec(); disposeRec = null; }
     const i = lesson.wordsDone || 0;
     if (i >= lesson.words.length) { afterTasks(lesson); return; }
     const card = byId.get(lesson.words[i]);
     const p = card.payload;
     const review = i < (lesson.wordsDue || 0);
-    const drills = Today.wordDrills(card.sublevel || card.level, review, canListen());
+    const vf = p.forms || null;
+    const drills = Today.wordDrills(card.sublevel || card.level, review, canListen(), vf ? vf.kind : '', recordSupported());
     if (drillIdx >= drills.length) { drillIdx = 0; errors = 0; }
     const kind = drills[drillIdx];
-    const ipa = wordIpa(card);
+    const ipa = vf ? (vf.parts || []).map((pt) => pt.ipa || '').filter(Boolean).join(' · ') : wordIpa(card);
     const pct = Math.round((i / lesson.words.length) * 100);
     const ipaHtml = ipa ? `<p class="words-ipa">${esc(ipa)} <span class="ru-tr">${window.Annotate ? Annotate.ruTranscribe(ipa, p.front) : ''}</span></p>` : '';
     const playBtn = `<button class="audio-btn" id="words-play" type="button" title="Прослушать" aria-label="Прослушать слово">${PLAY_ICON}</button>`;
     const optsHtml = (t) => `<div class="ladder-options">${t.options.map((o, k) => `<button class="ladder-opt words-opt" type="button" data-i="${k}">${esc(o)}</button>`).join('')}</div>`;
     let body = '';
     let target = p.front;
-    if (kind === 'meaning') {
+    const testFor = (k) => (vf ? p.test[(VERB_TEST[vf.kind] || {})[k]] : (k === 'reverse' ? p.test[1] : p.test[0]));
+    if (vf && ['past', 'pp', 'ed', 'did'].includes(kind)) {
+      const t = testFor(kind);
+      body = `<div class="words-front"><span class="words-word words-word--ru">${esc(kind === 'did' ? p.translation : vf.base + ' — ' + p.translation)}</span>${kind === 'ed' ? playBtn : ''}</div>
+        <p class="words-hint">${esc(t.q)}</p>${optsHtml(t)}`;
+    } else if (kind === 'say') {
+      body = `<div class="words-front"><span class="words-word">${esc(vf ? vf.base : p.front)}</span> <span class="words-hint">— ${esc(p.translation)}</span></div>
+        <p class="words-hint">Скажи вслух все формы${vf && vf.kind === 'irr' ? ' (например: go — went — gone)' : ''}. Сначала по памяти, потом послушай образец и себя.</p>
+        <div class="words-say">
+          <button class="btn-primary" id="words-rec" type="button">🎙 Записать</button>
+          <button class="btn btn-ghost" id="words-stop" type="button" hidden>■ Стоп</button>
+          <button class="btn btn-ghost" id="words-model" type="button" hidden>▶ Образец</button>
+          <button class="btn btn-ghost" id="words-mine" type="button" hidden>▶ Моя запись</button>
+        </div>
+        <p class="words-hint" id="words-say-status" aria-live="polite"></p>
+        <div class="ladder-options words-selfcheck" id="words-selfcheck" hidden>
+          <button class="ladder-opt" type="button" data-self="1">Похоже на образец</button>
+          <button class="ladder-opt" type="button" data-self="0">Не похоже — повторю ещё</button>
+        </div>`;
+    } else if (kind === 'meaning') {
       body = `<div class="words-front"><span class="words-word">${esc(p.front)}</span>${playBtn}</div>${ipaHtml}${optsHtml(p.test[0])}`;
     } else if (kind === 'reverse') {
       body = `<div class="words-front"><span class="words-word words-word--ru">${esc(p.translation)}</span></div>${optsHtml(p.test[1])}`;
@@ -277,8 +308,10 @@ const TodayUI = (() => {
         </div>
       </div>`;
     window.scrollTo(0, 0);
-    // В «выбери по-английски» звук выдал бы ответ — слово звучит только после ответа
-    if (kind !== 'reverse') setTimeout(() => speakWord(p.front), 250);
+    // В «выбери по-английски» звук выдал бы ответ — слово звучит только после ответа. У глаголов: в «-ed» звучит
+    // прошедшая форма (её и слушаем), в выборе форм и вопросе с did — ничего (формы — ответ), «вслух» — сначала по памяти
+    if (vf && kind === 'ed') setTimeout(() => speakWord(vf.past), 250);
+    else if (kind !== 'reverse' && !(vf && ['past', 'pp', 'did', 'say'].includes(kind))) setTimeout(() => speakWord(p.front), 250);
     const root = document.getElementById('words-root');
     let answered = false;
     const shownAt = Date.now();
@@ -286,6 +319,17 @@ const TodayUI = (() => {
     let slipped = false; // ошибка в «собери из букв» считается один раз
     const letterSlots = [...root.querySelectorAll('.words-slot:not(.is-fixed)')];
 
+    // Пропуск задания (нет микрофона): оценка — по остальным заданиям слова
+    const skipDrill = () => {
+      if (drillIdx + 1 < drills.length) { showWord(lesson, byId, drillIdx + 1, errors); return; }
+      const mark = Today.gradeWord(errors, Math.max(1, drills.length - 1));
+      lesson.wordsDone = i + 1;
+      lesson.wordsOk = (lesson.wordsOk || 0) + (mark === 'know' ? 1 : 0);
+      lesson.wordDrill = 0;
+      lesson.wordErr = 0;
+      recordWord(lesson, card.id, mark);
+      showWord(lesson, byId, 0, 0);
+    };
     const finishDrill = (ok, shown) => {
       answered = true;
       setTimeout(() => speakWord(p.front), 150); // после ответа слово звучит всегда
@@ -322,15 +366,68 @@ const TodayUI = (() => {
       recordWord(lesson, card.id, mark);
     };
 
+    // «Скажи вслух»: запись → образец и своя запись → самооценка. Оценки произношения нет (честно: сравнивает ученик);
+    // самооценка доступна только после записи от 1 секунды — она же засчитывается как «фраза вслух»
+    const rec = { recorder: null, stream: null, chunks: [], url: null, startedAt: 0, spoken: false };
+    const sayStatus = (txt) => { const el = document.getElementById('words-say-status'); if (el) el.textContent = txt; };
+    const showBtn = (id, on) => { const el = document.getElementById(id); if (el) el.hidden = !on; };
+    if (disposeRec) disposeRec();
+    disposeRec = () => {
+      if (rec.recorder && rec.recorder.state !== 'inactive') { rec.recorder.onstop = null; rec.recorder.stop(); }
+      if (rec.stream) rec.stream.getTracks().forEach((t) => t.stop());
+      if (rec.url) URL.revokeObjectURL(rec.url);
+    };
+    async function onSay(e) {
+      if (e.target.closest('#words-model')) { speakWord(vf ? [vf.base, ...String(vf.past).split('/'), vf.pp].filter((v, k, a) => vf.kind === 'irr' || a.indexOf(v) === k).join(', ') : p.front); return; }
+      if (e.target.closest('#words-mine')) { if (rec.url) { const a = new Audio(rec.url); a.play().catch(() => {}); } return; }
+      if (e.target.closest('#words-stop')) { if (rec.recorder && rec.recorder.state !== 'inactive') rec.recorder.stop(); return; }
+      const self = e.target.closest('[data-self]');
+      if (self && !answered) { root.querySelectorAll('[data-self]').forEach((b) => { b.disabled = true; }); finishDrill(self.dataset.self === '1'); return; }
+      if (!e.target.closest('#words-rec') || answered) return;
+      if (window.TTS) TTS.stopSpeaking();
+      try {
+        rec.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        rec.recorder = new MediaRecorder(rec.stream);
+        rec.chunks = [];
+        rec.recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) rec.chunks.push(ev.data); };
+        rec.recorder.onstop = async () => {
+          const ms = Date.now() - rec.startedAt;
+          if (rec.stream) rec.stream.getTracks().forEach((t) => t.stop());
+          if (rec.url) URL.revokeObjectURL(rec.url);
+          rec.url = URL.createObjectURL(new Blob(rec.chunks, { type: rec.recorder.mimeType || 'audio/webm' }));
+          showBtn('words-rec', true); showBtn('words-stop', false);
+          if (ms < MIN_SPOKEN_MS) { sayStatus('Слишком коротко — скажи все формы (от 1 секунды).'); return; }
+          if (!rec.spoken) { rec.spoken = true; if (window.DB && DB.addSpoken) await DB.addSpoken(SRS.todayStr(), 1); }
+          showBtn('words-model', true); showBtn('words-mine', true);
+          document.getElementById('words-selfcheck').hidden = false;
+          sayStatus('Записано ✓ Послушай образец и себя — похоже?');
+        };
+        rec.startedAt = Date.now();
+        rec.recorder.start();
+        showBtn('words-rec', false); showBtn('words-stop', true);
+        sayStatus('Говори…');
+        setTimeout(() => { if (rec.recorder && rec.recorder.state === 'recording') rec.recorder.stop(); }, 8000);
+      } catch (err) {
+        // Без микрофона задание не засчитываем ни «верно», ни «ошибкой» — просто пропускаем
+        answered = true;
+        sayStatus('Нет доступа к микрофону — задание «вслух» не засчитывается.');
+        document.getElementById('words-actions').innerHTML = `
+          <button class="btn btn-ghost" id="words-quit" type="button">Закончить</button>
+          <button class="btn-primary" id="words-next" type="button">Дальше</button>`;
+        root.__next = skipDrill;
+      }
+    }
+
     root.addEventListener('click', (e) => {
-      if (e.target.closest('#words-play')) { speakWord(p.front); return; }
-      if (e.target.closest('#words-quit')) { ER.switchTab('today'); return; }
+      if (e.target.closest('#words-play')) { speakWord(vf && kind === 'ed' ? vf.past : p.front); return; }
+      if (e.target.closest('#words-quit')) { if (disposeRec) { disposeRec(); disposeRec = null; } ER.switchTab('today'); return; }
       // «Дальше» срабатывает один раз: двойной клик не ответит за ученика на следующем экране
       if (e.target.closest('#words-next')) { const next = root.__next; root.__next = null; if (next) next(); return; }
+      if (kind === 'say') { onSay(e); return; }
       if (answered || Date.now() - shownAt < 300) return; // хвост двойного клика по «Дальше»
       const opt = e.target.closest('.words-opt');
       if (opt) {
-        const t = kind === 'reverse' ? p.test[1] : p.test[0];
+        const t = testFor(kind);
         const ok = Number(opt.dataset.i) === t.correct;
         root.querySelectorAll('.words-opt').forEach((b, k) => {
           b.disabled = true;
