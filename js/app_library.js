@@ -190,6 +190,22 @@ const AppLibrary = (() => {
     </div>`;
   }
 
+  // Глагол A2: три формы с американской IPA (неправильный — оранжевой двойной линией) или звук окончания -ed
+  const VF_LABEL = { irr: ['инфинитив', 'прошедшее (2-я)', 'причастие (3-я)'], reg: ['инфинитив', 'прошедшее и причастие'] };
+  const ED_HINT = { t: 'после глухого звука -ed звучит [т]', d: 'после звонкого звука и гласной -ed звучит [д]', id: 'после t и d -ed звучит [ид] — отдельный слог' };
+  function verbFormsHtml(f) {
+    const labels = f.kind === 'irr' ? (f.base === 'be' ? ['инфинитив', 'прошедшее (2-я)', '', 'причастие (3-я)'] : VF_LABEL.irr) : VF_LABEL.reg;
+    const cells = (f.parts || []).map((pt, k) => `<div class="verb-form">${window.Annotate ? Annotate.renderParts([pt]) : C.escapeHtml(pt.word)}<span class="verb-form-label">${labels[k] || ''}</span></div>`).join('');
+    const kindLine = f.kind === 'irr'
+      ? '<b class="verb-kind verb-kind--irr">Неправильный глагол</b> — прошедшее не по правилу «+ed», формы учить'
+      : `<b class="verb-kind">Правильный глагол</b> — прошедшее «+ed»; ${ED_HINT[f.ed] || ''}`;
+    return `<div class="verb-forms-block">
+      <p class="verb-kind-line">${kindLine}</p>
+      <div class="verb-forms">${cells}</div>
+      ${f.note ? `<p class="verb-note">💡 ${C.escapeHtml(f.note)}</p>` : ''}
+    </div>`;
+  }
+
   async function renderVocabList(t, key) {
     const cfg = C.VOCAB_STORES[key];
     const { cards, progress } = await C.ensureVocabData(cfg.store);
@@ -309,6 +325,7 @@ const AppLibrary = (() => {
           </div>
           ${headHtml}
           ${extraBlock}
+          ${p.forms ? verbFormsHtml(p.forms) : ''}
           ${window.TrapsUI && window.Ladder && Ladder.isUsCard(cardData) ? TrapsUI.placeholder(p.front) : ''}
           ${window.Ladder && Ladder.isUsCard(cardData) ? C.ladderButtonHtml(cardData, rec) : ''}
           ${(p.examples || []).length ? `<h3>Примеры</h3>
