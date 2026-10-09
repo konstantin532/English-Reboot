@@ -847,11 +847,11 @@
     ['come by', 'фраз. глаг.', 'заглянуть, зайти ненадолго', 'Sam {came by} yesterday.', 'Сэм вчера заходил.', 'Feel free to {come by} anytime.', 'Заходите в любое время.', 'Что было', 'A2'],
     ['stop by', 'фраз. глаг.', 'заскочить (по пути)', 'We {stopped by} the bakery.', 'Мы заскочили в пекарню.', 'Can Jess {stop by} later?', 'Джесс может заскочить попозже?', 'Что было', 'A2'],
     ['bring over', 'фраз. глаг.', 'принести (к кому-то домой)', 'Tony {brought over} some pizza.', 'Тони принёс к нам пиццу.', 'Can you {bring over} the chairs?', 'Принесёшь стулья?', 'Что было', 'A2'],
-    ['cut off', 'фраз. глаг.', 'прерваться, оборваться (о связи)', 'The call {cut off} again.', 'Звонок опять оборвался.', 'The Wi-Fi keeps {cutting off}.', 'Вайфай всё время отваливается.', 'Что было', 'A2'],
+    ['cut off', 'фраз. глаг.', 'прервать (звонок), разъединить', 'Sorry, we got {cut off}.', 'Простите, нас разъединили.', 'Sorry, the call got {cut off}.', 'Простите, звонок оборвался.', 'Что было', 'A2'],
     ['drop out', 'фраз. глаг.', 'бросить (учёбу, гонку)', 'Ray {dropped out} of college.', 'Рэй бросил колледж.', 'Why did Sam {drop out}?', 'Почему Сэм бросил учёбу?', 'Что было', 'A2'],
     ['fall apart', 'фраз. глаг.', 'развалиться', 'The old couch {fell apart}.', 'Старый диван развалился.', 'These shoes are {falling apart}.', 'Эти ботинки разваливаются.', 'Что было', 'A2'],
     ['fall behind', 'фраз. глаг.', 'отстать (по учёбе, работе)', 'Kim {fell behind} at work last week.', 'На прошлой неделе Ким отстала по работе.', 'Don\'t {fall behind}!', 'Не отставай!', 'Что было', 'A2'],
-    ['get through', 'фраз. глаг.', 'дозвониться; пережить', 'Maggie finally {got through} to the bank.', 'Мэгги наконец дозвонилась до банка.', 'We {got through} the winter.', 'Мы пережили зиму.', 'Что было', 'A2'],
+    ['get through', 'фраз. глаг.', 'дозвониться; справиться (с трудным)', 'Maggie finally {got through} to the bank.', 'Мэгги наконец дозвонилась до банка.', 'We {got through} the exam!', 'Мы справились с экзаменом!', 'Что было', 'A2'],
     ['give out', 'фраз. глаг.', 'раздавать', 'Luis {gave out} free samples.', 'Луис раздавал бесплатные пробники.', 'They {give out} coffee on Mondays.', 'По понедельникам раздают кофе.', 'Что было', 'A2'],
     ['look over', 'фраз. глаг.', 'просмотреть, проверить', 'Priya {looked over} the report.', 'Прия просмотрела отчёт.', 'Can you {look over} my email?', 'Посмотришь моё письмо?', 'Что было', 'A2'],
     ['look through', 'фраз. глаг.', 'перебрать, пролистать', 'Jess {looked through} the old photos.', 'Джесс пересмотрела старые фото.', 'Let\'s {look through} the menu.', 'Давай посмотрим меню.', 'Что было', 'A2'],
@@ -871,7 +871,7 @@
     ['fly back', 'фраз. глаг.', 'прилететь обратно', 'Priya {flew back} on Sunday.', 'Прия прилетела обратно в воскресенье.', 'When do you {fly back}?', 'Когда вы летите обратно?', 'Что было', 'A2'],
     ['think up', 'фраз. глаг.', 'придумать', 'Jess {thought up} a great name.', 'Джесс придумала отличное название.', 'We need to {think up} a plan.', 'Нам нужно придумать план.', 'Что было', 'A2'],
     ['pull up', 'фраз. глаг.', 'подъехать (и остановиться)', 'A cab {pulled up} outside.', 'У входа остановилось такси.', 'Ray is {pulling up} now.', 'Рэй как раз подъезжает.', 'Что было', 'A2'],
-    ['mess up', 'фраз. глаг.', 'испортить, напутать', 'Tony {messed up} the order.', 'Тони напутал с заказом.', 'Don\'t {mess up} the kitchen!', 'Не устрой бардак на кухне!', 'Что было', 'A2'],
+    ['mess up', 'фраз. глаг.', 'испортить, напутать', 'Tony {messed up} the order.', 'Тони напутал с заказом.', 'Don\'t {mess up} the kitchen!', 'Не устраивай бардак на кухне!', 'Что было', 'A2'],
     ['blow up', 'фраз. глаг.', 'вспылить; надуть (шарик)', 'Sam {blew up} at the waiter.', 'Сэм накричал на официанта.', 'Let\'s {blow up} the balloons!', 'Давай надуем шарики!', 'Что было', 'A2'],
     ['burn down', 'фраз. глаг.', 'сгореть дотла', 'The old diner {burned down}.', 'Старая закусочная сгорела дотла.', 'Did the barn {burn down}?', 'Сарай сгорел?', 'Что было', 'A2'],
   ];
@@ -903,29 +903,29 @@
     ['y\'know', 'you know', 'знаешь; ну, это (слово-связка)', '/ju noʊ/', '/jəˈnoʊ/', 'It\'s, {y\'know}, kinda weird.', 'Это, ну, как-то странно.', 'I like it here, {y\'know}?', 'Мне тут нравится, понимаешь?', 'know'],
   ];
   // Пакет A2, часть 1 (sl_092–111): слияние «t/d + you» → /tʃ, dʒ/ (did you → didja, meet you → meetcha),
-  // проглоченные начала и окончания (excuse → 'scuse, nothing → nothin'), слабые формы (was → wuz), imma (I'm gonna) — из афроамериканского английского.
-  // Только для узнавания на слух: ученик говорит обычной формой. Написание wuz, imma — так их пишут в песнях и чатах.
+  // проглоченные начала и окончания (excuse → 'scuse, nothing → nothin'), слабые формы (was → wuz).
+  // Только для узнавания на слух: ученик говорит обычной формой. Написание wuz — так его пишут в песнях и чатах.
   const LIVE_DATA_A2 = [
     ['whadja', 'what did you', 'что ты… / что вы… (в прошлом)', '/wʌt dɪd ju/', '/ˈwʌdʒə/', '{Whadja} do last night?', 'Что вы делали вчера вечером?', '{Whadja} get for Kim?', 'Что вы купили для Ким?', 'what'],
-    ['howdja', 'how did you', 'как ты… / как вы… (в прошлом)', '/haʊ dɪd ju/', '/ˈhaʊdʒə/', '{Howdja} know?', 'Откуда вы узнали?', '{Howdja} sleep?', 'Как спалось?', 'how'],
+    ['howdja', 'how did you', 'как ты… / как вы… (в прошлом)', '/haʊ dɪd ju/', '/ˈhaʊdʒə/', '{Howdja} know?', 'Откуда ты знаешь?', '{Howdja} sleep?', 'Как спалось?', 'how'],
     ['wheredja', 'where did you', 'куда / где ты… (в прошлом)', '/wɛr dɪd ju/', '/ˈwɛrdʒə/', '{Wheredja} go for lunch?', 'Куда вы ходили обедать?', '{Wheredja} park?', 'Где вы припарковались?', 'where'],
-    ['didn\'tcha', 'didn\'t you', 'разве ты не… / вы же… (в прошлом)', '/ˈdɪdənt ju/', '/ˈdɪdəntʃə/', '{Didn\'tcha} get my text?', 'Вы разве не получили моё сообщение?', 'You saw it, {didn\'tcha}?', 'Вы же видели, да?', 'didnt'],
-    ['wontcha', 'won\'t you', 'может, … ? (вежливое приглашение)', '/woʊnt ju/', '/ˈwoʊntʃə/', '{Wontcha} come in?', 'Может, зайдёте?', 'Stay a bit, {wontcha}?', 'Останьтесь ещё немного, а?', 'invite'],
-    ['meetcha', 'meet you', 'встретить вас; познакомиться с вами', '/mit ju/', '/ˈmitʃə/', 'Nice to {meetcha}!', 'Приятно познакомиться!', 'Sam will {meetcha} at the station.', 'Сэм встретит вас на станции.', 'meet'],
-    ['getcha', 'get you', 'принести вам; взять для вас', '/ɡɛt ju/', '/ˈɡɛtʃə/', 'Can I {getcha} anything?', 'Вам что-нибудь принести?', 'Jess will {getcha} a coffee.', 'Джесс возьмёт вам кофе.', 'get'],
-    ['letcha', 'let you', 'дать вам (знать, сделать)', '/lɛt ju/', '/ˈlɛtʃə/', 'Tony will {letcha} know.', 'Тони даст вам знать.', 'Can Maggie {letcha} in?', 'Мэгги может вас впустить?', 'let'],
-    ['tellya', 'tell you', 'сказать вам, рассказать вам', '/tɛl ju/', '/ˈtɛljə/', 'Sam will {tellya} later.', 'Сэм расскажет вам потом.', 'Lemme {tellya} something.', 'Дайте я вам кое-что скажу.', 'tell'],
+    ['didn\'tcha', 'didn\'t you', 'разве ты не… / вы же… (в прошлом)', '/ˈdɪdənt ju/', '/ˈdɪdəntʃə/', '{Didn\'tcha} get my text?', 'Вы разве не получили моё сообщение?', 'You saw it, {didn\'tcha}?', 'Ты же видел(а), да?', 'didnt'],
+    ['won\'tcha', 'won\'t you', 'может, … ? (вежливое приглашение)', '/woʊnt ju/', '/ˈwoʊntʃə/', '{Won\'tcha} come in?', 'Может, зайдёшь?', 'Stay a bit, {won\'tcha}?', 'Останься ещё немного, а?', 'invite'],
+    ['meetcha', 'meet you', 'встретить вас; познакомиться с вами', '/mit ju/', '/ˈmitʃə/', 'Nice to {meetcha}!', 'Приятно познакомиться!', 'Sam will {meetcha} at the station.', 'Сэм встретит тебя на станции.', 'meet'],
+    ['getcha', 'get you', 'принести вам; взять для вас', '/ɡɛt ju/', '/ˈɡɛtʃə/', 'Can I {getcha} anything?', 'Вам что-нибудь принести?', 'Jess will {getcha} a coffee.', 'Джесс возьмёт тебе кофе.', 'get'],
+    ['letcha', 'let you', 'дать вам (знать, сделать)', '/lɛt ju/', '/ˈlɛtʃə/', 'Tony will {letcha} know.', 'Тони даст тебе знать.', 'Can Maggie {letcha} in?', 'Мэгги может тебя впустить?', 'let'],
+    ['tellya', 'tell you', 'сказать вам, рассказать вам', '/tɛl ju/', '/ˈtɛljə/', 'Sam will {tellya} later.', 'Сэм расскажет тебе потом.', 'Lemme {tellya} something.', 'Дай я тебе кое-что скажу.', 'tell'],
     ['seeya', 'see you', 'пока, увидимся', '/si ju/', '/ˈsijə/', '{Seeya} tomorrow!', 'До завтра!', '{Seeya} around!', 'Ещё увидимся!', 'bye'],
     ['\'scuse me', 'excuse me', 'простите, извините (проглоченное ex-)', '/ɪkˈskjuz mi/', '/ˈskjuz mi/', '{\'Scuse me}, is this seat free?', 'Простите, это место свободно?', '{\'Scuse me}, coming through!', 'Извините, пропустите!', 'sorry'],
     ['g\'night', 'good night', 'спокойной ночи', '/ɡʊd naɪt/', '/ɡəˈnaɪt/', '{G\'night}, everybody!', 'Спокойной ночи всем!', '{G\'night}, sleep tight.', 'Спокойной ночи, сладких снов.', 'bye'],
     ['mornin\'', 'morning', 'доброе утро (без -g на конце)', '/ˈmɔrnɪŋ/', '/ˈmɔrnɪn/', '{Mornin\'}! Coffee\'s ready.', 'Доброе утро! Кофе готов.', '{Mornin\'}, Ms. Garcia!', 'Доброе утро, мисс Гарсия!', 'hi'],
-    ['nothin\'', 'nothing', 'ничего (без -g на конце)', '/ˈnʌθɪŋ/', '/ˈnʌθɪn/', '{Nothin\'} much, and you?', 'Ничего особенного, а у вас?', 'There\'s {nothin\'} on TV.', 'По телику ничего нет.', 'nothing'],
-    ['somethin\'', 'something', 'что-то, что-нибудь (без -g на конце)', '/ˈsʌmθɪŋ/', '/ˈsʌmθɪn/', 'Wanna eat {somethin\'}?', 'Хотите чего-нибудь поесть?', 'Kim heard {somethin\'}.', 'Ким что-то услышала.', 'something'],
+    ['nothin\'', 'nothing', 'ничего (без -g на конце)', '/ˈnʌθɪŋ/', '/ˈnʌθɪn/', '{Nothin\'} much, and you?', 'Ничего особенного, а у тебя?', 'There\'s {nothin\'} on TV.', 'По телику ничего нет.', 'nothing'],
+    ['somethin\'', 'something', 'что-то, что-нибудь (без -g на конце)', '/ˈsʌmθɪŋ/', '/ˈsʌmθɪn/', 'Wanna eat {somethin\'}?', 'Хочешь чего-нибудь поесть?', 'Kim heard {somethin\'}.', 'Ким что-то услышала.', 'something'],
     ['\'n\'', 'and', 'и (в устойчивых парах)', '/ænd/', '/ən/', 'Salt {\'n\'} pepper?', 'Соль и перец?', 'Rock {\'n\'} roll!', 'Рок-н-ролл!', 'and'],
-    ['\'round', 'around', 'вокруг; заходите (come round)', '/əˈraʊnd/', '/raʊnd/', 'Come {\'round} anytime.', 'Заходите в любое время.', 'Turn {\'round}, it\'s behind you!', 'Повернитесь, это за вами!', 'around'],
-    ['imma', 'I\'m gonna', 'я сейчас… / я собираюсь (из афроамериканского английского, частое в песнях и рэпе)', '/aɪm ˈɡʌnə/', '/ˈaɪmə/', '{Imma} call you back.', 'Я вам перезвоню.', 'Okay, {imma} head out.', 'Ладно, я пойду.', 'gonna'],
+    ['\'round', 'around', 'поблизости, вокруг (проглоченное a-)', '/əˈraʊnd/', '/raʊnd/', 'See ya {\'round}!', 'Ещё увидимся!', 'Is there a pharmacy {\'round} here?', 'Тут поблизости есть аптека?', 'around'],
+    ['\'cept', 'except', 'кроме (проглоченное ex-)', '/ɪkˈsɛpt/', '/sɛpt/', 'Everyone came {\'cept} Sam.', 'Пришли все, кроме Сэма.', 'All veggies {\'cept} beets.', 'Все овощи, кроме свёклы.', 'except'],
     ['wuz', 'was', 'was без ударения (звучит «уəз»)', '/wʌz/', '/wəz/', 'It {wuz} so good!', 'Было так вкусно!', 'Who {wuz} that?', 'Кто это был?', 'was'],
-    ['d\'ya', 'do you / did you', 'ты… ? / вы… ? (вопрос)', '/du ju/', '/dʒə/', '{D\'ya} want some?', 'Хотите немного?', '{D\'ya} like it?', 'Нравится?', 'doyou'],
+    ['d\'ya', 'do you / did you', 'ты… ? / вы… ? (вопрос; разговорное)', '/du ju/', '/dʒə/', '{D\'ya} want some?', 'Хочешь немного?', '{D\'ya} like it?', 'Нравится?', 'doyou'],
   ];
   function buildLive(rows, firstNum, sublevel = 'A1+') {
     /* global partsOf */
@@ -1036,7 +1036,7 @@
     // A2, часть 1
     ['come by', 'stop by', 'drop by', 'drop in', 'come over'], ['look over', 'look through', 'go through', 'go over', 'check out'],
     ['throw out', 'throw away'], ['give out', 'hand out'], ['split up', 'break up'], ['sleep over', 'stay over'],
-    ['step out', 'head out', 'go out'], ['put together', 'set up'], ['send back', 'take back', 'bring back'],
+    ['step out', 'head out', 'go out', 'stop by'], ['put together', 'set up'], ['send back', 'take back', 'bring back'],
     ['fall apart', 'break down'], ['blow up', 'freak out'], ['mess up', 'mix up'], ['speak up', 'speak out'],
     ['think up', 'come up with', 'make up']];
   // Слово может быть в нескольких группах — объединяем их (а не перезаписываем последней)
@@ -1167,7 +1167,7 @@
     ['let', 'let', 'let', 'позволять, разрешать', 'aaa', 'Ms. Garcia {let} us in early.', 'Мисс Гарсия впустила нас пораньше.', 'Did Mr. Okafor {let} you paint the wall?', 'Мистер Окафор разрешил вам покрасить стену?', 'He didn\'t {let} us keep a cat.', 'Он не разрешил нам завести кошку.'],
     ['hurt', 'hurt', 'hurt', 'ушибить, повредить; болеть', 'aaa', 'Tony {hurt} his back at the gym.', 'Тони потянул спину в спортзале.', 'Did Tony {hurt} his knee too?', 'Тони и колено повредил?', 'The shot didn\'t {hurt} at all.', 'Укол был совсем не больной.'],
     ['cost', 'cost', 'cost', 'стоить', 'aaa', 'The pizza {cost} twenty bucks.', 'Пицца стоила двадцать баксов.', 'Did the tickets {cost} a lot?', 'Билеты дорого стоили?', 'The repair didn\'t {cost} much.', 'Ремонт обошёлся недорого.'],
-    ['read', 'read', 'read', 'читать', 'aaa', 'Sam {read} the whole book in a day.', 'Сэм прочитал всю книгу за день.', 'Did Sam {read} my message?', 'Сэм прочитал моё сообщение?', 'Sam didn\'t {read} the rules.', 'Сэм не читал правила.', 'Пишется одинаково, звучит по-разному: read /rid/ — сейчас, read /rɛd/ — в прошлом.'],
+    ['read', 'read', 'read', 'читать', 'aaa', 'Sam {read} the whole book in a day.', 'Сэм прочитал всю книгу за день.', 'Did Sam {read} my message?', 'Сэм прочитал моё сообщение?', 'Sam didn\'t {read} the rules.', 'Сэм не читал правила.', 'Все три пишутся одинаково, но звучат по-разному: /rid/ – /rɛd/ – /rɛd/ (как red).'],
     ['have', 'had', 'had', 'иметь; есть (о еде)', 'abb', 'We {had} pizza for dinner.', 'На ужин у нас была пицца.', 'Did Jess {have} lunch?', 'Джесс пообедала?', 'Tony didn\'t {have} time.', 'У Тони не было времени.'],
     ['say', 'said', 'said', 'сказать', 'abb', 'Priya {said} yes!', 'Прия сказала «да»!', 'Did Priya {say} anything?', 'Прия что-нибудь сказала?', 'Ray didn\'t {say} a word.', 'Рэй не сказал ни слова.', 'said звучит /sɛd/ — «сэд», не «сэйд».'],
     ['make', 'made', 'made', 'делать, готовить', 'abb', 'Maggie {made} pancakes this morning.', 'Мэгги утром напекла блинчиков.', 'Did Maggie {make} coffee too?', 'Мэгги и кофе сварила?', 'We didn\'t {make} a plan.', 'Мы не составили план.'],
@@ -1260,7 +1260,7 @@
     const ing = (b) => (b === 'be' ? 'being' : DOUBLE.has(b) ? b + b.slice(-1) + 'ing' : /[^aeiouy]e$/.test(b) && b !== 'be' ? b.slice(0, -1) + 'ing' : b + 'ing');
     const uniq = (correct, list) => [...new Set(list.filter((v) => v && v.toLowerCase() !== String(correct).toLowerCase()))];
     const like = (target, v) => (/^[A-Z]/.test(target) ? v.charAt(0).toUpperCase() + v.slice(1) : v);
-    const q = (text, correct, distr, pos) => { const options = distr.slice(0, 3); const p = pos % (options.length + 1); options.splice(p, 0, correct); return { q: text, options, correct: p }; };
+    const q = (text, correct, distr, pos, key) => { const options = distr.slice(0, 3); const p = pos % (options.length + 1); options.splice(p, 0, correct); return { q: text, options, correct: p, key }; };
     const rows = [
       ...VERB_DATA.map((r) => ({ kind: 'irr', base: r[0], past: r[1], pp: r[2], ru: r[3], group: IRR_GROUP[r[4]], ex: [[r[5], r[6]], [r[7], r[8]], [r[9], r[10]]], note: r[11] || '' })),
       ...REG_DATA.map((r) => ({ kind: 'reg', base: r[0], past: r[1], pp: r[1], ru: r[2], ed: r[3], group: ED_GROUP[r[3]], ex: [[r[4], r[5]], [r[6], r[7]], [r[8], r[9]]], note: r[10] || '' })),
@@ -1275,30 +1275,30 @@
     const others = (i, key) => { const out = []; for (let j = 1; out.length < 3 && j < rows.length; j++) { const v = key(rows[(i + j * 7) % rows.length]); if (v && v !== key(rows[i]) && !out.includes(v)) out.push(v); } return out; };
     return rows.map((r, i) => {
       const tests = [];
-      tests.push(q('Что значит «' + front(r) + '»?', r.ru, others(i, (x) => x.ru), i));
+      tests.push(q('Что значит «' + front(r) + '»?', r.ru, others(i, (x) => x.ru), i, 'meaning'));
       const pastWord = r.past.split('/')[0];
       const g = r.ex.map((e) => split(e[0]));
       if (r.kind === 'irr') {
         // Прошедшее: типичные ошибки — «по правилу» (goed), 3-я форма вместо 2-й, начальная форма, -s и -ing
         tests.push(q('Прошедшее время (2-я форма) от «' + r.base + '»?', r.past,
-          uniq(r.past, [ed(r.base), r.pp !== r.past ? r.pp : '', r.base, third(r.base), ing(r.base)]).filter((v) => !r.past.split('/').includes(v)), i + 1));
+          uniq(r.past, [ed(r.base), r.pp !== r.past ? r.pp : '', r.base, third(r.base), ing(r.base)]).filter((v) => !r.past.split('/').includes(v)), i + 1, 'past'));
         tests.push(q('3-я форма (причастие, I\'ve never ___) от «' + r.base + '»?', r.pp,
-          uniq(r.pp, [r.past !== r.pp ? pastWord : '', ed(r.base), r.base !== r.pp ? r.base : '', ing(r.base), third(r.base)]), i + 2));
+          uniq(r.pp, [r.past !== r.pp ? pastWord : '', ed(r.base), r.base !== r.pp ? r.base : '', ing(r.base), third(r.base)]), i + 2, 'pp'));
       } else {
-        tests.push(q('Как звучит окончание в «' + r.past + '»?', ED_SOUND[r.ed], Object.values(ED_SOUND).filter((v) => v !== ED_SOUND[r.ed]), i + 1));
+        tests.push(q('Как звучит окончание в «' + r.past + '»?', ED_SOUND[r.ed], Object.values(ED_SOUND).filter((v) => v !== ED_SOUND[r.ed]), i + 1, 'ed'));
       }
       if (g[0]) {
         const t = g[0].target;
         tests.push(q(g[0].before + '___' + g[0].after + ' (' + r.ex[0][1] + ')', t,
-          uniq(t, [r.base, r.kind === 'irr' ? ed(r.base) : third(r.base), r.pp !== pastWord ? r.pp : ing(r.base), ing(r.base)]).map((v) => like(t, v)), i + 3));
+          uniq(t, [r.base, r.kind === 'irr' ? ed(r.base) : third(r.base), r.pp !== pastWord ? r.pp : ing(r.base), ing(r.base)]).map((v) => like(t, v)), i + 3, 'fill'));
       }
       if (g[1]) {
         // Вопрос с did: после did глагол возвращается в начальную форму (Did he go?, а не Did he went?)
         const t = g[1].target;
         const distr = r.base === 'be' ? ['were', 'did', 'does'] : uniq(t, [pastWord, r.kind === 'irr' && r.pp !== pastWord ? r.pp : '', third(r.base), ing(r.base), ed(r.base)]);
-        tests.push(q(g[1].before + '___' + g[1].after + ' (' + r.ex[1][1] + ')', t, uniq(t, distr).map((v) => like(t, v)), i + 4));
+        tests.push(q(g[1].before + '___' + g[1].after + ' (' + r.ex[1][1] + ')', t, uniq(t, distr).map((v) => like(t, v)), i + 4, 'did'));
       }
-      if (r.kind === 'reg') tests.push(q('Как перевести: «' + cleanV(r.ex[0][0]) + '»?', r.ex[0][1], others(i, (x) => x.ex[0][1]), i + 2));
+      if (r.kind === 'reg') tests.push(q('Как перевести: «' + cleanV(r.ex[0][0]) + '»?', r.ex[0][1], others(i, (x) => x.ex[0][1]), i + 2, 'translate'));
       const formsText = r.kind === 'irr' ? [r.base, ...r.past.split('/'), r.pp].join(' ') : `${r.base} ${r.past}`;
       return {
         id: 'wd_' + String(firstNum + i).padStart(4, '0'),

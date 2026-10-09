@@ -256,7 +256,8 @@ const TodayUI = (() => {
     const optsHtml = (t) => `<div class="ladder-options">${t.options.map((o, k) => `<button class="ladder-opt words-opt" type="button" data-i="${k}">${esc(o)}</button>`).join('')}</div>`;
     let body = '';
     let target = p.front;
-    const testFor = (k) => (vf ? p.test[(VERB_TEST[vf.kind] || {})[k]] : (k === 'reverse' ? p.test[1] : p.test[0]));
+    // У глаголов тест ищем по ключу (buildVerbs ставит key), номер — запасной путь для старых данных
+    const testFor = (k) => (vf ? (p.test.find((t) => t.key === k) || p.test[(VERB_TEST[vf.kind] || {})[k]]) : (k === 'reverse' ? p.test[1] : p.test[0]));
     if (vf && ['past', 'pp', 'ed', 'did'].includes(kind)) {
       const t = testFor(kind);
       body = `<div class="words-front"><span class="words-word words-word--ru">${esc(kind === 'did' ? p.translation : vf.base + ' — ' + p.translation)}</span>${kind === 'ed' ? playBtn : ''}</div>
@@ -270,11 +271,7 @@ const TodayUI = (() => {
           <button class="btn btn-ghost" id="words-model" type="button" hidden>▶ Образец</button>
           <button class="btn btn-ghost" id="words-mine" type="button" hidden>▶ Моя запись</button>
         </div>
-        <p class="words-hint" id="words-say-status" aria-live="polite"></p>
-        <div class="ladder-options words-selfcheck" id="words-selfcheck" hidden>
-          <button class="ladder-opt" type="button" data-self="1">Похоже на образец</button>
-          <button class="ladder-opt" type="button" data-self="0">Не похоже — повторю ещё</button>
-        </div>`;
+        <p class="words-hint" id="words-say-status" aria-live="polite"></p>`;
     } else if (kind === 'meaning') {
       body = `<div class="words-front"><span class="words-word">${esc(p.front)}</span>${playBtn}</div>${ipaHtml}${optsHtml(p.test[0])}`;
     } else if (kind === 'reverse') {
@@ -301,7 +298,7 @@ const TodayUI = (() => {
           <div class="session-progress"><div class="session-progress-fill" style="width:${pct}%"></div></div>
           <div class="ladder-head"><p class="session-counter">Слово ${i + 1} из ${lesson.words.length} · ${review ? 'Повторение' : 'Новое слово'}${drills.length > 1 ? ` · задание ${drillIdx + 1} из ${drills.length}` : ''}</p></div>
           <h2 class="ladder-step-title">Слова урока</h2>
-          <p class="ladder-prompt">${DRILL_TITLE[kind]}</p>
+          <p class="ladder-prompt">${vf && vf.base === 'be' && kind === 'did' ? 'Вставь нужную форму be в вопрос' : DRILL_TITLE[kind]}</p>
           ${body}
           <div class="ladder-feedback" id="words-feedback" aria-live="polite"></div>
           <div class="ladder-actions" id="words-actions"><button class="btn btn-ghost" id="words-quit" type="button">Закончить</button></div>
@@ -366,13 +363,15 @@ const TodayUI = (() => {
       recordWord(lesson, card.id, mark);
     };
 
-    // «Скажи вслух»: запись → образец и своя запись → самооценка. Оценки произношения нет (честно: сравнивает ученик);
-    // самооценка доступна только после записи от 1 секунды — она же засчитывается как «фраза вслух»
-    const rec = { recorder: null, stream: null, chunks: [], url: null, startedAt: 0, spoken: false };
+    // «Скажи вслух»: запись → образец и своя запись рядом. Оценки нет ни от приложения, ни «верно» за самооценку
+    // (честно: сравнивает сам ученик) — на оценку слова для FSRS задание не влияет, как и пропуск; запись от 1 секунды
+    // засчитывается как «фраза вслух»
+    const rec = { recorder: null, stream: null, chunks: [], url: null, startedAt: 0, spoken: false, timer: null };
     const sayStatus = (txt) => { const el = document.getElementById('words-say-status'); if (el) el.textContent = txt; };
     const showBtn = (id, on) => { const el = document.getElementById(id); if (el) el.hidden = !on; };
     if (disposeRec) disposeRec();
     disposeRec = () => {
+      clearTimeout(rec.timer);
       if (rec.recorder && rec.recorder.state !== 'inactive') { rec.recorder.onstop = null; rec.recorder.stop(); }
       if (rec.stream) rec.stream.getTracks().forEach((t) => t.stop());
       if (rec.url) URL.revokeObjectURL(rec.url);
@@ -381,9 +380,7 @@ const TodayUI = (() => {
       if (e.target.closest('#words-model')) { speakWord(vf ? [vf.base, ...String(vf.past).split('/'), vf.pp].filter((v, k, a) => vf.kind === 'irr' || a.indexOf(v) === k).join(', ') : p.front); return; }
       if (e.target.closest('#words-mine')) { if (rec.url) { const a = new Audio(rec.url); a.play().catch(() => {}); } return; }
       if (e.target.closest('#words-stop')) { if (rec.recorder && rec.recorder.state !== 'inactive') rec.recorder.stop(); return; }
-      const self = e.target.closest('[data-self]');
-      if (self && !answered) { root.querySelectorAll('[data-self]').forEach((b) => { b.disabled = true; }); finishDrill(self.dataset.self === '1'); return; }
-      if (!e.target.closest('#words-rec') || answered) return;
+      if (!e.target.closest('#words-rec')) return;
       if (window.TTS) TTS.stopSpeaking();
       try {
         rec.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -391,6 +388,7 @@ const TodayUI = (() => {
         rec.chunks = [];
         rec.recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) rec.chunks.push(ev.data); };
         rec.recorder.onstop = async () => {
+          clearTimeout(rec.timer);
           const ms = Date.now() - rec.startedAt;
           if (rec.stream) rec.stream.getTracks().forEach((t) => t.stop());
           if (rec.url) URL.revokeObjectURL(rec.url);
@@ -399,15 +397,24 @@ const TodayUI = (() => {
           if (ms < MIN_SPOKEN_MS) { sayStatus('Слишком коротко — скажи все формы (от 1 секунды).'); return; }
           if (!rec.spoken) { rec.spoken = true; if (window.DB && DB.addSpoken) await DB.addSpoken(SRS.todayStr(), 1); }
           showBtn('words-model', true); showBtn('words-mine', true);
-          document.getElementById('words-selfcheck').hidden = false;
-          sayStatus('Записано ✓ Послушай образец и себя — похоже?');
+          sayStatus('Записано ✓ Послушай образец и себя. Можно записать ещё раз.');
+          if (!answered) {
+            answered = true;
+            document.getElementById('words-actions').innerHTML = `
+              <button class="btn btn-ghost" id="words-quit" type="button">Закончить</button>
+              <button class="btn-primary" id="words-next" type="button">Дальше</button>`;
+            root.__next = skipDrill;
+          }
         };
         rec.startedAt = Date.now();
         rec.recorder.start();
         showBtn('words-rec', false); showBtn('words-stop', true);
         sayStatus('Говори…');
-        setTimeout(() => { if (rec.recorder && rec.recorder.state === 'recording') rec.recorder.stop(); }, 8000);
+        clearTimeout(rec.timer);
+        rec.timer = setTimeout(() => { if (rec.recorder && rec.recorder.state === 'recording') rec.recorder.stop(); }, 8000);
       } catch (err) {
+        if (rec.stream) rec.stream.getTracks().forEach((t) => t.stop());
+        if (answered) { sayStatus('Не получилось записать ещё раз.'); return; }
         // Без микрофона задание не засчитываем ни «верно», ни «ошибкой» — просто пропускаем
         answered = true;
         sayStatus('Нет доступа к микрофону — задание «вслух» не засчитывается.');
