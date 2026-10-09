@@ -35,6 +35,10 @@ const AppLibrary = (() => {
     return `
       <div class="section-wrap">
         ${C.sectionHeader(t, C.state.filter)}
+        <button class="pos-guide-entry pos-guide-btn" data-ch="intro" type="button">
+          <span class="pos-guide-entry-title">Части речи: зачем и откуда названия</span>
+          <span class="pos-guide-entry-hint">Почему глаголы «неправильные», что значат цвета под словами и откуда слово «наречие»</span>
+        </button>
         <p class="list-summary">${known} из ${cards.length} тем имеют отметку · показано ${list.length}</p>
         ${list.length ? `<div class="grammar-grid">${tiles}</div>`
           : '<section class="card empty-state"><p class="empty-text">Нет тем для выбранного уровня.</p></section>'}
@@ -200,7 +204,7 @@ const AppLibrary = (() => {
       ? '<b class="verb-kind verb-kind--irr">Неправильный глагол</b> — прошедшее не по правилу «+ed», формы учить'
       : `<b class="verb-kind">Правильный глагол</b> — прошедшее «+ed»; ${ED_HINT[f.ed] || ''}`;
     return `<div class="verb-forms-block">
-      <p class="verb-kind-line">${kindLine}</p>
+      <p class="verb-kind-line">${kindLine} <button class="pos-guide-btn pos-guide-link" data-ch="irregular" type="button">почему так называют?</button></p>
       <div class="verb-forms">${cells}</div>
       ${f.note ? `<p class="verb-note">💡 ${C.escapeHtml(f.note)}</p>` : ''}
     </div>`;

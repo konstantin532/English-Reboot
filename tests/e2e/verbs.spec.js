@@ -92,3 +92,28 @@ test('глагол A2 в «Сегодня»: 3-я форма, вопрос с di
   await page.locator('#words-next').click();
   await expect.poll(() => page.evaluate(async () => (await DB.getByKey('progress', 'wd_0708')).data.mark)).toBe('hard');
 });
+
+test('справочник «Части речи»: открывается из «Грамматики», из карточки глагола и из настроек', async ({ page }) => {
+  await onboard(page);
+  await page.locator('.nav-link[data-tab="grammar"]').click();
+  await page.locator('.pos-guide-entry').click();
+  const modal = page.locator('.modal-card.modal-card--wide .pos-guide');
+  await expect(modal).toBeVisible();
+  await expect(modal.locator('.pg-chapter')).toHaveCount(11);
+  await expect(modal.locator('#pg-intro')).toHaveAttribute('open', '');
+  await modal.locator('#pg-adv > summary').click();
+  await expect(modal.locator('#pg-adv')).toContainText('ad verbum');
+  await page.locator('#pg-close').click();
+  await expect(page.locator('#modal-zone')).toBeHidden();
+
+  await page.evaluate(() => ER.openCardAnywhere('words', 'wd_0708'));      // go – went – gone
+  await page.locator('.verb-kind-line .pos-guide-btn').click();
+  await expect(page.locator('#pg-irregular')).toHaveAttribute('open', '');
+  await expect(page.locator('#pg-irregular')).toContainText('wend');
+  await page.locator('#pg-close').click();
+  await expect(page.locator('#modal-zone')).toBeHidden();
+
+  await page.locator('.nav-link[data-tab="settings"]').click();
+  await page.locator('.pos-legend + .pos-guide-btn').click();
+  await expect(page.locator('.pos-guide')).toBeVisible();
+});

@@ -154,6 +154,7 @@ const AppSettings = (() => {
           <ul class="pos-legend" aria-label="Цвета частей речи">
             ${POS_LEGEND.map(([cls, name, hint, ex]) => `<li><span class="pos-legend-word ${cls}">${ex}</span><span class="pos-legend-name">${name}</span><span class="pos-legend-hint">${hint}</span></li>`).join('')}
           </ul>
+          <button class="pos-guide-btn pos-guide-link" data-ch="intro" type="button">Что такое части речи и откуда их названия →</button>
           <div class="layer-list">
             ${C.LAYERS.map((l) => `
               <div class="layer-row">

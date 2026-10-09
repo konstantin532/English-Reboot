@@ -232,6 +232,16 @@
     refreshHeaderStats();
   }
 
+  // Справочник «Части речи» (js/pos_guide.js) — в модальном окне, нужная глава раскрыта
+  function openPosGuide(ch) {
+    if (!window.PosGuide) return;
+    showModal(PosGuide.html(ch), { 'pg-close': () => closeModal() });
+    const zone = document.getElementById('modal-zone');
+    zone.querySelector('.modal-card').classList.add('modal-card--wide');
+    const open = zone.querySelector('.pg-chapter[open]');
+    if (open && ch && ch !== 'intro') open.scrollIntoView({ block: 'start' });
+  }
+
   function showModal(html, handlers = {}) {
     const zone = document.getElementById('modal-zone');
     zone.innerHTML = `
@@ -749,6 +759,8 @@
       if (ss) { startSessionUI(); return; }
       const ep = e.target.closest('.error-practice');
       if (ep) { openCardAnywhere(ep.dataset.store, ep.dataset.id); return; }
+      const pg = e.target.closest('.pos-guide-btn');
+      if (pg) { openPosGuide(pg.dataset.ch); return; }
       const tile = e.target.closest('.topic-tile');
       if (tile) { openGrammarCard(tile.dataset.id); return; }
       const vt = e.target.closest('.vocab-tile');
