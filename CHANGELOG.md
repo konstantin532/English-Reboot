@@ -120,6 +120,13 @@
 
 ### Changed
 
+- **CI / pages больше не пропускается в PR (dev, ученику не видно).** Задание `pages` раньше целиком
+  стояло под условием «только push в main», и в каждом PR висело «пропущено», а сборку сайта до слияния
+  никто не проверял. Теперь `pages` на каждом PR и push собирает `dist/` скриптом `scripts/build-pages.mjs`
+  и проверяет его: всё из кэша `sw.js` и всё, что подключает `index.html`, на месте, иконки `manifest.json`
+  есть, служебных папок нет (пропажа файла из кэша SW молча ломала бы офлайн). Сборка — артефакт `site`.
+  Публикация вынесена в `.github/workflows/deploy-pages.yml`: тот же скрипт, тот же коммит, только после
+  зелёного CI на push в `main`. Тесты — `tests/build_pages.test.js`.
 - **CI на Node 24 (dev, ученику не видно).** GitHub убрал Node 20 из раннеров: экшены обновлены до версий на
   node24 — checkout v7, setup-node v7, upload-artifact v7, configure-pages v6, upload-pages-artifact v5,
   deploy-pages v5; тесты в CI идут на Node 24 (Node 20 больше не поддерживается с апреля 2026).

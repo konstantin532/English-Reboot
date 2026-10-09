@@ -126,7 +126,7 @@ English-Reboot/
 - **Юнит-тесты** — Vitest, 44 случая: FSRS (`srs.test.js`), русская транскрипция (`annotate.test.js`), цепочка озвучки с подменой голосов и аудио (`tts.test.js`), целостность всего контента — 5000+ вопросов, 100% IPA (`content.test.js`), анализ эссе IELTS (`ielts.test.js`).
 - **E2E** — Playwright, 10 сценариев: загрузка без ошибок, онбординг, навигация, прогресс после перезагрузки (`smoke.spec.js`); меню-«карта линий», транскрипция и озвучка по клику, FSRS, «Звук», IELTS, **работа офлайн после первого запуска** (`features.spec.js`).
 - **Скриншоты** — автогенерация иллюстраций README (`npm run test:screenshots`).
-- **CI** — GitHub Actions (`.github/workflows/ci.yml`): unit → E2E → переснятие скриншотов; артефакты 7 дней; автодеплой на GitHub Pages.
+- **CI** — GitHub Actions (`.github/workflows/ci.yml`): unit → E2E → переснятие скриншотов → сборка и проверка сайта (`scripts/build-pages.mjs`) на каждом PR; артефакты 7 дней. Публикация на GitHub Pages — `.github/workflows/deploy-pages.yml`, только после зелёного CI на `main`.
 
 Локальный запуск: `npm test` · `npx playwright test` · `npm run test:screenshots`
 

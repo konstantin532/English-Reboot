@@ -61,54 +61,29 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  # Сайт для GitHub Pages: на каждом PR и push собирается тот же dist/, что уйдёт ученику, и проверяется
+  # (файлы из кэша sw.js, подключения index.html, иконки manifest.json, нет служебных папок).
+  # Публикует его отдельный workflow deploy-pages.yml — только после зелёного CI на push в main,
+  # поэтому здесь нет условия «только main» и в PR это задание не пропускается.
   pages:
     name: pages
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    concurrency:
-      group: github-pages
-      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
 
-      - name: Prepare dist/ (exclude dev directories)
-        run: |
-          mkdir -p dist
-          rsync -a \
-            --exclude 'node_modules/' \
-            --exclude 'tests/' \
-            --exclude 'scripts/' \
-            --exclude '.github/' \
-            --exclude '.git/' \
-            --exclude '.claude/' \
-            --exclude '.gitignore' \
-            --exclude 'test-results/' \
-            --exclude 'playwright-report/' \
-            --exclude 'dist/' \
-            --exclude 'docs/metrics/' \
-            --exclude 'docs/evolution/' \
-            --exclude 'vitest-report.json' \
-            ./ dist/
-          echo '--- dist/ ---'
-          ls dist/
-
-      - uses: actions/configure-pages@v6
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+      - uses: actions/setup-node@v7
         with:
-          path: dist
+          node-version: 24
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Build and check dist/
+        run: node scripts/build-pages.mjs
+
+      - name: Upload site preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: dist/
+          retention-days: 7
         

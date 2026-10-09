@@ -1,0 +1,61 @@
+name: Deploy Pages
+
+# Публикация сайта на GitHub Pages — только после зелёного CI на push в main.
+# Отдельный workflow, а не задание в ci.yml: задание с условием «только main» в каждом PR
+# висело бы пропущенным. В PR тот же dist/ собирает и проверяет CI / pages, здесь он
+# собирается тем же скриптом из того же коммита, проверяется ещё раз и публикуется.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy
+    # workflow_run: только зелёный CI от push в main этого репозитория
+    # (PR из форка с веткой main тоже приходит с head_branch = main — его отсекают event и head_repository)
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Build and check dist/
+        run: node scripts/build-pages.mjs
+
+      - uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
