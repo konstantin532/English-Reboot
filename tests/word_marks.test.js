@@ -139,6 +139,20 @@ describe('Части речи — по словарю и соседним сло
     expect(tag('Is the store open?').is).toBe('verb');
     expect(tag('Is your sister tired?').is).toBe('verb');
   });
+  it('неправильный глагол: метка у всех форм сказуемого (take, took, taken, takes), американские формы', () => {
+    const irr = (sentence) => { const parts = sentence.split(/\s+/).map((word) => ({ word })); WM.markParts(parts);
+      return Object.fromEntries(parts.map((p) => [p.word.replace(/[^A-Za-z']/g, '').toLowerCase(), !!p.irr])); };
+    expect(irr('He came in and took off his jacket.')).toMatchObject({ came: true, took: true, jacket: false, in: false });
+    expect(irr("I've never eaten sushi.")).toMatchObject({ eaten: true });
+    expect(irr('We worked and played all day.')).toMatchObject({ worked: false, played: false });   // правильные
+    expect(irr("Let's go! We're late.")).toMatchObject({ "let's": false, "we're": false, go: true });
+    expect(irr('She is tired and was late.')).toMatchObject({ is: false, was: true });             // am/is/are — не метим
+    expect(irr('Did you go home?')).toMatchObject({ did: false, go: true });                        // did — вспомогательный
+    expect(irr('Turn left at the light.')).toMatchObject({ left: false });                          // направление, не leave
+    expect(WM.irregularOf('gotten')).toEqual({ base: 'get', past: 'got', pp: 'gotten' });
+    expect(WM.irregularOf('running')).toMatchObject({ base: 'run' });
+    expect(WM.irregularOf('worked')).toBeNull();
+  });
   it('work, call, rain: глагол или существительное по контексту', () => {
     expect(tag('I work from home.').work).toBe('verb');
     expect(tag('I usually walk to work.')).toMatchObject({ to: 'prep', work: 'noun' });

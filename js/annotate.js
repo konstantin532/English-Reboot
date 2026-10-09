@@ -179,7 +179,7 @@ const Annotate = (() => {
       ((p.surprise || []).length ? ` data-surprise="${p.surprise.join(',')}"` : '');
 
     return `<span class="word-token"${dataAttrs}>` +
-      `<span class="word-text${p.pos ? ` pos-${p.pos}` : ''}">${inner}</span>` +
+      `<span class="word-text${p.pos ? ` pos-${p.pos}` : ''}${p.irr ? ' pos-irr' : ''}">${inner}</span>` +
       (p.ipa ? `<span class="ipa">${p.ipa}</span><span class="ru-tr">${ruWord(p.ipa, word)}</span>` : '') +
       `</span>`;
   }

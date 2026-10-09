@@ -408,6 +408,7 @@ const WordMarks = (() => {
   }
   // Последняя надежда — по окончанию
   function guessTags(b, word) {
+    if (IRR_FORM[b] && !/s$/.test(b)) return IRR_FORM[b] === b ? ['verb', 'noun'] : ['verb'];   // eaten, gotten, written — формы неправильных глаголов
     if (/^[0-9]/.test(word)) return ['num'];
     if (/[a-z]-[a-z]/i.test(word)) return ['adj', 'noun'];          // two-bedroom, well-known — чаще определение
     if (/ly$/.test(b)) return ['adv', 'adj'];
@@ -747,8 +748,10 @@ const WordMarks = (() => {
         return false;
       })();
       const adjNext = nx && !nx.start && has(nx, 'adj') && !nx.ctx && (() => { const nn = next(nx.i); return !!nn && has(nn, 'noun'); })();
+      // Turn left, go left, keep left — направление (нареч.), а не left от leave
+      if (t.b === 'left' && p && /^(turn|turns|turned|turning|go|goes|went|going|keep|stay|make|take|veer|bear)$/.test(p.b)) return 'adv';
       // 0. Перфект и страдательный залог: had finished, will have cooked, was built, is spoken
-      if (pa && c.includes('verb') && (ed || ing) && ((tagOf(pa) === 'aux' && !BE_FORMS.has(pa.b) && /^(have|has|had|'ve|'d|i've|you've|we've|they've)$/.test(pa.b)) || passive(pa))) return 'verb';
+      if (pa && c.includes('verb') && (ed || ing) && ((tagOf(pa) === 'aux' && !BE_FORMS.has(pa.b) && /^(have|has|had|'ve|'d|i've|you've|we've|they've)$/.test(pa.b)) || /^[a-z]+'ve$/.test(pa.b) || passive(pa))) return 'verb';   // I've never eaten
       // 0b. Вопрос: вспомогательный + подлежащее + глагол (Does 1987 ring a bell? What does this word mean?)
       if (p && (pt === 'noun' || pt === 'num' || pt === 'pron') && c.includes('verb') && isBase(t) && auxSubjBefore(i)) return 'verb';
       // 1. После артикля, определителя, притяжательного, числа, прилагательного: прил. перед существительным, иначе сущ.
@@ -946,6 +949,56 @@ const WordMarks = (() => {
     }
   }
 
+  // Неправильные глаголы (американские формы: get – got – gotten, dive – dove, fit – fit): основа → «прош.|прич.».
+  // По ним разметка ставит метку «неправильный» (класс pos-irr) у всех форм глагола-сказуемого: take, takes, taking,
+  // took, taken. Не помечаем am / is / are (настоящее время be учат отдельно на A1) и lie (lie — «лгать» правильный).
+  const IRREGULAR = {
+    be: 'was/were|been', have: 'had|had', do: 'did|done', go: 'went|gone', say: 'said|said', get: 'got|gotten',
+    make: 'made|made', know: 'knew|known', think: 'thought|thought', take: 'took|taken', see: 'saw|seen', come: 'came|come',
+    find: 'found|found', give: 'gave|given', tell: 'told|told', feel: 'felt|felt', become: 'became|become', leave: 'left|left',
+    put: 'put|put', mean: 'meant|meant', keep: 'kept|kept', let: 'let|let', begin: 'began|begun', show: 'showed|shown',
+    hear: 'heard|heard', run: 'ran|run', hold: 'held|held', bring: 'brought|brought', write: 'wrote|written',
+    stand: 'stood|stood', lose: 'lost|lost', eat: 'ate|eaten', drink: 'drank|drunk', buy: 'bought|bought', pay: 'paid|paid',
+    sell: 'sold|sold', send: 'sent|sent', spend: 'spent|spent', meet: 'met|met', sleep: 'slept|slept', wake: 'woke|woken',
+    wear: 'wore|worn', sit: 'sat|sat', speak: 'spoke|spoken', read: 'read|read', drive: 'drove|driven', fly: 'flew|flown',
+    forget: 'forgot|forgotten', win: 'won|won', swim: 'swam|swum', break: 'broke|broken', choose: 'chose|chosen',
+    catch: 'caught|caught', teach: 'taught|taught', understand: 'understood|understood', fall: 'fell|fallen',
+    grow: 'grew|grown', throw: 'threw|thrown', hurt: 'hurt|hurt', cost: 'cost|cost', cut: 'cut|cut', hit: 'hit|hit',
+    set: 'set|set', shut: 'shut|shut', quit: 'quit|quit', build: 'built|built', lend: 'lent|lent', bend: 'bent|bent',
+    feed: 'fed|fed', lead: 'led|led', light: 'lit|lit', ride: 'rode|ridden', rise: 'rose|risen', sing: 'sang|sung',
+    ring: 'rang|rung', steal: 'stole|stolen', hide: 'hid|hidden', bite: 'bit|bitten', blow: 'blew|blown', draw: 'drew|drawn',
+    freeze: 'froze|frozen', shake: 'shook|shaken', tear: 'tore|torn', hang: 'hung|hung', shoot: 'shot|shot',
+    fight: 'fought|fought', dig: 'dug|dug', stick: 'stuck|stuck', sweep: 'swept|swept', deal: 'dealt|dealt', lay: 'laid|laid',
+    forgive: 'forgave|forgiven', beat: 'beat|beaten', bet: 'bet|bet', spread: 'spread|spread', upset: 'upset|upset',
+    strike: 'struck|struck', swear: 'swore|sworn', seek: 'sought|sought', sink: 'sank|sunk', slide: 'slid|slid', fit: 'fit|fit',
+    dive: 'dove|dived', flee: 'fled|fled', mistake: 'mistook|mistaken', shrink: 'shrank|shrunk', speed: 'sped|sped',
+    split: 'split|split', spit: 'spit|spit', sting: 'stung|stung', swing: 'swung|swung', weep: 'wept|wept', creep: 'crept|crept',
+    misunderstand: 'misunderstood|misunderstood', overhear: 'overheard|overheard', undo: 'undid|undone', redo: 'redid|redone',
+    rebuild: 'rebuilt|rebuilt', withdraw: 'withdrew|withdrawn', overcome: 'overcame|overcome', broadcast: 'broadcast|broadcast',
+  };
+  const DOUBLE_ING = new Set(['run', 'get', 'sit', 'swim', 'begin', 'forget', 'cut', 'hit', 'set', 'shut', 'quit', 'put', 'win',
+    'dig', 'spit', 'split', 'upset', 'bet', 'forbid', 'regret']);
+  const IRR_FORM = Object.create(null);   // любая форма → основа
+  for (const [base, v] of Object.entries(IRREGULAR)) {
+    const [past, pp] = v.split('|');
+    const third = base === 'have' ? 'has' : base === 'do' ? 'does' : base === 'go' ? 'goes' : /(s|sh|ch|x|o)$/.test(base) ? base + 'es'
+      : /[^aeiou]y$/.test(base) ? base.slice(0, -1) + 'ies' : base + 's';
+    const ing = base === 'be' ? 'being' : /ie$/.test(base) ? base.slice(0, -2) + 'ying' : DOUBLE_ING.has(base) ? base + base.slice(-1) + 'ing'
+      : /[^aeiouy]e$/.test(base) && base !== 'be' ? base.slice(0, -1) + 'ing' : base + 'ing';
+    [base, third, ing, ...past.split('/'), pp].forEach((f) => { if (!IRR_FORM[f]) IRR_FORM[f] = base; });
+  }
+  delete IRR_FORM.is;   // be → «is» не порождается, но на всякий случай
+  /** Неправильный глагол: { base, past, pp } по любой его форме, иначе null. */
+  function irregularOf(word) {
+    const w = String(word || '').toLowerCase().replace(/[^a-z']/g, '').replace(/^'+|'+$/g, '');
+    if (w.includes("'")) return null;   // let's, we're, it's — сокращения, не формы глагола
+    const b = w;
+    const base = IRR_FORM[b];
+    if (!base) return null;
+    const [past, pp] = IRREGULAR[base].split('|');
+    return { base, past, pp };
+  }
+
   // soft — часть речи в parts из словаря LEX (одна на слово, без контекста): решают правила, она — первый кандидат.
   // Без soft (грамматика: автор размечал каждое слово в предложении) ручная часть речи не меняется.
   const marked = new WeakSet();   // у чтений payload.parts и lines[].parts — одни и те же объекты: размечать один раз
@@ -961,6 +1014,7 @@ const WordMarks = (() => {
       if (!p.pos && p.posSoft) p.pos = p.posSoft;
       delete p.posSoft;
       if (p.posHint !== undefined) delete p.posHint;
+      if (p.pos === 'verb' && irregularOf(p.word)) p.irr = true; else delete p.irr;
       markWord(p);
     });
     return parts;
@@ -1030,6 +1084,7 @@ const WordMarks = (() => {
   }
 
   return { phonemes, align, silentOf, stressSpanOf, tagParts, markParts, markWord, markAll, markCourse, learnWordCards, bareOf,
+    irregularOf, IRREGULAR,
     stats, RU_POS, CLOSED, CTX_WORDS: Object.keys(CTX) };
 })();
 

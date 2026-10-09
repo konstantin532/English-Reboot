@@ -435,7 +435,7 @@ const AppLibrary = (() => {
       const spans = line.parts.map((pt) => {
         const clickable = /[a-zA-Z]/.test(pt.word);
         return clickable
-          ? `<span class="rw pos-${pt.pos}" data-w="${C.escapeAttr(pt.word)}" data-ipa="${C.escapeAttr(pt.ipa)}">${pt.word}</span> `
+          ? `<span class="rw pos-${pt.pos}${pt.irr ? ' pos-irr' : ''}" data-w="${C.escapeAttr(pt.word)}" data-ipa="${C.escapeAttr(pt.ipa)}">${pt.word}</span> `
           : `<span class="punct">${pt.word}</span> `;
       }).join('');
       return `<p class="reading-line">${spans}</p>`;
