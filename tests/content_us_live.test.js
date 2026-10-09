@@ -99,3 +99,26 @@ describe('Живая речь A1+ (sl_): тесты с настоящим выб
     }
   });
 });
+
+describe('A2 «Что было»: пропуск — на глаголе', () => {
+  const cv = loadContent().sections.conversation.filter((c) => c.sublevel === 'A2');
+  const fill = (c) => c.payload.test.find((t) => t.q.startsWith('Вставьте слово: «'));
+  const ans = (front) => { const t = fill(cv.find((c) => c.payload.front === front)); return { a: t.options[t.correct], opts: t.options }; };
+
+  it('прошедшее: went среди go / gone / goed; после did — начальная форма; did как смысловой глагол', () => {
+    expect(ans('We went skating')).toEqual({ a: 'went', opts: expect.arrayContaining(['go', 'gone', 'goed']) });
+    expect(ans('Did you have fun?').a).toBe('have');
+    expect(ans('Did you have fun?').opts).toContain('had');
+    expect(ans('You did it!').a).toBe('did');
+    expect(ans('The car wouldn\'t start').a).toBe('start');
+    expect(ans('How much did it cost?').opts.filter((o) => o === 'cost')).toHaveLength(1);   // варианты не повторяют ответ
+  });
+
+  it('если во фразе есть глагол из таблицы, пропуск не попадает на имя или местоимение', () => {
+    const names = /^(you|we|i|he|she|it|they|tony|sam|kim|jess|maggie|ray|priya)$/i;
+    for (const c of cv) {
+      const t = fill(c);
+      expect(names.test(t.options[t.correct]), c.id + ' ' + c.payload.front).toBe(false);
+    }
+  });
+});

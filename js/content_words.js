@@ -909,7 +909,7 @@
     ['whadja', 'what did you', 'что ты… / что вы… (в прошлом)', '/wʌt dɪd ju/', '/ˈwʌdʒə/', '{Whadja} do last night?', 'Что вы делали вчера вечером?', '{Whadja} get for Kim?', 'Что вы купили для Ким?', 'what'],
     ['howdja', 'how did you', 'как ты… / как вы… (в прошлом)', '/haʊ dɪd ju/', '/ˈhaʊdʒə/', '{Howdja} know?', 'Откуда ты знаешь?', '{Howdja} sleep?', 'Как спалось?', 'how'],
     ['wheredja', 'where did you', 'куда / где ты… (в прошлом)', '/wɛr dɪd ju/', '/ˈwɛrdʒə/', '{Wheredja} go for lunch?', 'Куда вы ходили обедать?', '{Wheredja} park?', 'Где вы припарковались?', 'where'],
-    ['didn\'tcha', 'didn\'t you', 'разве ты не… / вы же… (в прошлом)', '/ˈdɪdənt ju/', '/ˈdɪdəntʃə/', '{Didn\'tcha} get my text?', 'Вы разве не получили моё сообщение?', 'You saw it, {didn\'tcha}?', 'Ты же видел(а), да?', 'didnt'],
+    ['didn\'tcha', 'didn\'t you', 'разве ты не… / вы же… (в прошлом)', '/ˈdɪdənt ju/', '/ˈdɪdəntʃə/', '{Didn\'tcha} get my text?', 'Ты разве не получил(а) моё сообщение?', 'You saw it, {didn\'tcha}?', 'Ты же видел(а), да?', 'didnt'],
     ['won\'tcha', 'won\'t you', 'может, … ? (вежливое приглашение)', '/woʊnt ju/', '/ˈwoʊntʃə/', '{Won\'tcha} come in?', 'Может, зайдёшь?', 'Stay a bit, {won\'tcha}?', 'Останься ещё немного, а?', 'invite'],
     ['meetcha', 'meet you', 'встретить вас; познакомиться с вами', '/mit ju/', '/ˈmitʃə/', 'Nice to {meetcha}!', 'Приятно познакомиться!', 'Sam will {meetcha} at the station.', 'Сэм встретит тебя на станции.', 'meet'],
     ['getcha', 'get you', 'принести вам; взять для вас', '/ɡɛt ju/', '/ˈɡɛtʃə/', 'Can I {getcha} anything?', 'Вам что-нибудь принести?', 'Jess will {getcha} a coffee.', 'Джесс возьмёт тебе кофе.', 'get'],

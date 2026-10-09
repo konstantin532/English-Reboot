@@ -169,8 +169,8 @@
       let k = d + 1;
       if (DID_SUBJ.has(low[k]) || /^[A-Z]/.test(words[k] || '')) k += 1;
       else if (/^(my|your|his|her|our|their|the)$/.test(low[k])) k += 2;
-      if (k >= low.length) return null;
-      const b = low[k];
+      // «You did it!» — did здесь смысловой глагол (после него глагола нет): идём дальше, к прошедшему времени
+      const b = k < low.length ? low[k] : '';
       if (/^[a-z]+$/.test(b) && !DID_SUBJ.has(b)) {
         const opts = [...new Set([pastOfBase(b), IRR[b] ? IRR[b][1] : '', thirdOf(b), ingOf(b), edOf(b)])].filter((v) => v && v !== b);
         return { k, opts: opts.slice(0, 3) };
