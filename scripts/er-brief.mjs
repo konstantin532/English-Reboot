@@ -19,6 +19,8 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseBaseline } from './er-health.mjs';
 import { loadCards } from './er-cards.mjs';
+import { lessonsLine } from './er-lessons.mjs';
+import { historyLine, HISTORY } from './er-usage.mjs';
 
 // ER_ROOT — проверить другую рабочую копию (git worktree) теми же скриптами
 const ROOT = process.env.ER_ROOT ? path.resolve(process.env.ER_ROOT) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -217,6 +219,11 @@ function brief(opts) {
   // Следующие свободные номера карточек — новые карточки только в конец (правило 11)
   const next = nextIds();
   if (next) L.push(`НОВЫЕ ID (в конец): ${next}`);
+
+  // самообучение: уроки агента и токены прошлых итераций
+  L.push(lessonsLine(evo));
+  const hist = historyLine(read(HISTORY));
+  if (hist) L.push(hist);
 
   // размеры того, что раньше читалось целиком
   const kb = (f) => (fs.existsSync(path.join(ROOT, f)) ? (fs.statSync(path.join(ROOT, f)).size / 1024).toFixed(0) + ' КБ' : 'нет');

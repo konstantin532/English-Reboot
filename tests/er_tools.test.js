@@ -9,6 +9,8 @@ import { formatUnit, formatE2e, jobLimitMin, jobStatus } from '../scripts/er.mjs
 import { codeDiff, isDataHunk, collapseData, similarity, cardText, markedLine, marksSample, ipaChanges, dictStats, dictNote, codePrompt, pedagoguePrompt } from '../scripts/er-review.mjs';
 import { cardDiff, stripParts } from '../scripts/er-cards.mjs';
 import { nextIdsOf, retiredIds, prLine } from '../scripts/er-brief.mjs';
+import { usageOf, formatUsage, journalLine, historyLine, callLabel } from '../scripts/er-usage.mjs';
+import { lessonsOf, addLesson, lessonsLine } from '../scripts/er-lessons.mjs';
 
 /* Скрипты скилла english-reboot-evolve: модель верит их сводкам вместо логов, поэтому разбор и
    решения «красное/зелёное» стерегутся тестами. */
@@ -528,5 +530,92 @@ describe('er review: задания ревизорам — коротко, по-
     expect(flagged).toMatch(/find out why/i);
     expect(flagged).toMatch(/git diff abc1234 -- /);
     expect(codePrompt(paths, [{ line: 'js/pos_us.js: +2 −0, изменено 0 из 3000 (0%)', flag: false }])).not.toMatch(/find out why/i);
+  });
+});
+
+describe('er usage: токены итерации из транскрипта', () => {
+  const at = (min) => new Date(Date.UTC(2026, 9, 9, 12, min)).toISOString();
+  const turn = (id, min, usage, content = []) => ({ type: 'assistant', timestamp: at(min), message: { id, usage, content } });
+  const U = { input_tokens: 10, cache_read_input_tokens: 900, cache_creation_input_tokens: 90, output_tokens: 50 };
+  const T = [
+    turn('m1', 0, U, [{ type: 'tool_use', id: 't1', name: 'Bash', input: { command: 'npm test' } }]),
+    turn('m1', 0, U), // та же реплика, записанная потоком второй строкой — не считать дважды
+    { type: 'user', timestamp: at(1), message: { content: [{ type: 'tool_result', tool_use_id: 't1', content: 'x'.repeat(20000) }] } },
+    turn('m2', 5, U, [{ type: 'tool_use', id: 't2', name: 'Read', input: { file_path: '/r/.claude/skills/er-build/SKILL.md' } }]),
+    { type: 'user', timestamp: at(6), message: { content: [{ type: 'tool_result', tool_use_id: 't2', content: [{ type: 'text', text: 'y'.repeat(20000) }] }] } },
+  ];
+
+  it('ход считается один раз, контекст — вход + кэш', () => {
+    const r = usageOf(T);
+    expect(r.turns).toBe(2);
+    expect(r.context).toBe(2000);
+    expect(r.output).toBe(100);
+    expect(r.calls).toEqual({ Bash: 1, Read: 1 });
+  });
+
+  it('крупный вывод — урок, чтение SKILL.md — нет; прямой npm test — нарушение', () => {
+    const r = usageOf(T);
+    expect(r.big.map((b) => b.label)).toEqual(['Bash: npm test']);
+    expect(r.violations.join()).toMatch(/npm test/);
+    expect(formatUsage(r)).toMatch(/крупный вывод ~5k: Bash: npm test/);
+    expect(formatUsage(r)).toMatch(/✗ прямой npm test/);
+  });
+
+  it('метка er start отсекает раннее; npm test с тихим репортёром — не нарушение', () => {
+    expect(usageOf(T, Date.parse(at(3))).turns).toBe(1);
+    const q = usageOf([turn('a', 0, U, [{ type: 'tool_use', id: 'q', name: 'Bash', input: { command: 'npm test -- --reporter=dot' } }])]);
+    expect(q.violations).toEqual([]);
+  });
+
+  it('строка журнала и история итераций', () => {
+    expect(journalLine(usageOf(T), [usageOf(T)])).toBe('Токены: контекст 4k, вывод 200, ходов 4, субагентов 1, крупных выводов 2');
+    const h = ['{"date":"2026-10-08","context":2000000,"big":3}', '{"date":"2026-10-09","context":1000000}'].join('\n');
+    expect(historyLine(h)).toBe('ТОКЕНЫ ИТЕРАЦИЙ (среднее 1,50 млн контекста по 2): 2026-10-08 2,00 млн (крупных 3) · 2026-10-09 1,00 млн');
+    expect(historyLine('')).toBe('');
+  });
+
+  it('имена вызовов короткие и без пути клона', () => {
+    expect(callLabel({ name: 'Read', input: { file_path: '/home/c/english-reboot/js/app.js', offset: 10, limit: 20 } })).toBe('Read: js/app.js (10+20)');
+    expect(callLabel({ name: 'Bash', input: { command: 'cd /x && er test\nmore' } })).toBe('Bash: er test');
+  });
+});
+
+describe('er lessons: уроки агента считаются по ключу', () => {
+  const MD = '# Эволюция\n\n## Бэклог\n\n- [ ] x\n\n## Итерации\n\n### 2026-10-09 — y\n';
+
+  it('первый урок создаёт раздел перед «Итерации», остальное не тронуто', () => {
+    const md = addLesson(MD, 'big-log', 'полный лог E2E прочитан целиком', '2026-10-09');
+    expect(md).toMatch(/## Уроки агента\n[\s\S]*- \[big-log\] ×1 \(2026-10-09\) полный лог E2E прочитан целиком\n\n## Итерации/);
+    expect(md.replace(/## Уроки агента[\s\S]*?(?=## Итерации)/, '')).toBe(MD);
+  });
+
+  it('тот же ключ — счётчик и дата, повтор поднимается наверх и виден в er start', () => {
+    let md = addLesson(MD, 'a', 'первый', '2026-10-08');
+    md = addLesson(md, 'big-log', 'лог', '2026-10-08');
+    md = addLesson(md, 'BIG-LOG', '', '2026-10-09');
+    const L = lessonsOf(md);
+    expect(L[0]).toEqual({ key: 'big-log', count: 2, dates: ['2026-10-08', '2026-10-09'], text: 'лог' });
+    expect(L).toHaveLength(2);
+    expect(lessonsLine(md)).toBe('УРОКИ АГЕНТА: 2; повторились — предложить правку скилла (/er-ship): [big-log] ×2');
+    expect(lessonsLine(MD)).toBe('УРОКИ АГЕНТА: нет');
+  });
+
+  it('ключ — одно слово, новый урок — с текстом', () => {
+    expect(() => addLesson(MD, 'два слова', 'x', '2026-10-09')).toThrow();
+    expect(() => addLesson(MD, 'new', '', '2026-10-09')).toThrow();
+  });
+});
+
+describe('er-guard: инструкции агента', () => {
+  it('правка .claude/skills — на проверку автору, удалённый запрет назван', () => {
+    const R = check(ctxOf({
+      files: [{ status: 'M', path: '.claude/skills/er-build/SKILL.md' }],
+      removed: { '.claude/skills/er-build/SKILL.md': [{ line: 3, text: 'Never run npm test directly' }, { line: 4, text: 'обычная строка' }] },
+    }));
+    const look = R.filter((r) => r.rule === 'скилл');
+    expect(look).toHaveLength(1);
+    expect(look[0].level).toBe('?');
+    expect(look[0].text).toMatch(/удалено строк с запретами: 1/);
+    expect(bad(R)).toEqual([]);
   });
 });
