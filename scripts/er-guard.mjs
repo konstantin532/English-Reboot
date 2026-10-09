@@ -248,6 +248,13 @@ export function check(ctx) {
     }
   }
 
+  // Инструкции агента (.claude/skills): правит только PR с одобрения автора; удалённое правило — ослабленная планка
+  for (const f of files.filter((x) => /^\.claude\/skills\//.test(x.path))) {
+    const gone = (removed[f.path] || []).filter((l) => /\b(never|only|do not|must|stop)\b|никогда|только|не /i.test(l.text)).length;
+    look('скилл', `${f.path}: правка инструкций агента — в PR отдельным коммитом, сливать только с одобрения автора` +
+      (gone ? `; удалено строк с запретами: ${gone} — правило не ослаблено?` : ''));
+  }
+
   // Напоминания по итогу
   if (app.length && !has('CHANGELOG.md')) note('итог', 'CHANGELOG.md (Unreleased) не тронут');
   if (!has('docs/EVOLUTION.md')) note('итог', 'docs/EVOLUTION.md: запись итерации ещё не добавлена');
