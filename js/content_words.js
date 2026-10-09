@@ -1091,9 +1091,177 @@
   return { cards, items };
   }
 
+  /* ---------- Пакет A2, часть 1: глаголы — 60 неправильных по группам форм и 18 правильных по звучанию -ed ----------
+     Строка неправильного: [основа, прош., причастие, перевод, группа, прош. пример, перевод, вопрос с did, перевод,
+       отрицание с didn't, перевод, заметка?]. Правильного: [основа, прош., перевод, звук -ed, пример…, заметка?].
+     Почему «неправильные»: прошедшее время не по правилу «+ed», а сменой гласной или всего слова (go → went).
+     Это самые древние и частые глаголы — от частого употребления старые формы не стёрлись.
+     Формы — только американские (get – got – gotten); британские упоминаются в заметке для узнавания.
+     Примеры: герои и «мы» — в прошедшем времени по-русски «я» выдало бы род (пошёл / пошла). */
+  const IRR_GROUP = { aaa: 'Неправильные: все три формы одинаковые', abb: 'Неправильные: 2-я = 3-я',
+    aba: 'Неправильные: 1-я = 3-я', abc: 'Неправильные: все формы разные', mix: 'Неправильные: смешанный' };
+  const VERB_DATA = [
+    ['put', 'put', 'put', 'класть, ставить', 'aaa', 'Maggie {put} the keys on the table.', 'Мэгги положила ключи на стол.', 'Did Maggie {put} them in her bag?', 'Мэгги положила их в сумку?', 'Maggie didn\'t {put} them back.', 'Мэгги не положила их на место.'],
+    ['let', 'let', 'let', 'позволять, разрешать', 'aaa', 'Ms. Garcia {let} us in early.', 'Мисс Гарсия впустила нас пораньше.', 'Did Mr. Okafor {let} you paint the wall?', 'Мистер Окафор разрешил вам покрасить стену?', 'He didn\'t {let} us keep a cat.', 'Он не разрешил нам завести кошку.'],
+    ['hurt', 'hurt', 'hurt', 'ушибить, повредить; болеть', 'aaa', 'Tony {hurt} his back at the gym.', 'Тони потянул спину в спортзале.', 'Did Tony {hurt} his knee too?', 'Тони и колено повредил?', 'The shot didn\'t {hurt} at all.', 'Укол был совсем не больной.'],
+    ['cost', 'cost', 'cost', 'стоить', 'aaa', 'The pizza {cost} twenty bucks.', 'Пицца стоила двадцать баксов.', 'Did the tickets {cost} a lot?', 'Билеты дорого стоили?', 'The repair didn\'t {cost} much.', 'Ремонт обошёлся недорого.'],
+    ['read', 'read', 'read', 'читать', 'aaa', 'Sam {read} the whole book in a day.', 'Сэм прочитал всю книгу за день.', 'Did Sam {read} my message?', 'Сэм прочитал моё сообщение?', 'Sam didn\'t {read} the rules.', 'Сэм не читал правила.', 'Пишется одинаково, звучит по-разному: read /rid/ — сейчас, read /rɛd/ — в прошлом.'],
+    ['have', 'had', 'had', 'иметь; есть (о еде)', 'abb', 'We {had} pizza for dinner.', 'На ужин у нас была пицца.', 'Did Jess {have} lunch?', 'Джесс пообедала?', 'Tony didn\'t {have} time.', 'У Тони не было времени.'],
+    ['say', 'said', 'said', 'сказать', 'abb', 'Priya {said} yes!', 'Прия сказала «да»!', 'Did Priya {say} anything?', 'Прия что-нибудь сказала?', 'Ray didn\'t {say} a word.', 'Рэй не сказал ни слова.', 'said звучит /sɛd/ — «сэд», не «сэйд».'],
+    ['make', 'made', 'made', 'делать, готовить', 'abb', 'Maggie {made} pancakes this morning.', 'Мэгги утром напекла блинчиков.', 'Did Maggie {make} coffee too?', 'Мэгги и кофе сварила?', 'We didn\'t {make} a plan.', 'Мы не составили план.'],
+    ['think', 'thought', 'thought', 'думать', 'abb', 'Sam {thought} it was Monday.', 'Сэм думал, что сегодня понедельник.', 'Did Sam {think} about it?', 'Сэм подумал об этом?', 'We didn\'t {think} it was serious.', 'Мы не думали, что это серьёзно.'],
+    ['find', 'found', 'found', 'находить', 'abb', 'Jess {found} her phone in the fridge!', 'Джесс нашла телефон в холодильнике!', 'Did Jess {find} her keys too?', 'А ключи Джесс тоже нашла?', 'We didn\'t {find} a parking spot.', 'Мы не нашли, где припарковаться.'],
+    ['tell', 'told', 'told', 'рассказывать, говорить (кому-то)', 'abb', 'Tony {told} us a funny story.', 'Тони рассказал нам смешную историю.', 'Did Tony {tell} Priya?', 'Тони сказал Прие?', 'Maggie didn\'t {tell} anyone.', 'Мэгги никому не сказала.'],
+    ['feel', 'felt', 'felt', 'чувствовать (себя)', 'abb', 'Kim {felt} sick after lunch.', 'После обеда Ким стало плохо.', 'Did Kim {feel} better later?', 'Ким потом стало лучше?', 'The test didn\'t {feel} hard.', 'Тест не показался трудным.'],
+    ['leave', 'left', 'left', 'уходить, уезжать; оставлять', 'abb', 'Ray {left} at six.', 'Рэй уехал в шесть.', 'Did Ray {leave} a message?', 'Рэй оставил сообщение?', 'Sam didn\'t {leave} a tip.', 'Сэм не оставил чаевых.'],
+    ['mean', 'meant', 'meant', 'значить; иметь в виду', 'abb', 'Sorry, Tony {meant} Tuesday.', 'Простите, Тони имел в виду вторник.', 'Did Priya {mean} this week?', 'Прия имела в виду эту неделю?', 'Sam didn\'t {mean} it.', 'Сэм сказал это не всерьёз.', 'meant звучит /mɛnt/ — «мент», а не «минт».'],
+    ['keep', 'kept', 'kept', 'хранить, держать; оставлять себе', 'abb', 'Maggie {kept} the receipt.', 'Мэгги сохранила чек.', 'Did Maggie {keep} the box?', 'Мэгги оставила коробку?', 'We didn\'t {keep} the old couch.', 'Мы не оставили старый диван.'],
+    ['hear', 'heard', 'heard', 'слышать', 'abb', 'Kim {heard} a noise at night.', 'Ночью Ким услышала шум.', 'Did Kim {hear} the news?', 'Ким слышала новости?', 'Sam didn\'t {hear} the alarm.', 'Сэм не услышал будильник.', 'heard звучит /hɝd/ — как «хёрд», не как here.'],
+    ['hold', 'held', 'held', 'держать; придерживать', 'abb', 'Tony {held} the door for us.', 'Тони придержал нам дверь.', 'Did Tony {hold} the elevator?', 'Тони придержал лифт?', 'The shelf didn\'t {hold} the books.', 'Полка не выдержала книг.'],
+    ['bring', 'brought', 'brought', 'приносить', 'abb', 'Luis {brought} cookies to work.', 'Луис принёс печенье на работу.', 'Did Luis {bring} enough for everyone?', 'Луис принёс на всех?', 'We didn\'t {bring} an umbrella.', 'Мы не взяли зонт.', 'brought и bought легко спутать: brought — принёс, bought — купил.'],
+    ['stand', 'stood', 'stood', 'стоять', 'abb', 'We {stood} in line for an hour.', 'Мы час стояли в очереди.', 'Did Sam {stand} the whole time?', 'Сэм всё время стоял?', 'Ray didn\'t {stand} up.', 'Рэй не встал.'],
+    ['lose', 'lost', 'lost', 'терять; проигрывать', 'abb', 'Sam {lost} his wallet again.', 'Сэм опять потерял кошелёк.', 'Did the Knicks {lose} last night?', '«Никс» вчера проиграли?', 'We didn\'t {lose} any time.', 'Мы не потеряли ни минуты.'],
+    ['buy', 'bought', 'bought', 'покупать', 'abb', 'Maggie {bought} a new lamp.', 'Мэгги купила новую лампу.', 'Did Maggie {buy} milk?', 'Мэгги купила молоко?', 'We didn\'t {buy} the couch.', 'Мы не купили диван.', 'bought звучит /bɔt/ — буквы gh немые.'],
+    ['pay', 'paid', 'paid', 'платить', 'abb', 'Tony {paid} for dinner.', 'Тони заплатил за ужин.', 'Did Tony {pay} the rent?', 'Тони заплатил за квартиру?', 'Sam didn\'t {pay} me back.', 'Сэм не вернул мне деньги.', 'Пишется paid, а не payed.'],
+    ['sell', 'sold', 'sold', 'продавать', 'abb', 'Jess {sold} her old bike.', 'Джесс продала старый велосипед.', 'Did Jess {sell} the guitar too?', 'Джесс и гитару продала?', 'The store didn\'t {sell} stamps.', 'В магазине не продавали марки.'],
+    ['send', 'sent', 'sent', 'отправлять', 'abb', 'Priya {sent} the email at midnight.', 'Прия отправила письмо в полночь.', 'Did Priya {send} the file?', 'Прия отправила файл?', 'Kim didn\'t {send} the photos.', 'Ким не прислала фото.'],
+    ['spend', 'spent', 'spent', 'тратить; проводить (время)', 'abb', 'We {spent} the weekend at the beach.', 'Мы провели выходные на пляже.', 'Did Jess {spend} a lot?', 'Джесс много потратила?', 'Tony didn\'t {spend} a dime.', 'Тони не потратил ни цента.'],
+    ['meet', 'met', 'met', 'встречать; знакомиться', 'abb', 'Maggie {met} Sam in college.', 'Мэгги познакомилась с Сэмом в колледже.', 'Did Kim {meet} Priya yet?', 'Ким уже познакомилась с Прией?', 'We didn\'t {meet} the landlord.', 'Мы не встречались с арендодателем.', 'В американском английском «Did… yet?» с прошедшим временем — нормально.'],
+    ['sleep', 'slept', 'slept', 'спать', 'abb', 'Kim {slept} ten hours.', 'Ким проспала десять часов.', 'Did Kim {sleep} well?', 'Ким хорошо спала?', 'Tony didn\'t {sleep} at all.', 'Тони совсем не спал.'],
+    ['sit', 'sat', 'sat', 'сидеть, садиться', 'abb', 'We {sat} in the back row.', 'Мы сели в последнем ряду.', 'Did Ray {sit} with Luis?', 'Рэй сидел с Луисом?', 'Jess didn\'t {sit} down all day.', 'Джесс весь день не присела.'],
+    ['win', 'won', 'won', 'выигрывать', 'abb', 'The Yankees {won} again!', '«Янкиз» снова выиграли!', 'Did Sam {win} the bet?', 'Сэм выиграл спор?', 'We didn\'t {win} anything.', 'Мы ничего не выиграли.', 'won звучит /wʌn/ — как one.'],
+    ['catch', 'caught', 'caught', 'ловить; успеть (на транспорт); подхватить (простуду)', 'abb', 'Ray {caught} a cold.', 'Рэй простудился.', 'Did Tony {catch} the bus?', 'Тони успел на автобус?', 'We didn\'t {catch} his name.', 'Мы не расслышали, как его зовут.'],
+    ['teach', 'taught', 'taught', 'учить, преподавать', 'abb', 'Ms. Garcia {taught} math for years.', 'Мисс Гарсия много лет преподавала математику.', 'Did Sam {teach} Kim this trick?', 'Этому трюку Ким научил Сэм?', 'School didn\'t {teach} us this.', 'В школе нас этому не учили.'],
+    ['understand', 'understood', 'understood', 'понимать', 'abb', 'Kim {understood} every word.', 'Ким поняла каждое слово.', 'Did Ray {understand} the address?', 'Рэй понял адрес?', 'We didn\'t {understand} the joke.', 'Мы не поняли шутку.'],
+    ['come', 'came', 'come', 'приходить, приезжать', 'aba', 'Sam {came} late again.', 'Сэм снова пришёл поздно.', 'Did Priya {come} to the party?', 'Прия пришла на вечеринку?', 'The bus didn\'t {come}.', 'Автобус не пришёл.'],
+    ['become', 'became', 'become', 'становиться', 'aba', 'Jess {became} a manager.', 'Джесс стала менеджером.', 'Did the noise {become} a problem?', 'Шум стал проблемой?', 'Tony didn\'t {become} a chef.', 'Тони так и не стал поваром.'],
+    ['run', 'ran', 'run', 'бегать, бежать', 'aba', 'Maggie {ran} five miles today.', 'Мэгги сегодня пробежала пять миль.', 'Did Maggie {run} in the rain?', 'Мэгги бегала под дождём?', 'We didn\'t {run} for the bus.', 'Мы не побежали за автобусом.'],
+    ['be', 'was/were', 'been', 'быть', 'abc', 'Ray {was} so tired yesterday.', 'Рэй вчера так устал.', '{Was} Ray at work?', 'Рэй был на работе?', 'We {weren\'t} home.', 'Нас не было дома.', 'Исключение: в вопросе и отрицании be обходится без did — Was he…? He wasn\'t… was — с I, he, she, it; were — с you, we, they.'],
+    ['do', 'did', 'done', 'делать', 'abc', 'Sam {did} the dishes.', 'Сэм помыл посуду.', 'Did Sam {do} his homework?', 'Сэм сделал домашку?', 'We didn\'t {do} anything fun.', 'Мы не делали ничего интересного.', 'В вопросе did встречается дважды: Did he do it? — первое did помогает, второе do — смысловой глагол.'],
+    ['go', 'went', 'gone', 'идти, ехать', 'abc', 'Tony {went} home early.', 'Тони рано ушёл домой.', 'Did Tony {go} to the gym?', 'Тони ходил в спортзал?', 'We didn\'t {go} out last night.', 'Мы вчера никуда не ходили.', 'went — совсем другое слово: так сложилось исторически.'],
+    ['get', 'got', 'gotten', 'получать; добираться; становиться', 'abc', 'Kim {got} a new job!', 'Ким получила новую работу!', 'Did Kim {get} the email?', 'Ким получила письмо?', 'We didn\'t {get} home until two.', 'Мы добрались домой только к двум.', 'Американская 3-я форма — gotten (It\'s gotten cold). В британском — got: узнавать в британских фильмах, говорить по-американски.'],
+    ['know', 'knew', 'known', 'знать', 'abc', 'Jess {knew} the answer.', 'Джесс знала ответ.', 'Did Jess {know} about the party?', 'Джесс знала о вечеринке?', 'We didn\'t {know} that!', 'Мы этого не знали!', 'knew звучит /nu/ — как new; k немая.'],
+    ['take', 'took', 'taken', 'брать; ехать (на транспорте); занимать (время)', 'abc', 'We {took} a cab home.', 'Мы поехали домой на такси.', 'Did the trip {take} long?', 'Дорога заняла много времени?', 'Ray didn\'t {take} the highway.', 'Рэй поехал не по шоссе.'],
+    ['see', 'saw', 'seen', 'видеть', 'abc', 'Sam {saw} a rat in the subway.', 'Сэм увидел крысу в метро.', 'Did Sam {see} the game?', 'Сэм смотрел матч?', 'We didn\'t {see} the sign.', 'Мы не заметили табличку.'],
+    ['give', 'gave', 'given', 'давать, дарить', 'abc', 'Priya {gave} us the day off.', 'Прия дала нам выходной.', 'Did Priya {give} Kim the keys?', 'Прия дала Ким ключи?', 'Luis didn\'t {give} us the receipt.', 'Луис не дал нам чек.'],
+    ['begin', 'began', 'begun', 'начинать(ся)', 'abc', 'The movie {began} at nine.', 'Фильм начался в девять.', 'Did the show {begin} on time?', 'Шоу началось вовремя?', 'The rain didn\'t {begin} until noon.', 'Дождь начался только в полдень.'],
+    ['write', 'wrote', 'written', 'писать', 'abc', 'Maggie {wrote} a note for Sam.', 'Мэгги написала Сэму записку.', 'Did Maggie {write} back?', 'Мэгги ответила?', 'We didn\'t {write} it down.', 'Мы это не записали.', 'w в начале немая: write /raɪt/, wrote /roʊt/.'],
+    ['eat', 'ate', 'eaten', 'есть', 'abc', 'Tony {ate} the whole pizza!', 'Тони съел всю пиццу!', 'Did Tony {eat} breakfast?', 'Тони позавтракал?', 'We didn\'t {eat} much.', 'Мы мало ели.', 'ate звучит /eɪt/ — как eight.'],
+    ['drink', 'drank', 'drunk', 'пить', 'abc', 'Jess {drank} three coffees today.', 'Джесс сегодня выпила три кофе.', 'Did Jess {drink} enough water?', 'Джесс пила достаточно воды?', 'Ray didn\'t {drink} at the party.', 'Рэй не пил на вечеринке.'],
+    ['wake', 'woke', 'woken', 'просыпаться; будить', 'abc', 'The alarm {woke} us at six.', 'Будильник разбудил нас в шесть.', 'Did the noise {wake} Kim?', 'Шум разбудил Ким?', 'Sam didn\'t {wake} up on time.', 'Сэм не проснулся вовремя.'],
+    ['wear', 'wore', 'worn', 'носить (одежду), быть в', 'abc', 'Kim {wore} a red dress.', 'Ким была в красном платье.', 'Did Tony {wear} a suit?', 'Тони был в костюме?', 'We didn\'t {wear} jackets.', 'Мы были без курток.'],
+    ['speak', 'spoke', 'spoken', 'говорить (на языке; с кем-то)', 'abc', 'Priya {spoke} with the client.', 'Прия поговорила с клиентом.', 'Did Ray {speak} Spanish with Luis?', 'Рэй говорил с Луисом по-испански?', 'Tony didn\'t {speak} at the meeting.', 'Тони не выступал на встрече.'],
+    ['drive', 'drove', 'driven', 'водить (машину), ехать за рулём', 'abc', 'Ray {drove} us to the airport.', 'Рэй отвёз нас в аэропорт.', 'Did Ray {drive} all night?', 'Рэй ехал всю ночь?', 'We didn\'t {drive} to Boston.', 'В Бостон мы ехали не на машине.'],
+    ['fly', 'flew', 'flown', 'лететь, летать', 'abc', 'Priya {flew} to Chicago.', 'Прия улетела в Чикаго.', 'Did Priya {fly} back today?', 'Прия сегодня прилетела обратно?', 'We didn\'t {fly}, we drove.', 'Мы не летели, а ехали на машине.'],
+    ['forget', 'forgot', 'forgotten', 'забывать', 'abc', 'Sam {forgot} his keys again.', 'Сэм опять забыл ключи.', 'Did Sam {forget} the cake?', 'Сэм забыл про торт?', 'We didn\'t {forget} your birthday!', 'Мы не забыли про твой день рождения!'],
+    ['swim', 'swam', 'swum', 'плавать', 'abc', 'We {swam} in the ocean.', 'Мы плавали в океане.', 'Did Kim {swim} too?', 'Ким тоже плавала?', 'Tony didn\'t {swim}, the water was cold.', 'Тони не плавал: вода была холодная.'],
+    ['break', 'broke', 'broken', 'ломать, разбивать', 'abc', 'Maggie {broke} a glass.', 'Мэгги разбила стакан.', 'Did Sam {break} the printer?', 'Это Сэм сломал принтер?', 'The phone didn\'t {break}.', 'Телефон не разбился.'],
+    ['choose', 'chose', 'chosen', 'выбирать', 'abc', 'Jess {chose} the blue one.', 'Джесс выбрала синий.', 'Did Jess {choose} a name for the cat?', 'Джесс выбрала имя для кошки?', 'We didn\'t {choose} this apartment.', 'Мы не сами выбирали эту квартиру.', 'choose /tʃuz/ — chose /tʃoʊz/: одна буква o, другой звук.'],
+    ['fall', 'fell', 'fallen', 'падать', 'abc', 'Kim {fell} on the ice.', 'Ким упала на льду.', 'Did Kim {fall} down the stairs?', 'Ким упала с лестницы?', 'The vase didn\'t {fall}.', 'Ваза не упала.', 'fell (упал) и felt (почувствовал) — разные глаголы.'],
+    ['grow', 'grew', 'grown', 'расти; выращивать', 'abc', 'Tony {grew} up in Queens.', 'Тони вырос в Квинсе.', 'Did Ray {grow} up in New York?', 'Рэй вырос в Нью-Йорке?', 'The plant didn\'t {grow} at all.', 'Растение совсем не выросло.'],
+    ['throw', 'threw', 'thrown', 'бросать; устраивать (вечеринку)', 'abc', 'Maggie {threw} a party.', 'Мэгги устроила вечеринку.', 'Did Sam {throw} away the pizza box?', 'Сэм выбросил коробку от пиццы?', 'We didn\'t {throw} anything out.', 'Мы ничего не выбросили.', 'threw звучит /θru/ — как through.'],
+    ['show', 'showed', 'shown', 'показывать', 'mix', 'Luis {showed} us the new menu.', 'Луис показал нам новое меню.', 'Did Luis {show} Kim the way?', 'Луис показал Ким дорогу?', 'Ray didn\'t {show} up.', 'Рэй не пришёл.', 'Прошедшее — по правилу (showed), 3-я форма — неправильная (shown).'],
+  ];
+  // Правильные: окончание -ed звучит тремя способами — после глухого /t/, после звонкого и гласной /d/, после t и d — /ɪd/
+  const ED_SOUND = { t: '[т] — /t/', d: '[д] — /d/', id: '[ид] — /ɪd/' };
+  const ED_GROUP = { t: 'Правильные: -ed звучит [т]', d: 'Правильные: -ed звучит [д]', id: 'Правильные: -ed звучит [ид]' };
+  const REG_DATA = [
+    ['look', 'looked', 'смотреть; выглядеть', 't', 'Maggie {looked} everywhere.', 'Мэгги смотрела везде.', 'Did Maggie {look} under the bed?', 'Мэгги смотрела под кроватью?', 'Sam didn\'t {look} happy.', 'Сэм не выглядел довольным.'],
+    ['work', 'worked', 'работать', 't', 'Tony {worked} late on Friday.', 'Тони в пятницу работал допоздна.', 'Did Tony {work} on Sunday?', 'Тони работал в воскресенье?', 'The Wi-Fi didn\'t {work}.', 'Вайфай не работал.'],
+    ['ask', 'asked', 'спрашивать; просить', 't', 'Kim {asked} for the check.', 'Ким попросила счёт.', 'Did Kim {ask} about the price?', 'Ким спросила про цену?', 'We didn\'t {ask} for help.', 'Мы не просили о помощи.', 'asked /æskt/ — три согласных подряд, без лишней гласной: не «аскед».'],
+    ['help', 'helped', 'помогать', 't', 'Sam {helped} us move.', 'Сэм помог нам переехать.', 'Did Sam {help} with the boxes?', 'Сэм помог с коробками?', 'The pills didn\'t {help}.', 'Таблетки не помогли.'],
+    ['talk', 'talked', 'разговаривать', 't', 'We {talked} for hours.', 'Мы проговорили несколько часов.', 'Did Jess {talk} to the landlord?', 'Джесс поговорила с арендодателем?', 'Ray didn\'t {talk} much.', 'Рэй говорил мало.', 'l в talk немая: /tɔk/, talked /tɔkt/.'],
+    ['use', 'used', 'использовать, пользоваться', 'd', 'Tony {used} my charger.', 'Тони пользовался моей зарядкой.', 'Did Tony {use} the car?', 'Тони брал машину?', 'We didn\'t {use} the coupon.', 'Мы не воспользовались купоном.'],
+    ['call', 'called', 'звонить; называть', 'd', 'Mom {called} twice.', 'Мама звонила дважды.', 'Did Ray {call} back?', 'Рэй перезвонил?', 'Priya didn\'t {call} us.', 'Прия нам не позвонила.'],
+    ['try', 'tried', 'пробовать; стараться', 'd', 'Jess {tried} sushi for the first time.', 'Джесс впервые попробовала суши.', 'Did Jess {try} the new cafe?', 'Джесс попробовала новое кафе?', 'We didn\'t {try} hard enough.', 'Мы недостаточно старались.', 'После согласного y меняется на i: try → tried, а не tryed.'],
+    ['seem', 'seemed', 'казаться', 'd', 'Sam {seemed} tired.', 'Сэм казался уставшим.', 'Did Priya {seem} upset?', 'Прия казалась расстроенной?', 'It didn\'t {seem} fair.', 'Это казалось несправедливым.'],
+    ['turn', 'turned', 'поворачивать; включать, выключать (on, off)', 'd', 'Ray {turned} left.', 'Рэй повернул налево.', 'Did Kim {turn} off the stove?', 'Ким выключила плиту?', 'Tony didn\'t {turn} on the lights.', 'Тони не включил свет.'],
+    ['play', 'played', 'играть', 'd', 'We {played} cards all night.', 'Мы всю ночь играли в карты.', 'Did Sam {play} basketball today?', 'Сэм сегодня играл в баскетбол?', 'The band didn\'t {play} our song.', 'Группа не сыграла нашу песню.', 'После гласной y остаётся: play → played.'],
+    ['move', 'moved', 'двигать; переезжать', 'd', 'Maggie {moved} to Brooklyn in May.', 'Мэгги переехала в Бруклин в мае.', 'Did Kim {move} the couch?', 'Ким передвинула диван?', 'We didn\'t {move} the TV.', 'Мы не переставляли телевизор.'],
+    ['live', 'lived', 'жить', 'd', 'Tony {lived} in Chicago for a year.', 'Тони год жил в Чикаго.', 'Did Ray {live} here as a kid?', 'Рэй жил здесь в детстве?', 'We didn\'t {live} together then.', 'Тогда мы не жили вместе.'],
+    ['believe', 'believed', 'верить', 'd', 'Nobody {believed} Sam.', 'Сэму никто не поверил.', 'Did Jess {believe} the story?', 'Джесс поверила в эту историю?', 'We didn\'t {believe} it at first.', 'Сначала мы не поверили.'],
+    ['happen', 'happened', 'случаться', 'd', 'What {happened} here?', 'Что здесь случилось?', 'Did something {happen} at work?', 'На работе что-то случилось?', 'The meeting didn\'t {happen}.', 'Встреча так и не состоялась.'],
+    ['want', 'wanted', 'хотеть', 'id', 'Kim {wanted} a quiet night.', 'Ким хотела спокойного вечера.', 'Did Kim {want} to come?', 'Ким хотела пойти?', 'We didn\'t {want} to wait.', 'Мы не хотели ждать.', 'want — wanted, went — от go: на слух легко спутать /ɑ/ и /ɛ/.'],
+    ['need', 'needed', 'нуждаться, быть нужным', 'id', 'We {needed} a bigger table.', 'Нам нужен был стол побольше.', 'Did Tony {need} help?', 'Тони нужна была помощь?', 'Jess didn\'t {need} a ride.', 'Джесс не нужно было подвозить.'],
+    ['start', 'started', 'начинать(ся)', 'id', 'The game {started} late.', 'Матч начался поздно.', 'Did the class {start} on time?', 'Занятие началось вовремя?', 'Ray didn\'t {start} the car.', 'Рэй не завёл машину.', 'В живой речи t между гласными мягкое: started — «стáрдид».'],
+  ];
+
+  // Карточки глаголов в раздел «Слова»: три формы, примеры «прошлое → вопрос с did → отрицание», 5 тестов с типичными
+  // ошибками (goed, Did he went…, worked как «уоркед»). Задания в уроке «Сегодня» — Today.wordDrills (A2: LinguaLeo + «скажи вслух»).
+  function buildVerbs(firstNum) {
+    const cleanV = (raw) => String(raw).replace(/[{}]/g, '');
+    const split = (raw) => { const m = String(raw).match(/^(.*?)\{([^}]+)\}(.*)$/); return m ? { before: cleanV(m[1]), target: m[2], after: cleanV(m[3]) } : null; };
+    const partsV = (text) => (typeof partsOf === 'function' ? partsOf(text) : String(text).split(/\s+/).filter(Boolean).map((w) => ({ word: w })));
+    const DOUBLE = new Set(['put', 'let', 'cut', 'run', 'sit', 'win', 'swim', 'begin', 'forget', 'get', 'stop', 'plan']);
+    const ed = (b) => (b === 'be' ? 'is' : DOUBLE.has(b) ? b + b.slice(-1) + 'ed' : /e$/.test(b) ? b + 'd' : /[^aeiou]y$/.test(b) ? b.slice(0, -1) + 'ied' : b + 'ed');
+    const third = (b) => (b === 'have' ? 'has' : b === 'do' ? 'does' : b === 'go' ? 'goes' : /(s|sh|ch|x|o)$/.test(b) ? b + 'es' : /[^aeiou]y$/.test(b) ? b.slice(0, -1) + 'ies' : b + 's');
+    const ing = (b) => (b === 'be' ? 'being' : DOUBLE.has(b) ? b + b.slice(-1) + 'ing' : /[^aeiouy]e$/.test(b) && b !== 'be' ? b.slice(0, -1) + 'ing' : b + 'ing');
+    const uniq = (correct, list) => [...new Set(list.filter((v) => v && v.toLowerCase() !== String(correct).toLowerCase()))];
+    const like = (target, v) => (/^[A-Z]/.test(target) ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+    const q = (text, correct, distr, pos) => { const options = distr.slice(0, 3); const p = pos % (options.length + 1); options.splice(p, 0, correct); return { q: text, options, correct: p }; };
+    const rows = [
+      ...VERB_DATA.map((r) => ({ kind: 'irr', base: r[0], past: r[1], pp: r[2], ru: r[3], group: IRR_GROUP[r[4]], ex: [[r[5], r[6]], [r[7], r[8]], [r[9], r[10]]], note: r[11] || '' })),
+      ...REG_DATA.map((r) => ({ kind: 'reg', base: r[0], past: r[1], pp: r[1], ru: r[2], ed: r[3], group: ED_GROUP[r[3]], ex: [[r[4], r[5]], [r[6], r[7]], [r[8], r[9]]], note: r[10] || '' })),
+    ];
+    const front = (r) => (r.kind === 'irr' ? `${r.base} – ${r.past} – ${r.pp}` : `${r.base} – ${r.past}`);
+    const others = (i, key) => { const out = []; for (let j = 1; out.length < 3 && j < rows.length; j++) { const v = key(rows[(i + j * 7) % rows.length]); if (v && v !== key(rows[i]) && !out.includes(v)) out.push(v); } return out; };
+    return rows.map((r, i) => {
+      const tests = [];
+      tests.push(q('Что значит «' + front(r) + '»?', r.ru, others(i, (x) => x.ru), i));
+      const pastWord = r.past.split('/')[0];
+      const g = r.ex.map((e) => split(e[0]));
+      if (r.kind === 'irr') {
+        // Прошедшее: типичные ошибки — «по правилу» (goed), 3-я форма вместо 2-й, начальная форма, -s и -ing
+        tests.push(q('Прошедшее время (2-я форма) от «' + r.base + '»?', r.past,
+          uniq(r.past, [ed(r.base), r.pp !== r.past ? r.pp : '', r.base, third(r.base), ing(r.base)]).filter((v) => !r.past.split('/').includes(v)), i + 1));
+        tests.push(q('3-я форма (причастие, I\'ve never ___) от «' + r.base + '»?', r.pp,
+          uniq(r.pp, [r.past !== r.pp ? pastWord : '', ed(r.base), r.base !== r.pp ? r.base : '', ing(r.base), third(r.base)]), i + 2));
+      } else {
+        tests.push(q('Как звучит окончание в «' + r.past + '»?', ED_SOUND[r.ed], Object.values(ED_SOUND).filter((v) => v !== ED_SOUND[r.ed]), i + 1));
+      }
+      if (g[0]) {
+        const t = g[0].target;
+        tests.push(q(g[0].before + '___' + g[0].after + ' (' + r.ex[0][1] + ')', t,
+          uniq(t, [r.base, r.kind === 'irr' ? ed(r.base) : third(r.base), r.pp !== pastWord ? r.pp : ing(r.base), ing(r.base)]).map((v) => like(t, v)), i + 3));
+      }
+      if (g[1]) {
+        // Вопрос с did: после did глагол возвращается в начальную форму (Did he go?, а не Did he went?)
+        const t = g[1].target;
+        const distr = r.base === 'be' ? ['were', 'did', 'does'] : uniq(t, [pastWord, r.kind === 'irr' && r.pp !== pastWord ? r.pp : '', third(r.base), ing(r.base), ed(r.base)]);
+        tests.push(q(g[1].before + '___' + g[1].after + ' (' + r.ex[1][1] + ')', t, uniq(t, distr).map((v) => like(t, v)), i + 4));
+      }
+      if (r.kind === 'reg') tests.push(q('Как перевести: «' + cleanV(r.ex[0][0]) + '»?', r.ex[0][1], others(i, (x) => x.ex[0][1]), i + 2));
+      const formsText = r.kind === 'irr' ? [r.base, ...r.past.split('/'), r.pp].join(' ') : `${r.base} ${r.past}`;
+      return {
+        id: 'wd_' + String(firstNum + i).padStart(4, '0'),
+        type: 'word',
+        level: 'A2',
+        sublevel: 'A2',
+        tags: [r.group],
+        audio: true,
+        payload: {
+          front: front(r),
+          translation: r.ru,
+          pos: 'глаг.',
+          category: r.group,
+          forms: { kind: r.kind, base: r.base, past: r.past, pp: r.pp, ed: r.ed || '', note: r.note, parts: partsV(formsText) },
+          examples: r.ex.map(([raw, ru]) => {
+            const ps = partsV(cleanV(raw));
+            const s = split(raw);
+            if (s) { const at = s.before.split(/\s+/).filter(Boolean).length; if (ps[at] && !ps[at].pos && r.base !== 'be') ps[at].posHint = 'verb'; }
+            return { text: cleanV(raw), ru, parts: ps, connected: '' };
+          }),
+          test: tests,
+        },
+      };
+    });
+  }
+
   const W = build(DATA, { prefix: 'wd_', start: 1, width: 4, type: 'word' });
   const PV = build(PHRASAL_DATA, { prefix: 'pv_', start: 209, width: 3, type: 'phrasal' });
-  window.WORD_CARDS = W.cards;
+  const VERBS = buildVerbs(W.cards.length + 1);   // wd_0671–0748, пакет A2, часть 1
+  window.WORD_CARDS = W.cards.concat(VERBS);
+  window.VERBS_A2_COUNT = VERBS.length;
   window.WORD_TOPICS = [...new Set(W.items.map((it) => it.topic))];
   /* global PHRASAL_CARDS */
   const pvTarget = (typeof PHRASAL_CARDS !== 'undefined' && PHRASAL_CARDS) || window.PHRASAL_CARDS;
