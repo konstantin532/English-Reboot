@@ -709,7 +709,7 @@ R("Знакомство","dialog","A1","— Hello!\n— Hi! My name is Max. What
 "Кто говорит «I'm from London»?|Кейт|Макс|оба|никто|0",
 "«Nice to meet you» значит…|приятно познакомиться|хорошо встретиться|увидимся снова|до свидания|0",
 "Сколько человек в диалоге?|два|три|один|четыре|0"]),
-R("В магазине","dialog","A1","— Hello! Can I help you?\n— Yes, please. How much is this bag?\n— It's ten dollars.\n— OK. And how much are these pens?\n— They are two dollars.\n— Great. I take the bag and two pens, please.\n— That's fourteen dollars, please.\n— Here you are.\n— Thank you! Have a nice day!",
+R("В магазине","dialog","A1","— Hello! Can I help you?\n— Yes, please. How much is this bag?\n— It's ten dollars.\n— OK. And how much are these pens?\n— They are two dollars.\n— Great. I'll take the bag and two pens, please.\n— That's fourteen dollars, please.\n— Here you are.\n— Thank you! Have a nice day!",
 ["Сколько стоит сумка?|10 долларов|12 долларов|2 доллара|14 долларов|0",
 "Сколько стоят ручки?|2 доллара|10 долларов|4 доллара|20 долларов|0",
 "Что покупает клиент?|сумку и две ручки|две сумки|рюкзак и ручку|только ручки|0",
