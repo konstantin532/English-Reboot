@@ -303,7 +303,16 @@ describe('Весь курс размечен', () => {
   });
   it('словарь частей речи pos_us.js покрывает слова курса (новые слова — scripts/fill_pos_us.mjs)', () => {
     const W = ctx.POS_US;
-    const open = all.map((p) => WM.bareOf(p.word).replace(/'s$/, '')).filter((b) => b && !WM.CLOSED[b] && !WM.CTX_WORDS.includes(b));
+    // Имена героев и мест (Tony, Brooklyn) — существительные по заглавной букве (isName в word_marks.js), словарь им не нужен:
+    // в знаменатель не входят слова, которые встречаются с заглавной посреди предложения и ни разу — со строчной
+    const midCap = new Set(), lowerSeen = new Set();
+    partsOf(ALL).forEach((ps) => ps.forEach((p, i) => {
+      const b = WM.bareOf(p.word).replace(/'s$/, '');
+      const first = i === 0 || /[.!?:;»"”)—]$/.test(String(ps[i - 1].word || ''));
+      if (/^[«"“(]?[A-Z]/.test(p.word)) { if (!first) midCap.add(b); } else lowerSeen.add(b);
+    }));
+    const names = new Set([...midCap].filter((b) => !lowerSeen.has(b)));
+    const open = all.map((p) => WM.bareOf(p.word).replace(/'s$/, '')).filter((b) => b && !WM.CLOSED[b] && !WM.CTX_WORDS.includes(b) && !names.has(b));
     const covered = open.filter((b) => W[b]).length;
     expect(covered / open.length).toBeGreaterThan(0.97);
   });

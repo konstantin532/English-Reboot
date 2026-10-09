@@ -265,13 +265,13 @@ const WordMarks = (() => {
     'someone somebody something anyone anybody anything everyone everybody everything nobody nothing none others ' +
     "ya 'em y'all yall i'm i've i'll i'd you're you've you'll you'd he's he'll he'd she's she'll she'd it's it'll it'd " +
     "we're we've we'll we'd they're they've they'll they'd that's that'll what's who's who'll whatcha whaddaya whaddya " +
-    'whoever whatever');
+    'whoever whatever whadja imma nothin somethin');
   T('det', 'some any every each another all both either neither many few several such');
   T('prep', 'in on for of at with from by about into onto between under during across through without within behind ' +
     'beside besides near toward towards against along among above below beneath inside outside upon via per except till until ' +
     'beyond despite unlike throughout amid underneath alongside aboard versus vs plus minus thru outta til bout fer');
   T('conj', "and but or nor if than because while although though unless whether 'cause cuz whenever wherever");
-  T('aux', "don't doesn't didn't haven't hasn't hadn't ain't didja doncha dontcha arencha will won't");
+  T('aux', "don't doesn't didn't haven't hasn't hadn't ain't didja doncha dontcha arencha will won't didn'tcha wontcha d'ya");
   T('modal', "can could would shall should might must ought cannot can't couldn't wouldn't shouldn't mustn't " +
     'coulda woulda shoulda musta mighta oughta couldja wouldja');
   T('num', 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen ' +
@@ -283,8 +283,9 @@ const WordMarks = (() => {
     'else even only twice anyway anymore instead forward lotsa lotta kinda sorta up out down off away back more ' +
     'most less least enough ahh aw aww ugh yay yikes whoa nah meh ew phew shh mhm mm ooh hooray congrats anytime however ' +
     "prolly lol gosh wassup howya whereya whencha whycha how've there's here's where's how's when's lot " +
-    'brr uhhuh uhuh mmhmm nuhuh uhoh');   // междометия живой речи (uh-huh → uhhuh после bareOf)
-  T('verb', "let's gonna wanna gotta hafta lemme gimme dunno c'mon c'mere betcha gotcha tryna useta supposta needa s'pose");
+    "brr uhhuh uhuh mmhmm nuhuh uhoh howdja wheredja g'night");   // междометия живой речи (uh-huh → uhhuh после bareOf)
+  T('verb', "let's gonna wanna gotta hafta lemme gimme dunno c'mon c'mere betcha gotcha tryna useta supposta needa s'pose " +
+    'meetcha getcha letcha tellya seeya scuse wuz');
   // Слова, часть речи которых решает контекст (resolveCtx)
   const CTX = Object.create(null);
   'am is are was were be being isn\'t aren\'t wasn\'t weren\'t'.split(' ').forEach((w) => { CTX[w] = 'BE'; });

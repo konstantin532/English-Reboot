@@ -903,8 +903,8 @@
     ['y\'know', 'you know', 'знаешь; ну, это (слово-связка)', '/ju noʊ/', '/jəˈnoʊ/', 'It\'s, {y\'know}, kinda weird.', 'Это, ну, как-то странно.', 'I like it here, {y\'know}?', 'Мне тут нравится, понимаешь?', 'know'],
   ];
   // Пакет A2, часть 1 (sl_092–111): слияние «t/d + you» → /tʃ, dʒ/ (did you → didja, meet you → meetcha),
-  // проглоченные начала и окончания (excuse → 'scuse, nothing → nothin'), слабые формы (to → ta, was → wuz).
-  // Только для узнавания на слух: ученик говорит обычной формой. Написание wuz, ta — так их пишут в песнях и чатах.
+  // проглоченные начала и окончания (excuse → 'scuse, nothing → nothin'), слабые формы (was → wuz), imma (I'm gonna) — из афроамериканского английского.
+  // Только для узнавания на слух: ученик говорит обычной формой. Написание wuz, imma — так их пишут в песнях и чатах.
   const LIVE_DATA_A2 = [
     ['whadja', 'what did you', 'что ты… / что вы… (в прошлом)', '/wʌt dɪd ju/', '/ˈwʌdʒə/', '{Whadja} do last night?', 'Что вы делали вчера вечером?', '{Whadja} get for Kim?', 'Что вы купили для Ким?', 'what'],
     ['howdja', 'how did you', 'как ты… / как вы… (в прошлом)', '/haʊ dɪd ju/', '/ˈhaʊdʒə/', '{Howdja} know?', 'Откуда вы узнали?', '{Howdja} sleep?', 'Как спалось?', 'how'],
@@ -923,7 +923,7 @@
     ['somethin\'', 'something', 'что-то, что-нибудь (без -g на конце)', '/ˈsʌmθɪŋ/', '/ˈsʌmθɪn/', 'Wanna eat {somethin\'}?', 'Хотите чего-нибудь поесть?', 'Kim heard {somethin\'}.', 'Ким что-то услышала.', 'something'],
     ['\'n\'', 'and', 'и (в устойчивых парах)', '/ænd/', '/ən/', 'Salt {\'n\'} pepper?', 'Соль и перец?', 'Rock {\'n\'} roll!', 'Рок-н-ролл!', 'and'],
     ['\'round', 'around', 'вокруг; заходите (come round)', '/əˈraʊnd/', '/raʊnd/', 'Come {\'round} anytime.', 'Заходите в любое время.', 'Turn {\'round}, it\'s behind you!', 'Повернитесь, это за вами!', 'around'],
-    ['ta', 'to', 'to без ударения (звучит «тə»)', '/tu/', '/tə/', 'Gotta go {ta} work.', 'Надо идти на работу.', 'Nice {ta} meet you.', 'Приятно познакомиться.', 'to'],
+    ['imma', 'I\'m gonna', 'я сейчас… / я собираюсь (из афроамериканского английского, частое в песнях и рэпе)', '/aɪm ˈɡʌnə/', '/ˈaɪmə/', '{Imma} call you back.', 'Я вам перезвоню.', 'Okay, {imma} head out.', 'Ладно, я пойду.', 'gonna'],
     ['wuz', 'was', 'was без ударения (звучит «уəз»)', '/wʌz/', '/wəz/', 'It {wuz} so good!', 'Было так вкусно!', 'Who {wuz} that?', 'Кто это был?', 'was'],
     ['d\'ya', 'do you / did you', 'ты… ? / вы… ? (вопрос)', '/du ju/', '/dʒə/', '{D\'ya} want some?', 'Хотите немного?', '{D\'ya} like it?', 'Нравится?', 'doyou'],
   ];
@@ -1265,6 +1265,12 @@
       ...VERB_DATA.map((r) => ({ kind: 'irr', base: r[0], past: r[1], pp: r[2], ru: r[3], group: IRR_GROUP[r[4]], ex: [[r[5], r[6]], [r[7], r[8]], [r[9], r[10]]], note: r[11] || '' })),
       ...REG_DATA.map((r) => ({ kind: 'reg', base: r[0], past: r[1], pp: r[1], ru: r[2], ed: r[3], group: ED_GROUP[r[3]], ex: [[r[4], r[5]], [r[6], r[7]], [r[8], r[9]]], note: r[10] || '' })),
     ];
+    // Омограф read: формы звучат по-разному — задаём IPA сразу и запрещаем правилу омографов её менять
+    const formParts = (r, text) => {
+      const ps = partsV(text);
+      if (r.base === 'read') ps.forEach((p, k) => { p.ipa = k === 0 ? '/rid/' : '/rɛd/'; p.ipaLock = true; });
+      return ps;
+    };
     const front = (r) => (r.kind === 'irr' ? `${r.base} – ${r.past} – ${r.pp}` : `${r.base} – ${r.past}`);
     const others = (i, key) => { const out = []; for (let j = 1; out.length < 3 && j < rows.length; j++) { const v = key(rows[(i + j * 7) % rows.length]); if (v && v !== key(rows[i]) && !out.includes(v)) out.push(v); } return out; };
     return rows.map((r, i) => {
@@ -1306,7 +1312,7 @@
           translation: r.ru,
           pos: 'глаг.',
           category: r.group,
-          forms: { kind: r.kind, base: r.base, past: r.past, pp: r.pp, ed: r.ed || '', note: r.note, parts: partsV(formsText) },
+          forms: { kind: r.kind, base: r.base, past: r.past, pp: r.pp, ed: r.ed || '', note: r.note, parts: formParts(r, formsText) },
           examples: r.ex.map(([raw, ru]) => {
             const ps = partsV(cleanV(raw));
             const s = split(raw);
