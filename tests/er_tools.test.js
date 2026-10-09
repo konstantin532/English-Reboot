@@ -615,7 +615,12 @@ describe('er-guard: инструкции агента', () => {
     const look = R.filter((r) => r.rule === 'скилл');
     expect(look).toHaveLength(1);
     expect(look[0].level).toBe('?');
-    expect(look[0].text).toMatch(/удалено строк с запретами: 1/);
+    expect(look[0].text).toMatch(/\(er-build\).*удалены строки с запретами: \.claude\/skills\/er-build\/SKILL\.md:3 —/);
+    expect(bad(R)).toEqual([]);
+  });
+
+  it('englishbad в правилах агента — запрет, а не нарушение', () => {
+    const R = check(ctxOf({ files: [{ status: 'A', path: '.claude/skills/er-build/SKILL.md' }], added: { '.claude/skills/er-build/SKILL.md': [{ line: 30, text: 'Do not use the englishbad channel' }] } }));
     expect(bad(R)).toEqual([]);
   });
 });

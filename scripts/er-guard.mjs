@@ -240,7 +240,7 @@ export function check(ctx) {
 
   // Правило 9 и авторское право
   for (const [f, ls] of Object.entries(added)) {
-    if (/^(docs\/|scripts\/er-|tests\/er_tools\.test\.js$)/.test(f)) continue; // сам сторож и его примеры
+    if (/^(docs\/|scripts\/er-|tests\/er_tools\.test\.js$|\.claude\/skills\/)/.test(f)) continue; // сам сторож, его примеры и правила агента
     for (const l of ls) {
       if (/englishbad/i.test(l.text)) bad(9, `${f}:${l.line} название englishbad`);
       if (/\d\d:\d\d:\d\d[,.]\d{3}\s*-->/.test(l.text)) bad('©', `${f}:${l.line} похоже на субтитры (таймкод SRT/VTT) — чужие тексты в репозиторий нельзя`);
@@ -249,10 +249,11 @@ export function check(ctx) {
   }
 
   // Инструкции агента (.claude/skills): правит только PR с одобрения автора; удалённое правило — ослабленная планка
-  for (const f of files.filter((x) => /^\.claude\/skills\//.test(x.path))) {
-    const gone = (removed[f.path] || []).filter((l) => /\b(never|only|do not|must|stop)\b|никогда|только|не /i.test(l.text)).length;
-    look('скилл', `${f.path}: правка инструкций агента — в PR отдельным коммитом, сливать только с одобрения автора` +
-      (gone ? `; удалено строк с запретами: ${gone} — правило не ослаблено?` : ''));
+  const skills = files.filter((x) => /^\.claude\/skills\//.test(x.path));
+  if (skills.length) {
+    const gone = skills.flatMap((f) => (removed[f.path] || []).filter((l) => /\b(never|only|do not|must|stop)\b|никогда|только|не /i.test(l.text)).map((l) => `${f.path}:${l.line}`));
+    look('скилл', `правка инструкций агента (${skills.map((f) => f.path.replace(/^\.claude\/skills\/|\/SKILL\.md$/g, '')).join(', ')}) — отдельным коммитом, сливать только с одобрения автора` +
+      (gone.length ? `; удалены строки с запретами: ${gone.slice(0, 4).join(', ')}${gone.length > 4 ? '…' : ''} — правило не ослаблено?` : ''));
   }
 
   // Напоминания по итогу
