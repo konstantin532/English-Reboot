@@ -235,7 +235,7 @@
   // Справочник «Части речи» (js/pos_guide.js) — в модальном окне, нужная глава раскрыта
   function openPosGuide(ch) {
     if (!window.PosGuide) return;
-    showModal(PosGuide.html(ch), { 'pg-close': () => closeModal() });
+    showModal(PosGuide.html(ch), { 'pg-close': () => { if (typeof TTS !== 'undefined') TTS.stopSpeaking(); closeModal(); } });
     const zone = document.getElementById('modal-zone');
     zone.querySelector('.modal-card').classList.add('modal-card--wide');
     const open = zone.querySelector('.pg-chapter[open]');

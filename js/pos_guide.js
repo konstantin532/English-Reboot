@@ -31,7 +31,7 @@ const PosGuide = (() => {
       spot: "Ищи маячки перед ним: a, an, the, my, this. Во множественном числе у него хвостик -s: cars, friends. Узнаваемые окончания: -tion (station), -ness (kindness), -ment (apartment), -er (driver).",
       live: "Американцы делают из существительных глаголы постоянно: Google it — «загугли», Let's FaceTime later, Text me. Если слово стоит сразу после I, you или we — скорее всего, это уже действие.",
       examples: [["My phone is dead.", "phone", "У меня сел телефон."], ["Text me later.", "Text", "Напиши мне позже."]],
-      say: [["Мне нужна вода.", "I need water."], ["Где ключи?", "Where are the keys?"]],
+      say: [["Мне нужно немного воды.", "I need some water."], ["Где ключи?", "Where are the keys?"]],
       free: "Оглянись и назови вслух пять предметов рядом с тобой: a phone, a cup, a window… Не знаешь слово — назови то, что знаешь.",
     },
     {
@@ -104,7 +104,7 @@ const PosGuide = (() => {
     },
     {
       id: "prep", icon: "📍", pos: "pos-prep", en: "preposition", ru: "предлог", word: "on",
-      hook: "Почему in the morning, но on Monday и at night? Представь карту, которую приближают: in — большое (in 2026, in October, in the morning), on — поменьше (on Monday, on my birthday), at — точка (at 5 pm, at night). От большого к маленькому: in → on → at.",
+      hook: "Почему in October, но on Monday и at 5 pm? Представь карту, которую приближают: in — внутри большого отрезка (in 2026, in October), on — конкретный день (on Monday, on my birthday), at — точная точка (at 5 pm, at noon). А in the morning и at night — просто устойчивые выражения: их запоминают целиком.",
       pic: "Предлог — GPS-координаты фразы. Он говорит, где и когда: in the car, on the table, at work, from Moscow, to LA.",
       name: "Preposition — латинское praepositio, «поставленное перед»: стоит перед существительным. Русское «пред-лог» — дословный перевод.",
       spot: "Стоит перед существительным или местоимением: with me, at home. Но в вопросах американцы спокойно отправляют предлог в самый конец: Who are you talking to? Where are you from? Так звучит естественно.",
