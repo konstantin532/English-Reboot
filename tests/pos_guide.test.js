@@ -96,8 +96,8 @@ describe('Тексты для ученика — простыми словами
   const noComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\s\/\/ .*$/gm, '');
   ['content_grammar', 'content_pro', 'content_us', 'content_words', 'content_vocab', 'content_extra',
     'app_library', 'app_session', 'today_ui', 'ladder_ui', 'scenes_ui', 'improv_ui', 'traps_ui', 'pos_guide'].forEach((f) => {
-    it(`${f}.js: нет «инфинитив», «подлежащее», «сказуемое», «причастие», «страдательный залог», «герундий»`, () => {
-      const hits = noComments(read(`js/${f}.js`)).match(/инфинитив\w*|подлежащ\w*|сказуем\w*|причасти\w*|(?:страдательн|действительн)\w* залог\w*|герунди\w*/gi) || [];
+    it(`${f}.js: нет «инфинитив», «подлежащее», «сказуемое», «причастие», «страдательный залог», «герундий», «эмфаза», «альвеолы», «дифтонг»`, () => {
+      const hits = noComments(read(`js/${f}.js`)).match(/инфинитив\w*|подлежащ\w*|сказуем\w*|причасти\w*|(?:страдательн|действительн)\w* залог\w*|герунди\w*|эмфаз\w*|альвеол\w*|дифтонг\w*|фронтир\w*/gi) || [];
       expect(hits).toEqual([]);
     });
   });
