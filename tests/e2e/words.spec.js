@@ -75,7 +75,7 @@ test('обновление базы v1 → v2: прогресс на месте,
   expect(st.words).toBe(748);
   expect(st.kept.reps).toBe(3);
   expect(st.kept.ladder.step).toBe(3);
-  expect(st.version).toBe('1.5.1');   // WORDS_VERSION: 1.5.1 — вопрос о 3-й форме без «причастие»
+  expect(st.version).toBe('1.5.2');   // WORDS_VERSION: 1.5.2 — исправлены переводы
 });
 
 test('«Сегодня» → слова урока: неверный ответ показывает правильный, урок можно прервать и продолжить со слов', async ({ page }) => {
