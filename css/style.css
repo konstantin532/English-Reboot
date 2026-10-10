@@ -726,6 +726,46 @@ body.layer-connected-off .connected { font-style: normal; color: inherit; }
 .modal-card h3 { font-family: var(--font-head); font-size: 18px; margin-bottom: 10px; }
 .modal-card p { font-size: 14px; line-height: 1.55; color: var(--text-muted); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.modal-card--wide { max-width: 640px; max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); overflow-y: auto; overscroll-behavior: contain; }
+
+/* Справочник «Части речи» (js/pos_guide.js) */
+.pos-guide .pg-lead { margin-bottom: 12px; }
+.pg-chapter { border-top: 1px solid var(--border); }
+.pg-chapter:last-of-type { border-bottom: 1px solid var(--border); }
+.pg-chapter > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 12px 2px; cursor: pointer; list-style: none; color: var(--text); }
+.pg-chapter > summary::-webkit-details-marker { display: none; }
+.pg-chapter > summary::after { content: '+'; margin-left: auto; color: var(--text-muted); font-weight: 600; }
+.pg-chapter[open] > summary::after { content: '−'; }
+.pg-chapter > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.pg-word { font-weight: 700; padding-bottom: 1px; }
+.pg-title { font-weight: 600; }
+.pg-en { font-size: 12.5px; color: var(--text-muted); }
+.pg-body { padding: 0 2px 14px; }
+.pg-body h4 { font-size: 13px; font-weight: 700; color: var(--text); margin: 12px 0 4px; }
+.modal-card .pg-body p { margin-bottom: 6px; }
+.pg-groups, .pg-examples { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 6px; font-size: 14px; line-height: 1.5; color: var(--text-muted); }
+.pg-groups b { color: var(--text); }
+.pg-examples li { padding: 8px 10px; background: var(--fill); border-radius: 8px; display: grid; gap: 2px; }
+.pg-ex-en { color: var(--text); font-weight: 500; }
+.pg-ex-ru { font-size: 13px; }
+.pos-guide-entry { display: grid; gap: 3px; width: 100%; text-align: left; font: inherit; cursor: pointer; margin: 0 0 12px; padding: 12px 14px;
+  background: var(--accent-soft); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); }
+.pos-guide-entry:hover { border-color: var(--accent); }
+.pos-guide-entry-title { font-weight: 700; }
+.pos-guide-entry-hint { font-size: 13px; color: var(--text-muted); }
+.pos-guide-link { border: 0; background: none; padding: 0; font: inherit; font-size: 13px; color: var(--accent); text-decoration: underline; cursor: pointer; }
+.pos-legend + .pos-guide-link { display: block; margin: 4px 0 12px; }
+.pg-icon { font-size: 18px; line-height: 1; align-self: center; }
+.modal-card .pg-rule { margin: 4px 0 8px; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; color: var(--text); }
+.modal-card .pg-say-how { font-size: 13px; }
+.pg-say { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 8px; }
+.pg-say li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border: 1px dashed var(--border-strong); border-radius: 8px; }
+.pg-say-ru { color: var(--text); font-weight: 500; flex: 1 1 180px; }
+.pg-say-btn { border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 999px; cursor: pointer; }
+.pg-say-btn:hover { background: var(--accent-soft); }
+.pg-say-en { flex-basis: 100%; color: var(--text); font-weight: 600; }
+.pg-say-en[hidden] { display: none; }
+.modal-card .pg-free { margin-top: 10px; padding: 10px 12px; background: var(--fill); border-radius: 8px; color: var(--text); }
 
 /* ---------- 13. Баннер ошибки БД ---------- */
 .db-error {

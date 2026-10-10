@@ -35,6 +35,10 @@ const AppLibrary = (() => {
     return `
       <div class="section-wrap">
         ${C.sectionHeader(t, C.state.filter)}
+        <button class="pos-guide-entry pos-guide-btn" data-ch="intro" type="button">
+          <span class="pos-guide-entry-title">Как устроен английский</span>
+          <span class="pos-guide-entry-hint">Части речи, неправильные глаголы, времена и порядок слов: правило → примеры → импровизация вслух</span>
+        </button>
         <p class="list-summary">${known} из ${cards.length} тем имеют отметку · показано ${list.length}</p>
         ${list.length ? `<div class="grammar-grid">${tiles}</div>`
           : '<section class="card empty-state"><p class="empty-text">Нет тем для выбранного уровня.</p></section>'}
@@ -191,16 +195,16 @@ const AppLibrary = (() => {
   }
 
   // Глагол A2: три формы с американской IPA (неправильный — оранжевой двойной линией) или звук окончания -ed
-  const VF_LABEL = { irr: ['инфинитив', 'прошедшее (2-я)', 'причастие (3-я)'], reg: ['инфинитив', 'прошедшее и причастие'] };
+  const VF_LABEL = { irr: ['1-я форма', '2-я · прошлое', "3-я · I've ___"], reg: ['1-я форма', "2-я и 3-я · прошлое, I've ___"] };
   const ED_HINT = { t: 'после глухого звука -ed звучит [т]', d: 'после звонкого звука и гласной -ed звучит [д]', id: 'после t и d -ed звучит [ид] — отдельный слог' };
   function verbFormsHtml(f) {
-    const labels = f.kind === 'irr' ? (f.base === 'be' ? ['инфинитив', 'прошедшее (2-я)', '', 'причастие (3-я)'] : VF_LABEL.irr) : VF_LABEL.reg;
+    const labels = f.kind === 'irr' ? (f.base === 'be' ? ['1-я форма', '2-я · прошлое', '', "3-я · I've ___"] : VF_LABEL.irr) : VF_LABEL.reg;
     const cells = (f.parts || []).map((pt, k) => `<div class="verb-form">${window.Annotate ? Annotate.renderParts([pt]) : C.escapeHtml(pt.word)}<span class="verb-form-label">${labels[k] || ''}</span></div>`).join('');
     const kindLine = f.kind === 'irr'
       ? '<b class="verb-kind verb-kind--irr">Неправильный глагол</b> — прошедшее не по правилу «+ed», формы учить'
       : `<b class="verb-kind">Правильный глагол</b> — прошедшее «+ed»; ${ED_HINT[f.ed] || ''}`;
     return `<div class="verb-forms-block">
-      <p class="verb-kind-line">${kindLine}</p>
+      <p class="verb-kind-line">${kindLine} <button class="pos-guide-btn pos-guide-link" data-ch="irregular" type="button">почему так называют?</button></p>
       <div class="verb-forms">${cells}</div>
       ${f.note ? `<p class="verb-note">💡 ${C.escapeHtml(f.note)}</p>` : ''}
     </div>`;
