@@ -434,7 +434,7 @@ card('g009','A2',['местоимения','some/any'],
 card('g010','A2',['местоимения','возвратные'],
 'Местоимения: возвратные',
 'myself · yourself · himself · herself · itself · ourselves · yourselves · themselves',
-'Возвратные местоимения показывают, что действие направлено на самого деятеля: I hurt myself. Также для усиления: I did it myself — «я сделал(а) это сам(а)».',
+'Возвратные местоимения показывают, что действие направлено на самого деятеля: I hurt myself. Также для усиления: I did it myself — «всё своими руками, без чужой помощи».',
 [
  ex("Be careful! Don't hurt yourself.",[
   w('Be','verb','/bi/'), w('careful','adj','/ˈkɛrfəl/',{s:0}), w("Don't",'aux','/doʊnt/'), w('hurt','verb','/hɝt/'), w('yourself','pron','/jɔrˈsɛlf/',{s:1})]),
