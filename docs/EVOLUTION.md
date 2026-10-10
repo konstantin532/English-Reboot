@@ -71,9 +71,9 @@
 
 ## Эталон
 
-На 2026-10-09, main после PR #20 (37800b2), `nproc` = 2: юнит 374, E2E 58 (6,6 мин, flaky 0),
+На 2026-10-10, main после PR #21 (43b5d59), `nproc` = 2: юнит 376, E2E 58 (7,8 мин, flaky 0),
 аудит — IPA 0, британской IPA 0, книжное 5, дубли 8; карточек 3252; план «+4000» — 1503.
-<!-- er-baseline {"date":"2026-10-09","sha":"37800b2","nproc":2,"unit":374,"e2e":58,"e2eMin":6.6,"flaky":0,"ipa":0,"looseIpa":0,"words":0,"spelling":0,"brSlang":0,"bookish":5,"duplicates":8,"cards":3252,"planDone":1503} -->
+<!-- er-baseline {"date":"2026-10-10","sha":"43b5d59","nproc":2,"unit":376,"e2e":58,"e2eMin":7.8,"flaky":0,"ipa":0,"looseIpa":0,"words":0,"spelling":0,"brSlang":0,"bookish":5,"duplicates":8,"cards":3252,"planDone":1503} -->
 
 ## Бэклог
 
