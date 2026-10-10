@@ -1,11 +1,14 @@
-// docs/translation-check/tr.mjs — проверка переводов EN→RU по пачкам (рабочий инструмент; удалить, когда проверка закончена).
+// docs/translation-check/tr.mjs — проверка переводов EN→RU по пачкам. Постоянный инструмент: папка хранит,
+// какие карточки уже проверены, и новые или изменённые после проверки карточки сама находит снова.
 //   node docs/translation-check/tr.mjs status          — сколько проверено и что дальше
 //   node docs/translation-check/tr.mjs next [пар=150]  — следующая пачка непроверенных карточек (в порядке приоритета разделов)
-//   node docs/translation-check/tr.mjs apply <файл>    — применить правки к пачке и отметить её проверенной
+//   node docs/translation-check/tr.mjs apply <файл|->  — применить правки к пачке и отметить её проверенной («-» — правок нет)
 // Файл правок (TSV, без заголовка): id ⇥ поле ⇥ новый перевод ⇥ почему ⇥ важность. Поле «заметка» — в notes.tsv без правки.
-// Состояние — state.json, правки — fixes.tsv, заметки — notes.tsv, отчёт — PROGRESS.md (всё в этой папке).
+// state.json — отпечаток текста каждой проверенной карточки; fixes.tsv — все правки; notes.tsv — замечания; PROGRESS.md — отчёт.
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -17,10 +20,9 @@ const SEC = { cv: 'Фразы', wd: 'Слова', pv: 'Фразовые глаг
 const VER = { vocab: ['js/app.js', 'VOCAB_VERSION'], extra: ['js/app.js', 'EXTRA_VERSION'], words: ['js/app.js', 'WORDS_VERSION'],
   pro: ['js/gamify.js', 'PRO_VERSION'], grammar: ['js/app.js', 'CONTENT_VERSION'] };
 const clean = (s) => String(s ?? '').replace(/[{}]/g, '').replace(/\s+/g, ' ').trim();
-const readState = () => { try { return JSON.parse(fs.readFileSync(STATE, 'utf8')); } catch { return { checked: [], pending: [], bumped: [] }; } };
-const writeState = (s) => fs.writeFileSync(STATE, JSON.stringify(s, null, 0) + '\n');
+const branch = () => { try { return execFileSync('git', ['-C', ROOT, 'rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf8' }).trim(); } catch { return '?'; } };
 
-/** Все пары курса: [{ id, group, sec, field, en, key, ru }] в порядке приоритета */
+/** Все пары курса: [{ id, group, sec, field, en, key, ru }] в порядке приоритета разделов */
 function allPairs() {
   const { cards } = loadCards(ROOT);
   const out = [];
@@ -38,25 +40,50 @@ function allPairs() {
   return out.map((x, i) => ({ ...x, n: i })).sort((a, b) => ORDER.indexOf(a.sec) - ORDER.indexOf(b.sec) || a.n - b.n);
 }
 
-function report(state, pairs) {
+/** Отпечаток текста карточки: поменялся английский или русский — карточку надо проверить снова */
+function prints(pairs) {
+  const by = new Map();
+  for (const p of pairs) by.set(p.id, (by.get(p.id) || '') + p.field + '\u0001' + p.en + '\u0001' + p.ru + '\u0002');
+  return new Map([...by].map(([id, s]) => [id, crypto.createHash('sha1').update(s).digest('hex').slice(0, 12)]));
+}
+
+function readState(pairs) {
+  let s;
+  try { s = JSON.parse(fs.readFileSync(STATE, 'utf8')); } catch { s = {}; }
+  if (Array.isArray(s.checked)) { // старый формат (список id) — тогда все эти карточки проверялись в нынешнем виде
+    const pr = prints(pairs); s.checked = Object.fromEntries(s.checked.filter((id) => pr.has(id)).map((id) => [id, pr.get(id)]));
+  }
+  if (Array.isArray(s.bumped)) s.bumped = { 'feature/translation-fix': s.bumped };
+  return { checked: s.checked || {}, pending: s.pending || [], bumped: s.bumped || {} };
+}
+const writeState = (s) => fs.writeFileSync(STATE, JSON.stringify({ checked: s.checked, pending: s.pending, bumped: s.bumped }) + '\n');
+
+/** id карточек, которые надо проверить: новые и изменённые после проверки */
+function todo(state, pairs) {
+  const pr = prints(pairs);
   const ids = [...new Set(pairs.map((p) => p.id))];
-  const done = new Set(state.checked);
-  const fixes = fs.existsSync(path.join(DIR, 'fixes.tsv')) ? fs.readFileSync(path.join(DIR, 'fixes.tsv'), 'utf8').trim().split('\n').slice(1).filter(Boolean) : [];
-  const lines = ORDER.map((s) => {
+  return { ids, left: ids.filter((id) => state.checked[id] !== pr.get(id)), fresh: ids.filter((id) => !state.checked[id]).length };
+}
+
+function report(state, pairs) {
+  const { ids, left, fresh } = todo(state, pairs);
+  const leftSet = new Set(left);
+  const fixFile = path.join(DIR, 'fixes.tsv');
+  const fixes = fs.existsSync(fixFile) ? fs.readFileSync(fixFile, 'utf8').trim().split('\n').slice(1).filter(Boolean) : [];
+  const rows = ORDER.map((s) => {
     const all = [...new Set(pairs.filter((p) => p.sec === s).map((p) => p.id))];
-    const ok = all.filter((id) => done.has(id)).length;
-    const fx = fixes.filter((l) => l.split('\t')[1] === s).length;
-    return `| ${s} | ${ok} из ${all.length} | ${fx} |`;
+    return `| ${s} | ${all.filter((id) => !leftSet.has(id)).length} из ${all.length} | ${fixes.filter((l) => l.split('\t')[1] === s).length} |`;
   });
-  const left = ids.filter((id) => !done.has(id));
   const next = left.length ? pairs.find((p) => p.id === left[0]).sec : '—';
-  const md = `# Проверка переводов EN → RU\n\nВетка \`feature/translation-fix\`. Обновляется после каждой пачки.\n\n` +
-    `Проверено карточек: **${ids.length - left.length} из ${ids.length}**, исправлено переводов: **${fixes.length}**. ` +
-    (left.length ? `Дальше — раздел «${next}».` : 'Проверка закончена.') + `\n\n| Раздел | Проверено карточек | Исправлено |\n|---|---|---|\n${lines.join('\n')}\n\n` +
-    `Все правки «было → стало» — в \`fixes.tsv\`, замечания по английской стороне — в \`notes.tsv\`.\n\n` +
-    `**Как продолжить:** в новом чате написать «продолжай проверку перевода English Reboot» — работа пойдёт с первой непроверенной карточки.\n`;
+  const md = `# Проверка переводов EN → RU\n\nОбновляется инструментом \`tr.mjs\` после каждой пачки.\n\n` +
+    `Проверено карточек: **${ids.length - left.length} из ${ids.length}**, исправлено переводов за всё время: **${fixes.length}**. ` +
+    (left.length ? `Ждут проверки ${left.length} (новых ${fresh}, изменённых ${left.length - fresh}), дальше — раздел «${next}».` : 'Всё проверено.') +
+    `\n\n| Раздел | Проверено карточек | Исправлено |\n|---|---|---|\n${rows.join('\n')}\n\n` +
+    `Правки «было → стало» с причиной — \`fixes.tsv\`, замечания по английской стороне — \`notes.tsv\`.\n\n` +
+    `**Проверить снова** (после новых карточек или в любой момент): написать в чате «проверь перевод English Reboot». ` +
+    `Инструмент возьмёт только новые и изменённые после проверки карточки.\n`;
   fs.writeFileSync(path.join(DIR, 'PROGRESS.md'), md);
-  return { total: ids.length, left: left.length, fixes: fixes.length, next };
+  return { total: ids.length, left: left.length, fresh, fixes: fixes.length, next, leftIds: left };
 }
 
 function locate(src, ru, key) {
@@ -75,49 +102,73 @@ function locate(src, ru, key) {
   return hits[0];
 }
 
+/** Тесты, где записана версия раздела (`toBe('1.5.1')` рядом с «WORDS_VERSION»), — на новую версию */
+function bumpPinned(name, oldV, newV) {
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+  const dir = path.join(ROOT, 'tests');
+  if (!fs.existsSync(dir)) return [];
+  const changed = [];
+  for (const f of walk(dir).filter((f) => f.endsWith('.js'))) {
+    const s = fs.readFileSync(f, 'utf8');
+    const t = s.split('\n').map((l) => (l.includes(name) && l.includes(`'${oldV}'`)
+      ? l.replace(`'${oldV}'`, `'${newV}'`).replace(`${name}: ${oldV}`, `${name}: ${newV}`) : l)).join('\n');
+    if (t !== s) { fs.writeFileSync(f, t); changed.push(path.relative(ROOT, f)); }
+  }
+  return changed;
+}
+
+/** Версии разделов и CACHE_VERSION поднимаются один раз на ветку — тогда ученики получат исправления */
 function bump(state, groups) {
-  const done = [];
+  const br = branch();
+  const done = state.bumped[br] || (state.bumped[br] = []);
+  const now = []; const tests = [];
   for (const g of groups) {
     const v = VER[g];
-    if (!v || state.bumped.includes(v[1])) continue;
+    if (!v || done.includes(v[1])) continue;
     const f = path.join(ROOT, v[0]);
-    let s = fs.readFileSync(f, 'utf8');
-    s = s.replace(new RegExp(`(const ${v[1]} = )('?)([\\d.]+)\\2;( *\\/\\/ *)`), (m, a, q, ver, c) => {
+    const s = fs.readFileSync(f, 'utf8');
+    let oldV, newV;
+    const t = s.replace(new RegExp(`(const ${v[1]} = )('?)([\\d.]+)\\2;( *\\/\\/ *)`), (m, a, q, ver, c) => {
       const parts = ver.split('.'); parts[parts.length - 1] = String(Number(parts.at(-1)) + 1);
-      const nv = parts.join('.');
-      return `${a}${q}${nv}${q};${c}${nv}: исправлены переводы; `;
+      oldV = ver; newV = parts.join('.');
+      return `${a}${q}${newV}${q};${c}${newV}: исправлены переводы; `;
     });
-    fs.writeFileSync(f, s); state.bumped.push(v[1]); done.push(v[1]);
+    if (t === s) continue;
+    fs.writeFileSync(f, t); done.push(v[1]); now.push(`${v[1]} ${newV}`);
+    tests.push(...bumpPinned(v[1], oldV, newV));
   }
-  if (done.length && !state.bumped.includes('CACHE_VERSION')) {
+  if (now.length && !done.includes('CACHE_VERSION')) {
     const f = path.join(ROOT, 'sw.js');
-    fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/CACHE_VERSION = 'er-v(\d+)'/, (m, n) => `CACHE_VERSION = 'er-v${Number(n) + 1}'`));
-    state.bumped.push('CACHE_VERSION'); done.push('CACHE_VERSION');
+    fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/CACHE_VERSION = 'er-v(\d+)'/, (m, n) => {
+      now.push(`CACHE_VERSION er-v${Number(n) + 1}`); return `CACHE_VERSION = 'er-v${Number(n) + 1}'`;
+    }));
+    done.push('CACHE_VERSION');
   }
-  return done;
+  return { now, tests: [...new Set(tests)] };
 }
 
 const [cmd, arg] = process.argv.slice(2);
-const state = readState();
+const pairs0 = allPairs();
+const state = readState(pairs0);
 
 if (cmd === 'next') {
-  const pairs = allPairs();
-  const done = new Set(state.checked);
   const want = Number(arg) || 150;
+  const { leftIds } = report(state, pairs0);
+  const left = new Set(leftIds);
   const batch = []; const ids = [];
-  for (const p of pairs) {
-    if (done.has(p.id)) continue;
+  for (const p of pairs0) {
+    if (!left.has(p.id)) continue;
     if (!ids.includes(p.id)) { if (batch.length >= want) break; ids.push(p.id); }
     batch.push(p);
   }
   state.pending = ids; writeState(state);
-  const r = report(state, pairs);
-  console.log(`Пачка: ${ids.length} карточек, ${batch.length} пар; осталось после неё ${r.left - ids.length} карточек`);
+  if (!ids.length) { console.log('Всё проверено: новых и изменённых карточек нет.'); process.exit(0); }
+  console.log(`Пачка: ${ids.length} карточек, ${batch.length} пар; осталось после неё ${leftIds.length - ids.length} карточек`);
   for (const p of batch) console.log(`${p.id}\t${p.field}\t${p.en}\t${p.ru}`);
 } else if (cmd === 'apply') {
   if (!state.pending.length) { console.log('Нет открытой пачки: сначала next'); process.exit(1); }
   const rows = arg && arg !== '-' ? fs.readFileSync(arg, 'utf8').split('\n').filter((l) => l.trim()).map((l) => l.split('\t')) : [];
-  const before = allPairs();
+  const before = pairs0;
   const byKey = new Map(before.map((p) => [p.id + '|' + p.field, p]));
   const files = fs.readdirSync(path.join(ROOT, 'js')).filter((f) => /^(content_.*|improv_us)\.js$/.test(f)).map((f) => path.join(ROOT, 'js', f));
   const orig = new Map(files.map((f) => [f, fs.readFileSync(f, 'utf8')]));
@@ -125,6 +176,7 @@ if (cmd === 'next') {
   const plan = []; const notes = []; const errors = [];
   for (const [id, field, ru, why = '', sev = ''] of rows) {
     if (field === 'заметка') { notes.push([id, ru]); continue; }
+    if (!state.pending.includes(id)) { errors.push(`${id}: не из открытой пачки`); continue; }
     const p = byKey.get(id + '|' + field);
     if (!p) { errors.push(`${id} ${field}: нет такой пары`); continue; }
     if (p.ru === ru) continue;
@@ -137,7 +189,8 @@ if (cmd === 'next') {
     plan.push({ p, ru, why, sev });
   }
   for (const [f, s] of src) if (s !== orig.get(f)) fs.writeFileSync(f, s);
-  const after = new Map(allPairs().map((p) => [p.id + '|' + p.field, p.ru]));
+  const afterPairs = allPairs();
+  const after = new Map(afterPairs.map((p) => [p.id + '|' + p.field, p.ru]));
   const expect = new Map(plan.map((x) => [x.p.id + '|' + x.p.field, x.ru]));
   for (const [k, p] of byKey) {
     const now = after.get(k);
@@ -153,18 +206,21 @@ if (cmd === 'next') {
   fs.appendFileSync(fixesFile, plan.map((x) => [x.p.id, x.p.sec, x.p.field, x.p.en, x.p.ru, x.ru, x.why, x.sev].join('\t') + '\n').join(''));
   if (notes.length) fs.appendFileSync(path.join(DIR, 'notes.tsv'), notes.map((n) => n.join('\t') + '\n').join(''));
   // одинаковый перевод у двух карточек раздела — в автотестах будет два верных ответа
-  const dup = plan.filter((x) => x.p.field === 'перевод' && before.some((o) => o.field === 'перевод' && o.group === x.p.group && o.id !== x.p.id && o.ru === x.ru));
-  const bumped = bump(state, [...new Set(plan.map((x) => x.p.group))]);
-  state.checked.push(...state.pending.filter((id) => !state.checked.includes(id)));
+  const dup = plan.filter((x) => x.p.field === 'перевод' && afterPairs.some((o) => o.field === 'перевод' && o.group === x.p.group && o.id !== x.p.id && o.ru === x.ru));
+  const b = bump(state, [...new Set(plan.map((x) => x.p.group))]);
+  const pr = prints(afterPairs);
+  for (const id of state.pending) state.checked[id] = pr.get(id);
   const sec = [...new Set(before.filter((p) => state.pending.includes(p.id)).map((p) => p.sec))].join(', ');
   const first = state.pending[0], last = state.pending.at(-1);
   state.pending = []; writeState(state);
-  const r = report(state, before);
-  console.log(`Исправлено ${plan.length}, заметок ${notes.length}${bumped.length ? '; версии: ' + bumped.join(', ') : ''}. ` +
-    `Проверено ${r.total - r.left} из ${r.total} карточек, всего правок ${r.fixes}.`);
+  const r = report(state, afterPairs);
+  console.log(`Исправлено ${plan.length}, заметок ${notes.length}${b.now.length ? '; версии: ' + b.now.join(', ') : ''}` +
+    `${b.tests.length ? '; версия в тестах: ' + b.tests.join(', ') : ''}. Проверено ${r.total - r.left} из ${r.total} карточек, всего правок ${r.fixes}.`);
   if (dup.length) console.log('⚠ такой же перевод уже есть у другой карточки раздела: ' + dup.map((x) => x.p.id).join(', '));
   console.log(`COMMIT: Переводы: ${sec} (${first}…${last}) — исправлено ${plan.length}`);
 } else {
-  const r = report(state, allPairs());
-  console.log(`Проверено ${r.total - r.left} из ${r.total} карточек, правок ${r.fixes}. Дальше: ${r.next}${state.pending.length ? `; открыта пачка из ${state.pending.length} карточек` : ''}`);
+  const r = report(state, pairs0); writeState(state);
+  console.log(`Проверено ${r.total - r.left} из ${r.total} карточек, правок за всё время ${r.fixes}. ` +
+    (r.left ? `Ждут проверки ${r.left} (новых ${r.fresh}, изменённых ${r.left - r.fresh}), дальше: ${r.next}` : 'Новых и изменённых карточек нет.') +
+    (state.pending.length ? `; открыта пачка из ${state.pending.length} карточек` : ''));
 }
