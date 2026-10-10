@@ -458,7 +458,7 @@ card('g010','A2',['местоимения','возвратные'],
 card('g011','A2',['местоимения','относительные'],
 'Местоимения: относительные',
 'who (люди) · which (вещи) · that (люди/вещи) · whose (чей) · where (где)',
-'Слова who, which, that, whose связывают две фразы в одну и уточняют, о ком или о чём речь: the man who lives here. Who — о людях, which — о предметах, that — вместо обоих (в разговоре чаще всего), whose — «чей».',
+'Слова who, which, that, whose связывают две фразы в одну и уточняют, о ком или о чём речь: the man who lives here. Who — о людях, which — о предметах, that — вместо обоих (в разговоре чаще всего), но не после запятой: The book, which I read… (не that); whose — «чей».',
 [
  ex('The man who lives next door is a doctor.',[
   w('The','art','/ðə/'), w('man','noun','/mæn/'), w('who','pron','/hu/',{sl:[1]}), w('lives','verb','/lɪvz/'), w('next','adj','/nɛkst/'), w('door','noun','/dɔr/'), w('is','verb','/ɪz/'), w('a','art','/ə/'), w('doctor','noun','/ˈdɑktɚ/',{s:0})],
@@ -680,7 +680,7 @@ card('g019','A2',['предлоги','зависимые'],
 card('g020','A2',['союзы'],
 'Союзы',
 'and (и) · or (или) · but (но) · because (потому что) · although (хотя) · while (пока) · if (если) · when (когда)',
-'Союзы соединяют слова и части фразы. and, or, but соединяют равные части: tea or coffee. because, although, while, if, when присоединяют пояснение — причину, условие, время: I stayed home because it was raining.',
+'Союзы соединяют слова и части фразы. and, or, but соединяют равные части: tea or coffee. because, although, while, if, when присоединяют пояснение — причину, условие, время или уступку («хотя» — although): I stayed home because it was raining.',
 [
  ex('I wanted to come, but I was ill.',[
   w('I','pron','/aɪ/'), w('wanted','verb','/ˈwɔntɪd/',{s:0}), w('to','part','/tə/'), w('come','verb','/kʌm/'), w('but','conj','/bʌt/'), w('I','pron','/aɪ/'), w('was','verb','/wɑz/'), w('ill','adj','/ɪl/')],
