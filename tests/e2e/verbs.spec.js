@@ -102,7 +102,7 @@ test('справочник «Как устроен английский»: им�
   await expect(modal.locator('.pg-chapter')).toHaveCount(13);
   await expect(modal.locator('#pg-intro')).toHaveAttribute('open', '');
   await modal.locator('#pg-adv > summary').click();
-  await expect(modal.locator('#pg-adv')).toContainText('ad verbum');
+  await expect(modal.locator('#pg-adv')).toContainText('ad + verb');
 
   // импровизация: образец скрыт, пока ученик не скажет сам; кнопка открывает его
   await modal.locator('#pg-order > summary').click();
