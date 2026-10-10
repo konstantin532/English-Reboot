@@ -3,45 +3,66 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';
 
-/* Справочник «Части речи: зачем и откуда названия» — объяснение, а не карточки:
-   у каждой части речи есть «что делает», «почему так называется», «как узнать» и пример;
-   отдельная глава — почему глаголы «неправильные». Работает офлайн (в index.html и кэше sw.js). */
+/* Справочник «Как устроен английский — без зубрёжки»: объяснение, а не карточки.
+   У каждой главы — загадка-зацепка, образ («представь»), откуда название, как узнать, примеры,
+   импровизация «скажи вслух» (русская фраза → сказать по памяти → открыть образец и послушать)
+   и свободное задание. Главы: части речи, неправильные глаголы, времена, порядок слов.
+   Работает офлайн (в index.html и кэше sw.js). */
 const root = process.cwd();
 const read = (f) => fs.readFileSync(path.resolve(root, f), 'utf8');
 const ctx = {};
 vm.createContext(ctx);
 vm.runInContext(read('js/pos_guide.js') + ';this.__G = PosGuide;', ctx);
 const G = ctx.__G;
+const topics = G.CHAPTERS.filter((c) => c.id !== 'intro');
 
-describe('Справочник частей речи', () => {
-  it('главы: введение, 9 частей речи и неправильные глаголы', () => {
+describe('Справочник «Как устроен английский»', () => {
+  it('главы: введение, 9 частей речи, неправильные глаголы, времена и порядок слов', () => {
     expect(G.CHAPTERS.map((c) => c.id)).toEqual(
-      ['intro', 'noun', 'verb', 'irregular', 'adj', 'adv', 'pron', 'prep', 'helpers', 'service', 'interj']);
+      ['intro', 'noun', 'verb', 'irregular', 'adj', 'adv', 'pron', 'prep', 'helpers', 'service', 'interj', 'tenses', 'order']);
   });
 
-  it('у каждой части речи — что делает, почему так называется, как узнать и пример', () => {
-    G.CHAPTERS.filter((c) => c.en).forEach((c) => {
-      ['what', 'name', 'spot'].forEach((k) => expect(c[k], `${c.id}.${k}`).toMatch(/\S{20,}|\S+ \S+ \S+/));
+  it('каждая глава — загадка, образ, откуда название, как узнать, в живой речи и ≥2 примера', () => {
+    topics.forEach((c) => {
+      ['hook', 'pic', 'name', 'spot', 'live'].forEach((k) => expect(c[k], `${c.id}.${k}`).toMatch(/\S+ \S+ \S+ \S+ \S+/));
       expect(c.examples.length, c.id).toBeGreaterThanOrEqual(2);
-      expect(c.en).toMatch(/^[a-z]/i);
+      expect(c.en, c.id).toMatch(/^[a-z]/i);
+    });
+  });
+
+  it('импровизация: у каждой главы ≥2 фразы «скажи вслух» (русский → английский) и свободное задание', () => {
+    topics.forEach((c) => {
+      expect(c.say.length, c.id).toBeGreaterThanOrEqual(2);
+      c.say.forEach(([ru, en]) => {
+        expect(ru, c.id).toMatch(/[а-яё]/i);
+        expect(en, c.id).toMatch(/^[A-Z][A-Za-z ',?!.]+$/);
+      });
+      expect(c.free, `${c.id}.free`).toMatch(/\S+ \S+ \S+ \S+/);
     });
   });
 
   it('глава «неправильные глаголы» отвечает, почему так называют, и объясняет go → went', () => {
-    const irr = G.CHAPTERS.find((c) => c.id === 'irregular');
-    const text = JSON.stringify(irr);
+    const text = JSON.stringify(G.CHAPTERS.find((c) => c.id === 'irregular'));
     expect(text).toMatch(/regula/);          // откуда слово «правильный»
     expect(text).toMatch(/wend/);            // went — от старого wend
     expect(text).toMatch(/gotten/);          // американская форма
-    expect(irr.groups.length).toBeGreaterThanOrEqual(4);
+    expect(G.CHAPTERS.find((c) => c.id === 'irregular').groups.length).toBeGreaterThanOrEqual(4);
   });
 
-  it('html(): все главы, нужная раскрыта, кнопка закрытия; без скриптов внутри', () => {
+  it('времена — «сетка 3 × 4», а не 12 правил; порядок слов — почему нельзя как по-русски', () => {
+    expect(JSON.stringify(G.CHAPTERS.find((c) => c.id === 'tenses'))).toMatch(/3 × 4/);
+    expect(JSON.stringify(G.CHAPTERS.find((c) => c.id === 'order'))).toMatch(/падеж/);
+  });
+
+  it('html(): все главы, нужная раскрыта, кнопки импровизации с образцом; без скриптов внутри', () => {
     const h = G.html('irregular');
     G.CHAPTERS.forEach((c) => expect(h).toContain(`id="pg-${c.id}"`));
     expect(h).toMatch(/<details[^>]*id="pg-irregular"[^>]*open/);
     expect(h).not.toMatch(/<details[^>]*id="pg-noun"[^>]*open/);
     expect(h).toContain('id="pg-close"');
+    expect(h).toContain('data-say="It&#39;s gotten cold."');
+    expect((h.match(/class="pg-say-btn"/g) || []).length).toBe(topics.reduce((n, c) => n + c.say.length, 0));
+    expect(h).toMatch(/class="pg-say-en" hidden/);   // образец скрыт, пока ученик не скажет сам
     expect(h).not.toMatch(/<script|on\w+=/i);
     expect(G.html('нет-такой')).toMatch(/id="pg-intro"[^>]*open/);
   });
@@ -53,10 +74,11 @@ describe('Справочник частей речи', () => {
     expect(read('sw.js')).toContain("'./js/pos_guide.js'");
   });
 
-  it('вход есть в «Грамматике», у пометки глагола и у легенды цветов', () => {
+  it('вход есть в «Грамматике», у пометки глагола и у легенды цветов; кнопки импровизации работают', () => {
     expect(read('js/app_library.js')).toMatch(/pos-guide-btn[^`]*data-ch="intro"/);
     expect(read('js/app_library.js')).toMatch(/pos-guide-btn[^`]*data-ch="irregular"/);
     expect(read('js/app_settings.js')).toMatch(/pos-guide-btn/);
     expect(read('js/app.js')).toMatch(/closest\('\.pos-guide-btn'\)/);
+    expect(read('js/app.js')).toMatch(/closest\('\.pg-say-btn'\)/);
   });
 });
