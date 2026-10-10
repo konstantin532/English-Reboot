@@ -755,6 +755,17 @@ body.layer-connected-off .connected { font-style: normal; color: inherit; }
 .pos-guide-entry-hint { font-size: 13px; color: var(--text-muted); }
 .pos-guide-link { border: 0; background: none; padding: 0; font: inherit; font-size: 13px; color: var(--accent); text-decoration: underline; cursor: pointer; }
 .pos-legend + .pos-guide-link { display: block; margin: 4px 0 12px; }
+.pg-icon { font-size: 18px; line-height: 1; align-self: center; }
+.modal-card .pg-hook { margin: 4px 0 8px; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; color: var(--text); }
+.modal-card .pg-say-how { font-size: 13px; }
+.pg-say { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 8px; }
+.pg-say li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border: 1px dashed var(--border-strong); border-radius: 8px; }
+.pg-say-ru { color: var(--text); font-weight: 500; flex: 1 1 180px; }
+.pg-say-btn { border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 999px; cursor: pointer; }
+.pg-say-btn:hover { background: var(--accent-soft); }
+.pg-say-en { flex-basis: 100%; color: var(--text); font-weight: 600; }
+.pg-say-en[hidden] { display: none; }
+.modal-card .pg-free { margin-top: 10px; padding: 10px 12px; background: var(--fill); border-radius: 8px; color: var(--text); }
 
 /* ---------- 13. Баннер ошибки БД ---------- */
 .db-error {

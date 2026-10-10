@@ -36,8 +36,8 @@ const AppLibrary = (() => {
       <div class="section-wrap">
         ${C.sectionHeader(t, C.state.filter)}
         <button class="pos-guide-entry pos-guide-btn" data-ch="intro" type="button">
-          <span class="pos-guide-entry-title">Части речи: зачем и откуда названия</span>
-          <span class="pos-guide-entry-hint">Почему глаголы «неправильные», что значат цвета под словами и откуда слово «наречие»</span>
+          <span class="pos-guide-entry-title">Как устроен английский — без зубрёжки</span>
+          <span class="pos-guide-entry-hint">Почему went, а не goed, откуда «12 времён» и почему Man bites dog — новость. Загадки, истории и импровизация вслух</span>
         </button>
         <p class="list-summary">${known} из ${cards.length} тем имеют отметку · показано ${list.length}</p>
         ${list.length ? `<div class="grammar-grid">${tiles}</div>`

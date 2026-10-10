@@ -242,6 +242,17 @@
     if (open && ch && ch !== 'intro') open.scrollIntoView({ block: 'start' });
     const first = open && open.querySelector('summary');
     if (first) first.focus({ preventScroll: true });
+    // Импровизация: ученик сначала говорит сам, потом открывает образец и слушает его.
+    // Слушатель — на самом справочнике (он создаётся заново при каждом открытии), а не на #modal-zone.
+    const guide = zone.querySelector('.pos-guide');
+    if (guide) guide.addEventListener('click', (e) => {
+      const sb = e.target.closest('.pg-say-btn');
+      if (!sb) return;
+      const en = sb.parentElement.querySelector('.pg-say-en');
+      if (en) en.hidden = false;
+      sb.textContent = 'Послушать ещё раз';
+      speak(sb.dataset.say);
+    });
   }
 
   function showModal(html, handlers = {}) {

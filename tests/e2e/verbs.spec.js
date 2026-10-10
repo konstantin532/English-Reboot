@@ -93,16 +93,25 @@ test('глагол A2 в «Сегодня»: 3-я форма, вопрос с di
   await expect.poll(() => page.evaluate(async () => (await DB.getByKey('progress', 'wd_0708')).data.mark)).toBe('hard');
 });
 
-test('справочник «Части речи»: открывается из «Грамматики», из карточки глагола и из настроек', async ({ page }) => {
+test('справочник «Как устроен английский»: импровизация; открывается из «Грамматики», из карточки глагола и из настроек', async ({ page }) => {
   await onboard(page);
   await page.locator('.nav-link[data-tab="grammar"]').click();
   await page.locator('.pos-guide-entry').click();
   const modal = page.locator('.modal-card.modal-card--wide .pos-guide');
   await expect(modal).toBeVisible();
-  await expect(modal.locator('.pg-chapter')).toHaveCount(11);
+  await expect(modal.locator('.pg-chapter')).toHaveCount(13);
   await expect(modal.locator('#pg-intro')).toHaveAttribute('open', '');
   await modal.locator('#pg-adv > summary').click();
   await expect(modal.locator('#pg-adv')).toContainText('ad verbum');
+
+  // импровизация: образец скрыт, пока ученик не скажет сам; кнопка открывает его
+  await modal.locator('#pg-order > summary').click();
+  const say = modal.locator('#pg-order .pg-say li').first();
+  await expect(say.locator('.pg-say-en')).toBeHidden();
+  await say.locator('.pg-say-btn').click();
+  await expect(say.locator('.pg-say-en')).toBeVisible();
+  await expect(say.locator('.pg-say-en')).toHaveText('We had dinner at home yesterday.');
+  await expect(say.locator('.pg-say-btn')).toHaveText('Послушать ещё раз');
   await page.locator('#pg-close').click();
   await expect(page.locator('#modal-zone')).toBeHidden();
 
