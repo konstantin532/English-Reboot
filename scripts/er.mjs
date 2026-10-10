@@ -11,6 +11,8 @@
  *                                       код 4 — идёт дольше предела от эталона, зависла; код 2 — прервалась без итога)
  *   node scripts/er.mjs review          пакет ревизорам (er-review.mjs)
  *   node scripts/er.mjs archive [--keep 30] [--dry]   старые записи журнала EVOLUTION.md — в docs/evolution/archive-<год>.md
+ *   node scripts/er.mjs usage [--all|--journal|--record "<итерация>"]   токены итерации и что их съело (er-usage.mjs)
+ *   node scripts/er.mjs lessons [add <ключ> "<текст>"]   уроки агента в EVOLUTION.md (er-lessons.mjs)
  *   node scripts/er.mjs brief|guard|ci|health|shots …   — scripts/er-<имя> с теми же аргументами
  *
  * Код выхода: 0 — зелёное, 1 — красное (упали тесты, нарушения сторожа), 2 — не запустилось или прервалось,
@@ -204,6 +206,9 @@ async function main() {
     case 'test': return unit(args);
     case 'e2e': return e2e(args);
     case 'start': {
+      // метка начала итерации: er usage считает токены с неё
+      fs.mkdirSync(TMP, { recursive: true });
+      fs.writeFileSync(path.join(TMP, 'iter.json'), JSON.stringify({ at: Date.now() }));
       const code = passthrough('er-brief.mjs', args);
       if (!ensureEnv()) return 2;
       background('start');
@@ -219,6 +224,8 @@ async function main() {
     case '_job': job(args[0]); return 0;
     case 'review': return passthrough('er-review.mjs', args);
     case 'archive': return passthrough('er-brief.mjs', ['--archive', ...args]);
+    case 'usage': return passthrough('er-usage.mjs', args);
+    case 'lessons': return passthrough('er-lessons.mjs', args);
     case 'brief': case 'guard': case 'ci': case 'health': return passthrough(`er-${cmd}.mjs`, args);
     case 'shots': return passthrough('er-shots.sh', args);
     default:
