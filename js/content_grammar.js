@@ -35,7 +35,7 @@ const GRAMMAR_CARDS = [
 card('g049','A1',['глагол to be','базовое'],
 'Глагол to be: am / is / are',
 'I am · he/she/it is · you/we/they are · − am not / isn\'t / aren\'t',
-'Главный глагол «быть». В русском «я студент» — без глагола, в английском он обязателен: I am a student. Форма зависит от подлежащего.',
+'Главный глагол «быть». В русском «я студент» — без глагола, в английском он обязателен: I am a student. Форма зависит от того, кто действует: I am, she is, they are.',
 [
  ex('I am a student.',[
   w('I','pron','/aɪ/'), w('am','verb','/æm/'), w('a','art','/ə/'), w('student','noun','/ˈstudənt/',{s:0})]),
@@ -58,7 +58,7 @@ card('g049','A1',['глагол to be','базовое'],
 
 card('g050','A1',['глагол to be','вопросы'],
 'Вопросы с to be',
-'Am/Is/Are + подлежащее? · Wh-слово + am/is/are…?',
+'Am/Is/Are + кто? (Are you…?) · Wh-слово + am/is/are…? (Where is…?)',
 'Чтобы задать вопрос, to be выходит вперёд: You are okay → Are you okay? Специальные вопросы начинаются с What/Where/How, затем to be.',
 [
  ex('Are you okay?',[
@@ -359,7 +359,7 @@ card('g006','A2',['артикли','нулевой артикль'],
 card('g007','A2',['местоимения','личные','притяжательные'],
 'Местоимения: личные и притяжательные',
 'I — my — mine · he — his · she — her — hers · they — their — theirs',
-'Личные местоимения заменяют подлежащее (I, you, he…). Притяжательные (my, your, his…) стоят перед существительным. Абсолютные формы (mine, hers, theirs) — без существительного: This book is mine.',
+'Личные местоимения стоят на месте того, кто действует (I, you, he…). Притяжательные (my, your, his…) стоят перед существительным. Абсолютные формы (mine, hers, theirs) — без существительного: This book is mine.',
 [
  ex('This is my sister. Her name is Kate.',[
   w('This','pron','/ðɪs/'), w('is','verb','/ɪz/'), w('my','pron','/maɪ/'), w('sister','noun','/ˈsɪstɚ/',{s:0}), w('Her','pron','/hɝ/'), w('name','noun','/neɪm/'), w('is','verb','/ɪz/'), w('Kate','noun','/keɪt/')]),
@@ -369,7 +369,7 @@ card('g007','A2',['местоимения','личные','притяжател�
   w('The','art','/ðə/'), w('red','adj','/rɛd/'), w('car','noun','/kɑr/'), w('is','verb','/ɪz/'), w('theirs','pron','/ðɛrz/')]),
 ],
 [
- err('Me like coffee.','I like coffee.','Me — объектное местоимение; подлежащее — I.'),
+ err('Me like coffee.','I like coffee.','Me — «меня, мне» после глагола (Call me). Тот, кто действует, — I.'),
  err('This is mines.','This is mine.','Mine уже притяжательное — без -s.'),
 ],
 [
@@ -444,7 +444,7 @@ card('g010','A2',['местоимения','возвратные'],
   w('We','pron','/wi/'), w('built','verb','/bɪlt/'), w('the','art','/ðə/'), w('house','noun','/haʊs/'), w('ourselves','pron','/aʊɚˈsɛlvz/',{s:1})]),
 ],
 [
- err('Myself went to the shop.','I went to the shop myself.','Myself не заменяет I в роли подлежащего.'),
+ err('Myself went to the shop.','I went to the shop myself.','Myself — «сам», оно не заменяет I в начале фразы: действует I.'),
  err('They introduced theirself.','They introduced themselves.','Форма для they — themselves.'),
 ],
 [
@@ -939,7 +939,7 @@ card('g030','A2',['времена','будущее'],
   w('I','pron','/aɪ/'), w('think','verb','/θɪŋk/'), w('she','pron','/ʃi/'), w('will','aux','/wɪl/'), w('pass','verb','/pæs/'), w('the','art','/ðə/'), w('exam','noun','/ɪɡˈzæm/',{s:1})]),
 ],
 [
- err('I will to help you.','I will help you.','После will — инфинитив без to.'),
+ err('I will to help you.','I will help you.','После will — начальная форма глагола без to: will help.'),
  err('She wills come.','She will come.','will не изменяется по лицам.'),
 ],
 [
@@ -1028,7 +1028,7 @@ card('g033','B1',['времена','будущее','perfect'],
 card('g034','B1',['модальные глаголы'],
 'Модальные глаголы',
 'can/could · must · have to · should · might/may · would · после них — V без to',
-'Модальные глаголы выражают отношение к действию. После них — инфинитив без to. Must — от самого говорящего, have to — внешняя необходимость. Could/might/may — вероятность.',
+'Модальные глаголы выражают отношение к действию. После них — начальная форма глагола без to: can swim, must go. Must — от самого говорящего, have to — внешняя необходимость. Could/might/may — вероятность.',
 [
  ex('You should see a doctor.',[
   w('You','pron','/ju/'), w('should','modal','/ʃʊd/'), w('see','verb','/si/'), w('a','art','/ə/'), w('doctor','noun','/ˈdɑktɚ/',{s:0})]),
@@ -1040,7 +1040,7 @@ card('g034','B1',['модальные глаголы'],
 ],
 [
  err('He musts study.','He must study.','Модальные глаголы не принимают -s.'),
- err('She can to swim.','She can swim.','После can — инфинитив без to.'),
+ err('She can to swim.','She can swim.','После can — начальная форма без to: can swim.'),
 ],
 [
  q("You ___ smoke here — it's forbidden.",["mustn't","don't have to","shouldn't",'can'],0),
@@ -1099,10 +1099,10 @@ card('g036','B1',['условные предложения'],
  q('What ___ you do if you won the lottery?',['will','would','do','did'],1),
 ]),
 
-card('g037','B1',['залог','пассив'],
+card('g037','B1',['пассив','важен результат'],
 'Passive Voice',
 'be + V3: is built · was built · will be built · has been built',
-'Страдательный залог ставит объект действия на первое место, когда важен результат, а не исполнитель: The bridge was built in 1900. Исполнитель добавляется через by.',
+'Пассив ставит на первое место то, с чем сделали действие, когда важен результат, а не тот, кто его сделал: The bridge was built in 1900 — «Мост построили в 1900 году». Кто сделал — через by: built by my grandfather.',
 [
  ex('This bridge was built in 1900.',[
   w('This','pron','/ðɪs/'), w('bridge','noun','/brɪdʒ/'), w('was','aux','/wɑz/'), w('built','verb','/bɪlt/'), w('in','prep','/ɪn/'), w('1900','num','/naɪnˈtin ˈhʌndrəd/')]),
@@ -1123,10 +1123,10 @@ card('g037','B1',['залог','пассив'],
  q('This car ___ in Germany.',['make','is made','made','is making'],1),
 ]),
 
-card('g038','B1',['герундий','инфинитив'],
+card('g038','B1',['-ing или to','глагол + глагол'],
 'Gerund vs Infinitive',
 'enjoy/avoid/finish + -ing · decide/want/hope + to V · после предлогов — -ing',
-'Некоторые глаголы требуют -ing (enjoy doing), другие — to-инфинитив (decide to do). После предлогов всегда -ing: good at swimming. Учите глагол сразу с нужной формой.',
+'Когда за одним глаголом идёт второй, второй стоит либо с -ing (enjoy doing — нравится делать), либо с to (decide to do — решить сделать). После предлогов всегда -ing: good at swimming. Учите глагол сразу с нужной формой.',
 [
  ex('I enjoy reading in the evening.',[
   w('I','pron','/aɪ/'), w('enjoy','verb','/ɪnˈdʒɔɪ/',{s:1}), w('reading','verb','/ˈridɪŋ/',{s:0}), w('in','prep','/ɪn/'), w('the','art','/ðə/'), w('evening','noun','/ˈivnɪŋ/',{s:0})]),
@@ -1136,7 +1136,7 @@ card('g038','B1',['герундий','инфинитив'],
   w('He','pron','/hi/'), w('is','verb','/ɪz/'), w('good','adj','/ɡʊd/'), w('at','prep','/æt/'), w('cooking','noun','/ˈkʊkɪŋ/',{s:0})]),
 ],
 [
- err('I want going home.','I want to go home.','want требует to-инфинитив.'),
+ err('I want going home.','I want to go home.','После want — to + глагол: want to go.'),
  err('She is interested to paint.','She is interested in painting.','После предлога in — -ing форма.'),
 ],
 [
@@ -1225,7 +1225,7 @@ card('g041','B1',['каузатив'],
 card('g042','B1',['вопросы','tag questions'],
 'Tag questions',
 "You are ready, aren't you? · She came, didn't she? · positive → negative tag",
-'Разделительный вопрос подтверждает сказанное: хвост противоположен по знаку основной части и повторяет подлежащее и вспомогательный глагол. You like coffee, don\'t you?',
+'Вопрос-хвостик («…, да?») просит подтвердить сказанное. Хвостик противоположен основной части (утверждение → хвостик с not, и наоборот) и повторяет того, кто действует, и вспомогательный глагол: You like coffee, don\'t you?',
 [
  ex("You're coming, aren't you?",[
   w("You're",'pron','/jʊr/'), w('coming','verb','/ˈkʌmɪŋ/',{s:0}), w("aren't",'aux','/ɑrnt/'), w('you','pron','/ju/')],
@@ -1236,7 +1236,7 @@ card('g042','B1',['вопросы','tag questions'],
   w('They','pron','/ðeɪ/'), w("didn't",'aux','/ˈdɪdnt/'), w('leave','verb','/liv/'), w('did','aux','/dɪd/'), w('they','pron','/ðeɪ/')]),
 ],
 [
- err("He is a doctor, isn't it?","He is a doctor, isn't he?",'Тэг повторяет подлежащее: he → he.'),
+ err("He is a doctor, isn't it?","He is a doctor, isn't he?",'Хвостик повторяет того, о ком речь: he → isn\'t he.'),
  err("You like tea, isn't it?","You like tea, don't you?",'Со смысловым глаголом — don\'t/doesn\'t/didn\'t.'),
 ],
 [
@@ -1339,7 +1339,7 @@ card('g046','B1',['реакции','согласие'],
 ],
 [
  err("I don't like coffee. — Me too.","I don't like coffee. — Me neither.",'После отрицания — me neither / Neither do I.'),
- err('I went to the party. — So I did.','I went to the party. — So did I.','Порядок: So + вспомогательный глагол + подлежащее.'),
+ err('I went to the party. — So I did.','I went to the party. — So did I.','Порядок: So + вспомогательный глагол + кто: So did I.'),
 ],
 [
  q('I love spicy food. — ___.',['So do I','So am I','Neither do I','So I do'],0),
@@ -1363,8 +1363,8 @@ card('g047','B1',['предложения','предпочтения'],
   w('How','adv','/haʊ/'), w('about','prep','/əˈbaʊt/',{s:1}), w('ordering','verb','/ˈɔrdɚɪŋ/',{s:0}), w('pizza','noun','/ˈpitsə/',{s:0})]),
 ],
 [
- err("Let's to go.","Let's go.","После Let's — инфинитив без to."),
- err("I'd rather to stay.","I'd rather stay.",'would rather + инфинитив без to.'),
+ err("Let's to go.","Let's go.","После Let's — начальная форма без to: Let's go."),
+ err("I'd rather to stay.","I'd rather stay.",'После would rather — начальная форма без to: I\'d rather stay.'),
 ],
 [
  q("I'd rather ___ at home.",['to stay','staying','stay','stayed'],2),

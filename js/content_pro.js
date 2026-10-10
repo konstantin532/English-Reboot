@@ -121,7 +121,7 @@ function G2(title, formula, explanation, exs, errs, tests) {
       errors: errs.map(([w, c, n]) => ({ wrong: w, correct: c, note: n })),
       test: testsArr.slice(0, 5),
       errorPatterns: [
-        { trigger: 'hardly I had', explanation: 'После отрицательной инверсии идёт вспомогательный глагол, потом подлежащее: Hardly HAD I sat down.', hint: 'Инверсия: наречие → вспомогательный → подлежащее' },
+        { trigger: 'hardly I had', explanation: 'После отрицательной инверсии идёт вспомогательный глагол, потом тот, кто действует: Hardly HAD I sat down.', hint: 'Инверсия: наречие → вспомогательный → кто' },
         { trigger: 'if I would have', explanation: 'В условной части нельзя would. If I HAD studied — Past Perfect.', hint: 'if + Past Perfect, без would' },
       ] } };
 }
@@ -310,9 +310,9 @@ function R2(title, type, text, qs, cloze) {
    ===================================================================== */
 const PRO_GRAMMAR = [
 G2('Inversion (negative adverbials)','Not only + auxiliary + subject… · Never have I seen…',
- 'После отрицательных наречий в начале предложения порядок слов инвертируется: вспомогательный глагол выходит перед подлежащим. Это эмфаза — так подчёркивают удивление или контраст.',
+ 'После отрицательных наречий в начале предложения порядок слов инвертируется: вспомогательный глагол выходит вперёд, перед тем, кто действует. Это эмфаза — так подчёркивают удивление или контраст.',
  ['{Not only did he arrive late, but he also forgot the gift}.','{Never have I seen} such beauty.','{Hardly had I sat down} when the phone rang.'],
- [['He not only arrived late…','Not only did he arrive late…','Инверсия: not only + did + подлежащее'],
+ [['He not only arrived late…','Not only did he arrive late…','Инверсия: not only + did + кто'],
   ['Never I have seen…','Never have I seen…','have выходит перед I']],
  ['___ had I sat down when the phone rang.|Hardly|Hard|Hardly ever|Barely ever|0',
   'Not only ___ she lie, she also stole.|did|does|she did|was|0',
@@ -387,7 +387,7 @@ G2('Causative have/get','have/get + object + V3',
  ['I ___ my laptop fixed yesterday.|had|have get|got have|am|0',
   'She is ___ her apartment redecorated.|have|having|had to|has|1',
   'We must ___ the roof repaired.|have|have got to being|getting have|had|0',
-  'Causative = подлежащее ___|делает сам|организует через других|отказывается|отменяет|1',
+  'Causative (have something done): тот, кто говорит, ___|делает сам|организует через других|отказывается|отменяет|1',
   'He got his phone ___ last week.|steal|stolen|stealing|to steal|1']),
 G2('Advanced relative clauses','whose · non-defining which · preposition + whom',
  'Продвинутые relative clauses: whose для принадлежности, запятая + which для комментария ко всему предложению, предлог + whom/which в формальном стиле.',
@@ -403,7 +403,7 @@ G2('Fronting','Обстоятельство/дополнение в начало
  'Фронтирование выносит в начало unusual элементы для драматического эффекта, часто с инверсией: Up the hill walked a small boy. On the table was a letter.',
  ['{Up the hill walked} a small boy.','{On the table was} a letter.','{Never before had} anyone seen such traffic.'],
  [['A small boy walked up the hill.','Up the hill walked a small boy.','Фронт + инверсия'],
-  ['A letter was on the table.','On the table was a letter.','Место в начало + was перед подлежащим']],
+  ['A letter was on the table.','On the table was a letter.','Место в начало + was перед тем, о чём речь']],
  ['___ stood an old oak tree.|In the garden|There in garden|The garden in|Garden there|0',
   'On the shelf ___ three old maps.|were|was|is|be|0',
   'Фронтирование используется для…|ошибок|эмфазы|вопросов|отрицаний|1',
@@ -426,7 +426,7 @@ G2('Mixed conditionals','Прошлое условие → настоящее с
   ['She isn\'t careful. She lost her keys.','If she were more careful, she wouldn\'t have lost her keys.','Настоящее условие → прошлое следствие']],
  ['If I had taken the map, we ___ lost now.|won\'t be|wouldn\'t be|wouldn\'t have been|aren\'t|1',
   'If she ___ rich, she would have bought it yesterday.|were|is|was been|had been|0',
-  'Mixed conditional: прошлое условие + ___ следствие|прошедшее|настоящее|будущее в прошлом|инфинитив|1',
+  'Mixed conditional: прошлое условие + ___ следствие|прошедшее|настоящее|будущее в прошлом|начальная форма|1',
   'If he weren\'t so shy, he ___ her at the party.|would ask|would have asked|asked|asks|1',
   'If I had slept, I ___ so tired now.|won\'t feel|wouldn\'t feel|didn\'t feel|wouldn\'t have felt|1']),
 ];

@@ -1282,7 +1282,7 @@
         // Прошедшее: типичные ошибки — «по правилу» (goed), 3-я форма вместо 2-й, начальная форма, -s и -ing
         tests.push(q('Прошедшее время (2-я форма) от «' + r.base + '»?', r.past,
           uniq(r.past, [ed(r.base), r.pp !== r.past ? r.pp : '', r.base, third(r.base), ing(r.base)]).filter((v) => !r.past.split('/').includes(v)), i + 1, 'past'));
-        tests.push(q('3-я форма (причастие, I\'ve never ___) от «' + r.base + '»?', r.pp,
+        tests.push(q('3-я форма (I\'ve never ___) от «' + r.base + '»?', r.pp,
           uniq(r.pp, [r.past !== r.pp ? pastWord : '', ed(r.base), r.base !== r.pp ? r.base : '', ing(r.base), third(r.base)]), i + 2, 'pp'));
       } else {
         tests.push(q('Как звучит окончание в «' + r.past + '»?', ED_SOUND[r.ed], Object.values(ED_SOUND).filter((v) => v !== ED_SOUND[r.ed]), i + 1, 'ed'));
